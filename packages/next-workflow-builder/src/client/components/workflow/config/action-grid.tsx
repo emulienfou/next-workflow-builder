@@ -12,24 +12,24 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { IntegrationIcon } from "@/components/ui/integration-icon";
+} from "../../ui/dropdown-menu";
+import { Input } from "../../ui/input";
+import { IntegrationIcon } from "../../ui/integration-icon";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useIsTouch } from "@/hooks/use-touch";
-import { cn } from "@/lib/utils";
-import { getAllActions } from "@/plugins/index";
+} from "../../ui/tooltip";
+import { useIsTouch } from "../../../hooks/use-touch";
+import { cn } from "../../../../lib/utils";
+import { getAllActions } from "../../../../plugins/index";
 
 type ActionType = {
   id: string;

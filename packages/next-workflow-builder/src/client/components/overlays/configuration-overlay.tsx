@@ -1,25 +1,25 @@
 "use client";
 
-import { ConfirmOverlay } from "@/components/overlays/confirm-overlay";
-import { SmartOverlayHeader } from "@/components/overlays/overlay-header";
-import { useOverlay } from "@/components/overlays/overlay-provider";
-import { Button } from "@/components/ui/button";
-import { CodeEditor } from "@/components/ui/code-editor";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ConfirmOverlay } from "./confirm-overlay";
+import { SmartOverlayHeader } from "./overlay-header";
+import { useOverlay } from "./overlay-provider";
+import { Button } from "../ui/button";
+import { CodeEditor } from "../ui/code-editor";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 
-import { ActionConfig } from "@/components/workflow/config/action-config";
-import { ActionGrid } from "@/components/workflow/config/action-grid";
-import { TriggerConfig } from "@/components/workflow/config/trigger-config";
-import { generateNodeCode } from "@/components/workflow/utils/code-generators";
-import { WorkflowRuns } from "@/components/workflow/workflow-runs";
+import { ActionConfig } from "../workflow/config/action-config";
+import { ActionGrid } from "../workflow/config/action-grid";
+import { TriggerConfig } from "../workflow/config/trigger-config";
+import { generateNodeCode } from "../workflow/utils/code-generators";
+import { WorkflowRuns } from "../workflow/workflow-runs";
 
 
-import { api } from "@/lib/api-client";
-import { integrationsAtom } from "@/lib/integrations-store";
-import type { IntegrationType } from "@/lib/types/integration";
-import { generateWorkflowCode } from "@/lib/workflow-codegen";
+import { api } from "../../../lib/api-client";
+import { integrationsAtom } from "../../../lib/integrations-store";
+import type { IntegrationType } from "../../../lib/types/integration";
+import { generateWorkflowCode } from "../../../lib/workflow-codegen";
 import {
   clearNodeStatusesAtom,
   clearWorkflowAtom,
@@ -36,10 +36,10 @@ import {
   selectedEdgeAtom,
   selectedNodeAtom,
   updateNodeDataAtom,
-} from "@/lib/workflow-store";
+} from "../../../lib/workflow-store";
 
 
-import { findActionById } from "@/plugins/index";
+import { findActionById } from "../../../plugins/index";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Code, Copy, Eraser, Eye, EyeOff, FileCode, Play, RefreshCw, Settings2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";

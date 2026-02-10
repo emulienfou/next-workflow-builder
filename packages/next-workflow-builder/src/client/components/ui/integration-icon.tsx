@@ -1,9 +1,9 @@
 "use client";
 
 import { Database, HelpCircle } from "lucide-react";
-import type { IntegrationType } from "@/lib/types/integration";
-import { cn } from "@/lib/utils";
-import { getIntegration } from "@/plugins/index";
+import type { IntegrationType } from "../../../lib/types/integration";
+import { cn } from "../../../lib/utils";
+import { getIntegration } from "../../../plugins/index";
 
 interface IntegrationIconProps {
   integration: string;

@@ -3,10 +3,10 @@
 import { Copy, Key, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 import { ConfirmOverlay } from "./confirm-overlay";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";

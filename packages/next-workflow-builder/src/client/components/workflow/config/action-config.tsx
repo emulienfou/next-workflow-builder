@@ -3,14 +3,14 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { HelpCircle, Plus, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { ConfigureConnectionOverlay } from "@/components/overlays/add-connection-overlay";
-import { AiGatewayConsentOverlay } from "@/components/overlays/ai-gateway-consent-overlay";
-import { useOverlay } from "@/components/overlays/overlay-provider";
-import { Button } from "@/components/ui/button";
-import { CodeEditor } from "@/components/ui/code-editor";
-import { IntegrationIcon } from "@/components/ui/integration-icon";
-import { IntegrationSelector } from "@/components/ui/integration-selector";
-import { Label } from "@/components/ui/label";
+import { ConfigureConnectionOverlay } from "../../overlays/add-connection-overlay";
+import { AiGatewayConsentOverlay } from "../../overlays/ai-gateway-consent-overlay";
+import { useOverlay } from "../../overlays/overlay-provider";
+import { Button } from "../../ui/button";
+import { CodeEditor } from "../../ui/code-editor";
+import { IntegrationIcon } from "../../ui/integration-icon";
+import { IntegrationSelector } from "../../ui/integration-selector";
+import { Label } from "../../ui/label";
 import {
   Select,
   SelectContent,
@@ -18,26 +18,26 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TemplateBadgeInput } from "@/components/ui/template-badge-input";
+} from "../../ui/select";
+import { TemplateBadgeInput } from "../../ui/template-badge-input";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { aiGatewayStatusAtom } from "@/lib/ai-gateway/state";
+} from "../../ui/tooltip";
+import { aiGatewayStatusAtom } from "../../../../lib/ai-gateway/state";
 import {
   integrationsAtom,
   integrationsVersionAtom,
-} from "@/lib/integrations-store";
-import type { IntegrationType } from "@/lib/types/integration";
+} from "../../../../lib/integrations-store";
+import type { IntegrationType } from "../../../../lib/types/integration";
 import {
   findActionById,
   getActionsByCategory,
   getAllIntegrations,
   integrationRequiresCredentials,
-} from "@/plugins/index";
+} from "../../../../plugins/index";
 import { ActionConfigRenderer } from "./action-config-renderer";
 import { SchemaBuilder, type SchemaField } from "./schema-builder";
 

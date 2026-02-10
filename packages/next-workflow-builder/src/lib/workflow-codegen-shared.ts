@@ -1,4 +1,4 @@
-import { findActionById } from "@/plugins/index";
+import { findActionById } from "../plugins/index";
 import type { WorkflowEdge, WorkflowNode } from "./workflow-store";
 
 // Regex patterns at top level for performance

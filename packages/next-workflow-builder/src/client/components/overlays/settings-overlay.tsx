@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AccountSettings } from "@/components/settings/account-settings";
-import { Spinner } from "@/components/ui/spinner";
-import { api } from "@/lib/api-client";
+import { AccountSettings } from "../settings/account-settings";
+import { Spinner } from "../ui/spinner";
+import { api } from "../../../lib/api-client";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";
 

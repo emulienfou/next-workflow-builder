@@ -1,4 +1,4 @@
-import type { IntegrationType } from "@/lib/types/integration";
+import type { IntegrationType } from "../lib/types/integration";
 import { LEGACY_ACTION_MAPPINGS } from "./legacy-mappings";
 
 /**

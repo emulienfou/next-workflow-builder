@@ -9,9 +9,9 @@ import {
 } from "motion/react";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
-import { Dialog, DialogPortal } from "@/components/ui/dialog";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
+import { Dialog, DialogPortal } from "../ui/dialog";
+import { useIsMobile } from "../../hooks/use-mobile";
+import { cn } from "../../../lib/utils";
 import { useOverlay } from "./overlay-provider";
 
 // iOS-like spring configuration

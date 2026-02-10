@@ -2,22 +2,22 @@
 
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TemplateBadgeInput } from "@/components/ui/template-badge-input";
-import { TemplateBadgeTextarea } from "@/components/ui/template-badge-textarea";
+} from "../../ui/select";
+import { TemplateBadgeInput } from "../../ui/template-badge-input";
+import { TemplateBadgeTextarea } from "../../ui/template-badge-textarea";
 import {
   type ActionConfigField,
   type ActionConfigFieldBase,
   isFieldGroup,
-} from "@/plugins/index";
+} from "../../../../plugins/index";
 import { SchemaBuilder, type SchemaField } from "./schema-builder";
 
 type FieldProps = {

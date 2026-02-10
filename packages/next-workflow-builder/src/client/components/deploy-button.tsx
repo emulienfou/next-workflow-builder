@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { VERCEL_DEPLOY_URL } from "../../lib/constants";
 
 export function DeployButton() {

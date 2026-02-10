@@ -1,4 +1,4 @@
-import { findActionById, flattenConfigFields } from "@/plugins/index";
+import { findActionById, flattenConfigFields } from "../plugins/index";
 import {
   analyzeNodeUsage,
   buildAccessPath,
@@ -7,8 +7,8 @@ import {
   TEMPLATE_PATTERN,
   toFriendlyVarName,
   toTypeScriptLiteral,
-} from "@/lib/workflow-codegen-shared";
-import type { WorkflowEdge, WorkflowNode } from "@/lib/workflow-store";
+} from "./workflow-codegen-shared";
+import type { WorkflowEdge, WorkflowNode } from "./workflow-store";
 
 type CodeGenOptions = {
   functionName?: string;

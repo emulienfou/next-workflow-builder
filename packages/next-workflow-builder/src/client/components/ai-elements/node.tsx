@@ -6,11 +6,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "../ui/card";
 import { cn } from "../../../lib/utils";
 import { Handle, Position } from "@xyflow/react";
 import type { ComponentProps } from "react";
-import { AnimatedBorder } from "@/components/ui/animated-border";
+import { AnimatedBorder } from "../ui/animated-border";
 
 export type NodeProps = ComponentProps<typeof Card> & {
   handles: {

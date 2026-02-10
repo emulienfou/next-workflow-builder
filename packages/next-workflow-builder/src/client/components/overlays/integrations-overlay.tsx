@@ -3,10 +3,10 @@
 import { useSetAtom } from "jotai";
 import { Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IntegrationsManager } from "@/components/settings/integrations-manager";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
-import { integrationsVersionAtom } from "@/lib/integrations-store";
+import { IntegrationsManager } from "../settings/integrations-manager";
+import { Input } from "../ui/input";
+import { Spinner } from "../ui/spinner";
+import { integrationsVersionAtom } from "../../../lib/integrations-store";
 import { AddConnectionOverlay } from "./add-connection-overlay";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";

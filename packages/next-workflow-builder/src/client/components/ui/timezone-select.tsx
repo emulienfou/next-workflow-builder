@@ -8,7 +8,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from './select';
 
 interface TimezoneSelectProps {
   value: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { atom } from "jotai";
-import type { VercelTeam } from "@/lib/api-client";
+import type { VercelTeam } from "../api-client";
 
 /**
  * AI Gateway status (fetched from API)

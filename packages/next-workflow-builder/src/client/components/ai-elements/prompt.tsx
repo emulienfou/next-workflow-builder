@@ -5,8 +5,8 @@ import { useAtom, useAtomValue } from "jotai";
 import { ArrowUp } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Shimmer } from "@/components/ai-elements/shimmer";
-import { Button } from "@/components/ui/button";
+import { Shimmer } from "./shimmer";
+import { Button } from "../ui/button";
 import { api } from "../../../lib/api-client";
 import {
   currentWorkflowIdAtom,

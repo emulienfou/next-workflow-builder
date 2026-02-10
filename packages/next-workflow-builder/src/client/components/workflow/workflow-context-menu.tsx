@@ -5,8 +5,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Link2Off, Plus, Trash2 } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useRef } from "react";
-import { ConfirmOverlay } from "@/components/overlays/confirm-overlay";
-import { useOverlay } from "@/components/overlays/overlay-provider";
+import { ConfirmOverlay } from "../overlays/confirm-overlay";
+import { useOverlay } from "../overlays/overlay-provider";
 import { cn } from "../../../lib/utils";
 import {
   addNodeAtom,

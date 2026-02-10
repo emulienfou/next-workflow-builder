@@ -22,19 +22,19 @@ import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { Button } from "../ui/button";
+import { ButtonGroup } from "../ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/api-client";
-import { authClient, useSession } from "@/lib/auth-client";
-import { integrationsAtom } from "@/lib/integrations-store";
-import type { IntegrationType } from "@/lib/types/integration";
+} from "../ui/dropdown-menu";
+import { api } from "../../../lib/api-client";
+import { authClient, useSession } from "../../../lib/auth-client";
+import { integrationsAtom } from "../../../lib/integrations-store";
+import type { IntegrationType } from "../../../lib/types/integration";
 import {
   addNodeAtom,
   canRedoAtom,
@@ -63,22 +63,22 @@ import {
   type WorkflowEdge,
   type WorkflowNode,
   type WorkflowVisibility,
-} from "@/lib/workflow-store";
+} from "../../../lib/workflow-store";
 import {
   findActionById,
   flattenConfigFields,
   getIntegrationLabels,
-} from "@/plugins/index";
-import { Panel } from "@/components/ai-elements/panel";
-import { DeployButton } from "@/components/deploy-button";
-import { ConfigurationOverlay } from "@/components/overlays/configuration-overlay";
-import { ConfirmOverlay } from "@/components/overlays/confirm-overlay";
-import { ExportWorkflowOverlay } from "@/components/overlays/export-workflow-overlay";
-import { MakePublicOverlay } from "@/components/overlays/make-public-overlay";
-import { useOverlay } from "@/components/overlays/overlay-provider";
-import { WorkflowIssuesOverlay } from "@/components/overlays/workflow-issues-overlay";
-import { WorkflowIcon } from "@/components/ui/workflow-icon";
-import { UserMenu } from "@/components/workflows/user-menu";
+} from "../../../plugins/index";
+import { Panel } from "../ai-elements/panel";
+import { DeployButton } from "../deploy-button";
+import { ConfigurationOverlay } from "../overlays/configuration-overlay";
+import { ConfirmOverlay } from "../overlays/confirm-overlay";
+import { ExportWorkflowOverlay } from "../overlays/export-workflow-overlay";
+import { MakePublicOverlay } from "../overlays/make-public-overlay";
+import { useOverlay } from "../overlays/overlay-provider";
+import { WorkflowIssuesOverlay } from "../overlays/workflow-issues-overlay";
+import { WorkflowIcon } from "../ui/workflow-icon";
+import { UserMenu } from "../workflows/user-menu";
 
 type WorkflowToolbarProps = {
   workflowId?: string;

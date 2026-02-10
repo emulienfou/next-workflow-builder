@@ -2,7 +2,7 @@
 
 import MonacoEditor, { type EditorProps, type OnMount } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
-import { vercelDarkTheme } from "@/lib/monaco-theme";
+import { vercelDarkTheme } from "../../../lib/monaco-theme";
 
 export function CodeEditor(props: EditorProps) {
   const { resolvedTheme } = useTheme();

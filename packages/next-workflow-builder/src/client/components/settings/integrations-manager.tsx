@@ -6,13 +6,13 @@ import { toast } from "sonner";
 import {
   DeleteConnectionOverlay,
   EditConnectionOverlay,
-} from "@/components/overlays/edit-connection-overlay";
-import { useOverlay } from "@/components/overlays/overlay-provider";
-import { Button } from "@/components/ui/button";
-import { IntegrationIcon } from "@/components/ui/integration-icon";
-import { Spinner } from "@/components/ui/spinner";
-import { api, type Integration } from "@/lib/api-client";
-import { getIntegrationLabels } from "@/plugins/index";
+} from "../overlays/edit-connection-overlay";
+import { useOverlay } from "../overlays/overlay-provider";
+import { Button } from "../ui/button";
+import { IntegrationIcon } from "../ui/integration-icon";
+import { Spinner } from "../ui/spinner";
+import { api, type Integration } from "../../../lib/api-client";
+import { getIntegrationLabels } from "../../../plugins/index";
 
 // System integrations that don't have plugins
 const SYSTEM_INTEGRATION_LABELS: Record<string, string> = {

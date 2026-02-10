@@ -7,7 +7,7 @@ import {
   Node,
   NodeDescription,
   NodeTitle,
-} from "@/components/ai-elements/node";
+} from "../../ai-elements/node";
 import { cn } from "../../../../lib/utils";
 import type { WorkflowNodeData } from "../../../../lib/workflow-store";
 

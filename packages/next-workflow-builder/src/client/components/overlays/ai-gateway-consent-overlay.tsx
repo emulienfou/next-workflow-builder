@@ -3,7 +3,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { Loader2, Sparkles, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -11,13 +11,13 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select";
 import {
   aiGatewayStatusAtom,
   aiGatewayTeamsAtom,
   aiGatewayTeamsLoadingAtom,
-} from "@/lib/ai-gateway/state";
-import { api } from "@/lib/api-client";
+} from "../../../lib/ai-gateway/state";
+import { api } from "../../../lib/api-client";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";
 import type { OverlayAction } from "./types";

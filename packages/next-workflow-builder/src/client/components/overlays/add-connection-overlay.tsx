@@ -4,23 +4,23 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Search } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { IntegrationIcon } from "@/components/ui/integration-icon";
-import { Label } from "@/components/ui/label";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Input } from "../ui/input";
+import { IntegrationIcon } from "../ui/integration-icon";
+import { Label } from "../ui/label";
+import { useIsMobile } from "../../hooks/use-mobile";
 import {
   aiGatewayStatusAtom,
   aiGatewayTeamsAtom,
   aiGatewayTeamsLoadingAtom,
-} from "@/lib/ai-gateway/state";
-import { api } from "@/lib/api-client";
-import type { IntegrationType } from "@/lib/types/integration";
+} from "../../../lib/ai-gateway/state";
+import { api } from "../../../lib/api-client";
+import type { IntegrationType } from "../../../lib/types/integration";
 import {
   getIntegration,
   getIntegrationLabels,
   getSortedIntegrationTypes,
-} from "@/plugins/index";
-import { getIntegrationDescriptions } from "@/plugins/registry";
+} from "../../../plugins/index";
+import { getIntegrationDescriptions } from "../../../plugins/registry";
 import { AiGatewayConsentOverlay } from "./ai-gateway-consent-overlay";
 import { ConfirmOverlay } from "./confirm-overlay";
 import { Overlay } from "./overlay";

@@ -10,25 +10,25 @@ import {
   Settings,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ConfigureConnectionOverlay } from "@/components/overlays/add-connection-overlay";
-import { AiGatewayConsentOverlay } from "@/components/overlays/ai-gateway-consent-overlay";
-import { EditConnectionOverlay } from "@/components/overlays/edit-connection-overlay";
-import { useOverlay } from "@/components/overlays/overlay-provider";
-import { Button } from "@/components/ui/button";
+import { ConfigureConnectionOverlay } from "../overlays/add-connection-overlay";
+import { AiGatewayConsentOverlay } from "../overlays/ai-gateway-consent-overlay";
+import { EditConnectionOverlay } from "../overlays/edit-connection-overlay";
+import { useOverlay } from "../overlays/overlay-provider";
+import { Button } from "./button";
 import {
   aiGatewayStatusAtom,
   aiGatewayTeamsAtom,
   aiGatewayTeamsFetchedAtom,
   aiGatewayTeamsLoadingAtom,
-} from "@/lib/ai-gateway/state";
-import { api, type Integration } from "@/lib/api-client";
+} from "../../../lib/ai-gateway/state";
+import { api, type Integration } from "../../../lib/api-client";
 import {
   integrationsAtom,
   integrationsVersionAtom,
-} from "@/lib/integrations-store";
-import type { IntegrationType } from "@/lib/types/integration";
-import { cn } from "@/lib/utils";
-import { getIntegration } from "@/plugins/index";
+} from "../../../lib/integrations-store";
+import type { IntegrationType } from "../../../lib/types/integration";
+import { cn } from "../../../lib/utils";
+import { getIntegration } from "../../../plugins/index";
 
 type IntegrationSelectorProps = {
   integrationType: IntegrationType;

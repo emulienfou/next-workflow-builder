@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "../../../lib/auth-client";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();

@@ -4,9 +4,9 @@ import { useAtom } from "jotai";
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/lib/utils";
-import { edgesAtom, nodesAtom, type WorkflowNode } from "@/lib/workflow-store";
-import { findActionById } from "@/plugins/index";
+import { cn } from "../../../lib/utils";
+import { edgesAtom, nodesAtom, type WorkflowNode } from "../../../lib/workflow-store";
+import { findActionById } from "../../../plugins/index";
 
 type TemplateAutocompleteProps = {
   isOpen: boolean;

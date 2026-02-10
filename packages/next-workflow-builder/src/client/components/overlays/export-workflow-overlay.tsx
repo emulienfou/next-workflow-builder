@@ -1,7 +1,7 @@
 "use client";
 
 import { Download, FlaskConical } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";
 import type { OverlayComponentProps } from "./types";

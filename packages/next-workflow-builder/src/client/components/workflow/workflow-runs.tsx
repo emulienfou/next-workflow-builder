@@ -15,21 +15,21 @@ import {
 import Image from "next/image";
 import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api } from "@/lib/api-client";
+import { api } from "../../../lib/api-client";
 import {
   OUTPUT_DISPLAY_CONFIGS,
   type OutputDisplayConfig,
-} from "@/lib/output-display-configs";
-import { cn } from "@/lib/utils";
-import { getRelativeTime } from "@/lib/utils/time";
+} from "../../../lib/output-display-configs";
+import { cn } from "../../../lib/utils";
+import { getRelativeTime } from "../../../lib/utils/time";
 import {
   currentWorkflowIdAtom,
   executionLogsAtom,
   selectedExecutionIdAtom,
-} from "@/lib/workflow-store";
-import { findActionById } from "@/plugins/index";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+} from "../../../lib/workflow-store";
+import { findActionById } from "../../../plugins/index";
+import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 type ExecutionLog = {
   id: string;

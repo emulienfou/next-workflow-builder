@@ -2,10 +2,10 @@
 
 import { useAtomValue, useSetAtom } from "jotai";
 import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { IntegrationIcon } from "@/components/ui/integration-icon";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { aiGatewayStatusAtom } from "@/lib/ai-gateway/state";
+import { Button } from "../ui/button";
+import { IntegrationIcon } from "../ui/integration-icon";
+import { useIsMobile } from "../../hooks/use-mobile";
+import { aiGatewayStatusAtom } from "../../../lib/ai-gateway/state";
 import { integrationsVersionAtom } from "../../../lib/integrations-store";
 import type { IntegrationType } from "../../../lib/types/integration";
 import { ConfigureConnectionOverlay } from "./add-connection-overlay";

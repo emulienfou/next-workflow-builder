@@ -18,20 +18,20 @@ import {
   Node,
   NodeDescription,
   NodeTitle,
-} from "@/components/ai-elements/node";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+} from "../../ai-elements/node";
+import { Dialog, DialogContent, DialogTitle } from "../../ui/dialog";
 import {
   integrationIdsAtom,
   integrationsLoadedAtom,
-} from "@/lib/integrations-store";
-import { cn } from "@/lib/utils";
+} from "../../../../lib/integrations-store";
+import { cn } from "../../../../lib/utils";
 import {
   executionLogsAtom,
   pendingIntegrationNodesAtom,
   selectedExecutionIdAtom,
   type WorkflowNodeData,
-} from "@/lib/workflow-store";
-import { findActionById, getIntegration } from "@/plugins/index";
+} from "../../../../lib/workflow-store";
+import { findActionById, getIntegration } from "../../../../plugins/index";
 
 // Helper to get display name for AI model
 const getModelDisplayName = (modelId: string): string => {

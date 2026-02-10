@@ -1,5 +1,5 @@
-import { Label } from "@/components/ui/label";
-import { TemplateBadgeInput } from "@/components/ui/template-badge-input";
+import { Label } from "../../ui/label";
+import { TemplateBadgeInput } from "../../ui/template-badge-input";
 
 type ConditionConfigProps = {
   config: Record<string, unknown>;
