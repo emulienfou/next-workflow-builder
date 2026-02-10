@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Workflow Builder custom styles */
+[data-workflow-canvas] {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+[data-workflow-toolbar] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+[data-node-config-panel] {
+  padding: 1rem;
+}
