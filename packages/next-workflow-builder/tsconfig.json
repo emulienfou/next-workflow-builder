@@ -14,7 +14,13 @@
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "@/components/*": ["./src/client/components/*"],
+      "@/hooks/*": ["./src/client/hooks/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/plugins/*": ["./src/plugins/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

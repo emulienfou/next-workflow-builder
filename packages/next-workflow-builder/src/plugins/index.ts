@@ -1,11 +1,32 @@
-export {
-  registerPlugin,
-  getPlugin,
-  getAllPlugins,
-  type PluginDefinition,
-  type PluginAction,
-  type PluginTrigger,
-  type PluginField,
-} from './registry.js';
+export type {
+  ActionConfigField,
+  ActionConfigFieldBase,
+  ActionConfigFieldGroup,
+  ActionWithFullId,
+  IntegrationPlugin,
+  PluginAction,
+} from "./registry";
 
-export { legacyPluginMappings } from './legacy-mappings.js';
+// Export the registry utilities
+export {
+  computeActionId,
+  findActionById,
+  flattenConfigFields,
+  generateAIActionPrompts,
+  getActionsByCategory,
+  getAllActions,
+  getAllDependencies,
+  getAllEnvVars,
+  getAllIntegrations,
+  getCredentialMapping,
+  getDependenciesForActions,
+  getIntegration,
+  getIntegrationLabels,
+  getIntegrationTypes,
+  getPluginEnvVars,
+  getSortedIntegrationTypes,
+  integrationRequiresCredentials,
+  isFieldGroup,
+  parseActionId,
+  registerIntegration,
+} from "./registry";

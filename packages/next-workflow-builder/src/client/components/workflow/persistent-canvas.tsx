@@ -1,17 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
+import { usePathname } from "next/navigation";
+import { WorkflowCanvas } from "./workflow-canvas";
 
-export interface PersistentCanvasProps {
-  className?: string;
-  children?: React.ReactNode;
-}
+export function PersistentCanvas() {
+  const pathname = usePathname();
 
-export function PersistentCanvas({ className, children }: PersistentCanvasProps) {
-  // TODO: Port persistent canvas with auto-save from Vercel template
+  // Show canvas on homepage and workflow pages
+  const showCanvas = pathname === "/" || pathname.startsWith("/workflows/");
+
+  if (!showCanvas) {
+    return null;
+  }
+
   return (
-    <div className={className} data-persistent-canvas>
-      {children || <p>Persistent Canvas — coming soon</p>}
+    <div className="fixed inset-0 z-0">
+      <WorkflowCanvas />
     </div>
   );
 }

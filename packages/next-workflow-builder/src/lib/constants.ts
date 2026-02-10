@@ -1,12 +1,5 @@
-export const WORKFLOW_NODE_TYPES = [
-  'trigger',
-  'action',
-  'condition',
-  'loop',
-  'delay',
-  'webhook',
-  'code',
-  'ai',
-] as const;
+// Vercel deployment configuration
+export const VERCEL_DEPLOY_URL = "https://vercel.new/workflow-builder";
 
-export type WorkflowNodeType = (typeof WORKFLOW_NODE_TYPES)[number];
+// Vercel button URL for markdown
+export const VERCEL_DEPLOY_BUTTON_URL = `[![Deploy with Vercel](https://vercel.com/button)](${VERCEL_DEPLOY_URL})`;
