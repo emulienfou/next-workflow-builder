@@ -31,11 +31,11 @@ export function resolveAppDir(projectDir: string): string | null {
 
 /**
  * Convert an API route like `/api/workflow` to a filesystem path segment
- * with an optional catch-all slug: `api/workflow/[[...slug]]`
+ * with an optional catch-all: `api/workflow/[[...all]]`
  */
 export function apiRouteToFsPath(apiRoute: string): string {
   const stripped = apiRoute.replace(/^\/+|\/+$/g, '');
-  return path.join(stripped, '[[...slug]]');
+  return path.join(stripped, '[[...all]]');
 }
 
 export interface GenerateApiRouteOptions {
