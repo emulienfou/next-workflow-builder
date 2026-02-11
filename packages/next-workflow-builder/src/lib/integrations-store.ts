@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import type { Integration } from "./api-client";
+import type { Integration } from "./api-client.js";
 
 // Store for all user integrations
 export const integrationsAtom = atom<Integration[]>([]);

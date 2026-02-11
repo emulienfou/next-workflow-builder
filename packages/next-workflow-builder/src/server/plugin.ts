@@ -17,6 +17,10 @@ export interface WorkflowConfig {
   plugins?: string[];
   /** Auto-generate the catch-all API route file. Default: true */
   autoGenerateApiRoute?: boolean;
+  /** Import path for the database module in generated route. Default: '@/lib/db' */
+  dbImportPath?: string;
+  /** Import path for the auth module in generated route. Default: '@/lib/auth' */
+  authImportPath?: string;
 }
 
 const defaultConfig: WorkflowConfig = {
@@ -30,7 +34,11 @@ export default function workflowBuilder(workflowConfig: WorkflowConfig = {}) {
 
   if (resolvedConfig.autoGenerateApiRoute) {
     try {
-      generateApiRoute({ apiRoute: resolvedConfig.apiRoute });
+      generateApiRoute({
+        apiRoute: resolvedConfig.apiRoute,
+        dbImportPath: resolvedConfig.dbImportPath,
+        authImportPath: resolvedConfig.authImportPath,
+      });
     } catch (err) {
       console.warn(
         '[next-workflow-builder] Failed to auto-generate API route:',

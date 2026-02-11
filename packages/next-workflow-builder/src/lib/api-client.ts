@@ -3,8 +3,16 @@
  * Replaces server actions with API endpoints
  */
 
-import type { IntegrationConfig, IntegrationType } from "./types/integration";
-import type { WorkflowEdge, WorkflowNode } from "./workflow-store";
+import type { IntegrationConfig, IntegrationType } from "./types/integration.js";
+import type { WorkflowEdge, WorkflowNode } from "./workflow-store.js";
+
+// API base path — configurable via NEXT_PUBLIC_WORKFLOW_API_ROUTE env var
+function getApiBase(): string {
+  if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_WORKFLOW_API_ROUTE) {
+    return process.env.NEXT_PUBLIC_WORKFLOW_API_ROUTE;
+  }
+  return '/api/workflow';
+}
 
 // Workflow data types
 export type WorkflowVisibility = "private" | "public";
@@ -436,43 +444,43 @@ export const userApi = {
 // Workflow API
 export const workflowApi = {
   // Get all workflows
-  getAll: () => apiCall<SavedWorkflow[]>("/api/workflows"),
+  getAll: () => apiCall<SavedWorkflow[]>(`${getApiBase()}`),
 
   // Get a specific workflow
-  getById: (id: string) => apiCall<SavedWorkflow>(`/api/workflows/${id}`),
+  getById: (id: string) => apiCall<SavedWorkflow>(`${getApiBase()}/${id}`),
 
   // Create a new workflow
   create: (workflow: Omit<WorkflowData, "id">) =>
-    apiCall<SavedWorkflow>("/api/workflows/create", {
+    apiCall<SavedWorkflow>(`${getApiBase()}/create`, {
       method: "POST",
       body: JSON.stringify(workflow),
     }),
 
   // Update a workflow
   update: (id: string, workflow: Partial<WorkflowData>) =>
-    apiCall<SavedWorkflow>(`/api/workflows/${id}`, {
+    apiCall<SavedWorkflow>(`${getApiBase()}/${id}`, {
       method: "PATCH",
       body: JSON.stringify(workflow),
     }),
 
   // Delete a workflow
   delete: (id: string) =>
-    apiCall<{ success: boolean }>(`/api/workflows/${id}`, {
+    apiCall<{ success: boolean }>(`${getApiBase()}/${id}`, {
       method: "DELETE",
     }),
 
   // Duplicate a workflow
   duplicate: (id: string) =>
-    apiCall<SavedWorkflow>(`/api/workflows/${id}/duplicate`, {
+    apiCall<SavedWorkflow>(`${getApiBase()}/${id}/duplicate`, {
       method: "POST",
     }),
 
   // Get current workflow state
-  getCurrent: () => apiCall<WorkflowData>("/api/workflows/current"),
+  getCurrent: () => apiCall<WorkflowData>(`${getApiBase()}/current`),
 
   // Save current workflow state
   saveCurrent: (nodes: WorkflowNode[], edges: WorkflowEdge[]) =>
-    apiCall<WorkflowData>("/api/workflows/current", {
+    apiCall<WorkflowData>(`${getApiBase()}/current`, {
       method: "POST",
       body: JSON.stringify({ nodes, edges }),
     }),
@@ -485,7 +493,7 @@ export const workflowApi = {
       output?: unknown;
       error?: string;
       duration?: number;
-    }>(`/api/workflow/${id}/execute`, {
+    }>(`${getApiBase()}/${id}/execute`, {
       method: "POST",
       body: JSON.stringify({ input }),
     }),
@@ -495,7 +503,7 @@ export const workflowApi = {
     apiCall<{
       executionId: string;
       status: string;
-    }>(`/api/workflows/${id}/webhook`, {
+    }>(`${getApiBase()}/${id}/webhook`, {
       method: "POST",
       body: JSON.stringify(input),
     }),
@@ -503,7 +511,7 @@ export const workflowApi = {
   // Get workflow code
   getCode: (id: string) =>
     apiCall<{ code: string; workflowName: string }>(
-      `/api/workflows/${id}/code`
+      `${getApiBase()}/${id}/code`
     ),
 
   // Get executions
@@ -521,12 +529,12 @@ export const workflowApi = {
         completedAt: Date | null;
         duration: string | null;
       }>
-    >(`/api/workflows/${id}/executions`),
+    >(`${getApiBase()}/${id}/executions`),
 
   // Delete executions
   deleteExecutions: (id: string) =>
     apiCall<{ success: boolean; deletedCount: number }>(
-      `/api/workflows/${id}/executions`,
+      `${getApiBase()}/${id}/executions`,
       {
         method: "DELETE",
       }
@@ -567,7 +575,7 @@ export const workflowApi = {
         completedAt: Date | null;
         duration: string | null;
       }>;
-    }>(`/api/workflows/executions/${executionId}/logs`),
+    }>(`${getApiBase()}/executions/${executionId}/logs`),
 
   // Get execution status
   getExecutionStatus: (executionId: string) =>
@@ -577,7 +585,7 @@ export const workflowApi = {
         nodeId: string;
         status: "pending" | "running" | "success" | "error";
       }>;
-    }>(`/api/workflows/executions/${executionId}/status`),
+    }>(`${getApiBase()}/executions/${executionId}/status`),
 
   // Download workflow
   download: (id: string) =>
@@ -585,7 +593,7 @@ export const workflowApi = {
       success: boolean;
       files?: Record<string, string>;
       error?: string;
-    }>(`/api/workflows/${id}/download`),
+    }>(`${getApiBase()}/${id}/download`),
 
   // Auto-save with debouncing (kept for backwards compatibility)
   autoSaveCurrent: (() => {

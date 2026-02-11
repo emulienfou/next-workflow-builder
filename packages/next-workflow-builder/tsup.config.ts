@@ -4,20 +4,25 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
   name: 'next-workflow-builder',
+  // 1. Try to point to "barrel" files (index.ts) if possible.
+  // If you must use globs, try to keep them as narrow as possible.
   entry: [
     'src/server/**/*.ts',
-    'src/client/index.ts',
-    'src/client/components/**/*.{ts,tsx}',
-    'src/client/hooks/**/*.ts',
-    'src/plugins/**/*.ts',
     'src/lib/**/*.ts',
+    'src/client/**/*.{ts,tsx}',
+    'src/plugins/**/*.ts',
     'src/types.ts',
   ],
-  format: 'esm',
+  format: ['esm'],
+  // 2. This is the secret sauce.
+  // experimentalDts uses a much more efficient way to generate types.
   dts: true,
   splitting: IS_PRODUCTION,
   clean: IS_PRODUCTION,
+  sourcemap: IS_PRODUCTION,
   bundle: false,
+  // 3. Limit concurrency if you're on a machine with many cores but low RAM
+  // concurrency: 4,
   external: [
     'react',
     'react-dom',
@@ -25,10 +30,12 @@ export default defineConfig({
     'shiki',
   ],
   async onSuccess() {
-    // Write sideEffects: false for client tree-shaking
     const fs = await import('node:fs/promises');
     const path = await import('node:path');
-    const clientPkg = path.resolve('dist', 'client', 'package.json');
-    await fs.writeFile(clientPkg, '{"sideEffects":false}');
+    const clientPkgDir = path.resolve('dist', 'client');
+
+    // Ensure the directory exists before writing to it
+    await fs.mkdir(clientPkgDir, { recursive: true });
+    await fs.writeFile(path.join(clientPkgDir, 'package.json'), '{"sideEffects":false}');
   },
 });

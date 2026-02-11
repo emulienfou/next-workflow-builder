@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Auto-generated workflow API route
 src/app/api/workflow/\[...slug\]/route.ts
+
+# Auto-generated workflow API route
+src/app/api/workflow/\[\[...slug\]\]/route.ts
