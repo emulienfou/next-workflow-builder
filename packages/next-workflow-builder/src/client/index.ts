@@ -1,12 +1,13 @@
 'use client';
 
 // Components
-export { WorkflowCanvas } from './components/workflow/workflow-canvas.js';
-export { PersistentCanvas } from './components/workflow/persistent-canvas.js';
-export { NodeConfigPanel } from './components/workflow/node-config-panel.js';
-export { WorkflowToolbar } from './components/workflow/workflow-toolbar.js';
-export { WorkflowContextMenu } from './components/workflow/workflow-context-menu.js';
-export { WorkflowRuns } from './components/workflow/workflow-runs.js';
+export { WorkflowCanvas } from './components/workflow/workflow-canvas';
+export { PersistentCanvas } from './components/workflow/persistent-canvas';
+export { NodeConfigPanel } from './components/workflow/node-config-panel';
+export { WorkflowToolbar } from './components/workflow/workflow-toolbar';
+export { WorkflowContextMenu } from './components/workflow/workflow-context-menu';
+export { WorkflowRuns } from './components/workflow/workflow-runs';
+export { WorkflowEditor } from './components/workflow/workflow-editor';
 
 // Layout
 export { LayoutProvider } from './components/layout-provider';
