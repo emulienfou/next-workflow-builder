@@ -93,7 +93,9 @@ function updateGitignore(
 
   // Build the ignore entry relative to the project root
   const appRelative = path.relative(projectDir, appDir);
-  const entry = path.join(appRelative, relativeSegment, 'route.ts');
+  const entry = path.join(appRelative, relativeSegment, 'route.ts')
+    .replace(/\[/g, '\\[')
+    .replace(/]/g, '\\]');
 
   let content = '';
   if (fs.existsSync(gitignorePath)) {
