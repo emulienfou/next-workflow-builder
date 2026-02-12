@@ -26,6 +26,10 @@
       "import": "./dist/plugins/index.js"
     },
     "./styles/globals.css": "./styles/globals.css",
+    "./lib/api-client": {
+      "types": "./dist/lib/api-client.d.ts",
+      "import": "./dist/lib/api-client.js"
+    },
     "./*": {
       "types": "./dist/client/*.d.ts",
       "import": "./dist/client/*.js"

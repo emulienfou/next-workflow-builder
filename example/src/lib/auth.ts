@@ -32,11 +32,4 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
-  socialProviders: {
-    vercel: {
-      clientId: process.env.VERCEL_CLIENT_ID as string,
-      clientSecret: process.env.VERCEL_CLIENT_SECRET as string,
-      scope: ["openid", "email", "profile"],
-    },
-  },
 });
