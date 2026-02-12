@@ -37,5 +37,10 @@ export default defineConfig({
     // Ensure the directory exists before writing to it
     await fs.mkdir(clientPkgDir, { recursive: true });
     await fs.writeFile(path.join(clientPkgDir, 'package.json'), '{"sideEffects":false}');
+
+    // Copy styles to dist
+    const stylesDir = path.resolve('dist', 'styles');
+    await fs.mkdir(stylesDir, { recursive: true });
+    await fs.copyFile(path.resolve('src/styles', 'globals.css'), path.join(stylesDir, 'globals.css'));
   },
 });

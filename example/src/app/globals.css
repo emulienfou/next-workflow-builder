@@ -1,3 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "next-workflow-builder/styles/globals.css";
+@source "../../";
+@source "../../../packages/next-workflow-builder/src";
