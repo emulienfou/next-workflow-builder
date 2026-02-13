@@ -1,9 +1,9 @@
 import { errorResponse } from "./handler-utils.js";
+import { executeScheduledWorkflow } from "./handlers/workflow/[workflowId]/cron/route";
+import { executeWorkflowBackground } from "./handlers/workflow/[workflowId]/execute/route";
 import { workflowCode } from "./handlers/workflows/[workflowId]/code/route.js";
-import { workflowCron } from "./handlers/workflows/[workflowId]/cron/route.js";
 import { workflowDownload } from "./handlers/workflows/[workflowId]/download/route.js";
 import { workflowDuplicate } from "./handlers/workflows/[workflowId]/duplicate/route.js";
-import { workflowExecute } from "./handlers/workflows/[workflowId]/execute/route.js";
 import { workflowExecutionsHandler } from "./handlers/workflows/[workflowId]/executions/route.js";
 import { workflowCrud } from "./handlers/workflows/[workflowId]/route.js";
 import { workflowWebhook } from "./handlers/workflows/[workflowId]/webhook/route.js";
@@ -21,12 +21,13 @@ type RouteDefinition = {
 };
 
 const routes: RouteDefinition[] = [
+  { path: "/workflow/[workflowId]/cron", handler: executeWorkflowBackground, methods: ["POST"] },
+  { path: "/workflow/[workflowId]/execute", handler: executeWorkflowBackground, methods: ["POST"] },
   { path: "/workflows/[workflowId]", handler: workflowCrud, methods: ["GET", "PATCH", "DELETE"] },
   { path: "/workflows/[workflowId]/code", handler: workflowCode, methods: ["GET"] },
-  { path: "/workflows/[workflowId]/cron", handler: workflowCron, methods: ["GET"] },
+  { path: "/workflows/[workflowId]/cron", handler: executeScheduledWorkflow, methods: ["GET"] },
   { path: "/workflows/[workflowId]/download", handler: workflowDownload, methods: ["GET"] },
   { path: "/workflows/[workflowId]/duplicate", handler: workflowDuplicate, methods: ["POST"] },
-  { path: "/workflows/[workflowId]/execute", handler: workflowExecute, methods: ["POST"] },
   { path: "/workflows/[workflowId]/executions", handler: workflowExecutionsHandler, methods: ["GET", "DELETE"] },
   { path: "/workflows/[workflowId]/webhook", handler: workflowWebhook, methods: ["POST", "OPTIONS"] },
   { path: "/workflows/create", handler: createWorkflow, methods: ["POST"] },
