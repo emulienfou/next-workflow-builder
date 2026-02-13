@@ -68,10 +68,9 @@ export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
         // Fallback: parse from URL
         const url = new URL(req.url);
         const pathParts = url.pathname.split("/").filter(Boolean);
-        // Remove 'api' and 'workflow' prefix
+        // Remove 'api' prefix
         const apiIdx = pathParts.indexOf("api");
-        const workflowIdx = apiIdx >= 0 ? pathParts.indexOf("workflow", apiIdx) : -1;
-        segments = workflowIdx >= 0 ? pathParts.slice(workflowIdx + 1) : pathParts;
+        segments = apiIdx >= 0 ? pathParts.slice(apiIdx + 1) : pathParts;
       }
 
       const method = req.method;
