@@ -1,17 +1,17 @@
 import { errorResponse } from "./handler-utils.js";
-import { createWorkflow } from "./handlers/create-workflow.js";
-import { currentWorkflow } from "./handlers/current-workflow.js";
-import { executionLogs } from "./handlers/execution-logs.js";
-import { executionStatus } from "./handlers/execution-status.js";
-import { listWorkflows } from "./handlers/list-workflows.js";
-import { workflowCode } from "./handlers/workflow-code.js";
-import { workflowCron } from "./handlers/workflow-cron.js";
-import { workflowCrud } from "./handlers/workflow-crud.js";
-import { workflowDownload } from "./handlers/workflow-download.js";
-import { workflowDuplicate } from "./handlers/workflow-duplicate.js";
-import { workflowExecute } from "./handlers/workflow-execute.js";
-import { workflowExecutionsHandler } from "./handlers/workflow-executions.js";
-import { workflowWebhook } from "./handlers/workflow-webhook.js";
+import { listWorkflows } from "./handlers/route.js";
+import { createWorkflow } from "./handlers/create/route.js";
+import { currentWorkflow } from "./handlers/current/route.js";
+import { workflowCrud } from "./handlers/[workflowId]/route.js";
+import { workflowCode } from "./handlers/[workflowId]/code/route.js";
+import { workflowCron } from "./handlers/[workflowId]/cron/route.js";
+import { workflowDownload } from "./handlers/[workflowId]/download/route.js";
+import { workflowDuplicate } from "./handlers/[workflowId]/duplicate/route.js";
+import { workflowExecute } from "./handlers/[workflowId]/execute/route.js";
+import { workflowExecutionsHandler } from "./handlers/[workflowId]/executions/route.js";
+import { workflowWebhook } from "./handlers/[workflowId]/webhook/route.js";
+import { executionLogs } from "./handlers/executions/[executionId]/logs/route.js";
+import { executionStatus } from "./handlers/executions/[executionId]/status/route.js";
 import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
 
 type RouteDefinition = {

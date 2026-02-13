@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { workflows } from '../../db/schema.js';
-import { generateId } from '../../../lib/utils/id.js';
-import { errorResponse, jsonResponse, requireSession, serializeWorkflow } from '../handler-utils.js';
-import type { RouteHandler } from '../types.js';
+import { workflows } from '../../../db/schema.js';
+import { generateId } from '../../../../lib/utils/id.js';
+import { errorResponse, jsonResponse, requireSession, serializeWorkflow } from '../../handler-utils.js';
+import type { RouteHandler } from '../../types.js';
 
 function createDefaultTriggerNode() {
   return {

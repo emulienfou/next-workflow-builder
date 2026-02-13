@@ -1,8 +1,8 @@
 import { desc, eq } from 'drizzle-orm';
-import { workflowExecutionLogs, workflowExecutions } from '../../db/schema.js';
-import { redactSensitiveData } from '../../../lib/utils/redact.js';
-import { errorResponse, jsonResponse, requireSession } from '../handler-utils.js';
-import type { RouteHandler } from '../types.js';
+import { workflowExecutionLogs, workflowExecutions } from '../../../../../db/schema.js';
+import { redactSensitiveData } from '../../../../../../lib/utils/redact.js';
+import { errorResponse, jsonResponse, requireSession } from '../../../../handler-utils.js';
+import type { RouteHandler } from '../../../../types.js';
 
 export const executionLogs: RouteHandler = async (route, ctx) => {
   try {

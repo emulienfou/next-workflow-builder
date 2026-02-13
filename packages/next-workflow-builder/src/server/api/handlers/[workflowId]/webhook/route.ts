@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 import { eq } from 'drizzle-orm';
-import { apiKeys, workflowExecutions, workflows } from '../../db/schema.js';
-import { errorResponse, jsonResponse } from '../handler-utils.js';
-import type { HandlerContext, RouteHandler } from '../types.js';
+import { apiKeys, workflowExecutions, workflows } from '../../../../db/schema.js';
+import { errorResponse, jsonResponse } from '../../../handler-utils.js';
+import type { HandlerContext, RouteHandler } from '../../../types.js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
