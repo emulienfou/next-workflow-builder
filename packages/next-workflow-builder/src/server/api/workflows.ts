@@ -12,61 +12,43 @@ import { workflowDuplicate } from "./handlers/workflow-duplicate.js";
 import { workflowExecute } from "./handlers/workflow-execute.js";
 import { workflowExecutionsHandler } from "./handlers/workflow-executions.js";
 import { workflowWebhook } from "./handlers/workflow-webhook.js";
-import type { HandlerContext, ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
+import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
 
-type RouteMatch = {
+type RouteDefinition = {
+  path: string;
   handler: RouteHandler;
   methods: string[];
 };
 
-function matchRoute(segments: string[]): RouteMatch | null {
-  // Empty slug → list all workflows
-  if (segments.length === 0) {
-    return { handler: listWorkflows, methods: ["GET"] };
-  }
+const routes: RouteDefinition[] = [
+  { path: "", handler: listWorkflows, methods: ["GET"] },
+  { path: "create", handler: createWorkflow, methods: ["POST"] },
+  { path: "current", handler: currentWorkflow, methods: ["GET", "POST"] },
+  { path: "[id]", handler: workflowCrud, methods: ["GET", "PATCH", "DELETE"] },
+  { path: "[id]/code", handler: workflowCode, methods: ["GET"] },
+  { path: "[id]/download", handler: workflowDownload, methods: ["GET"] },
+  { path: "[id]/duplicate", handler: workflowDuplicate, methods: ["POST"] },
+  { path: "[id]/executions", handler: workflowExecutionsHandler, methods: ["GET", "DELETE"] },
+  { path: "[id]/execute", handler: workflowExecute, methods: ["POST"] },
+  { path: "[id]/cron", handler: workflowCron, methods: ["GET"] },
+  { path: "[id]/webhook", handler: workflowWebhook, methods: ["POST", "OPTIONS"] },
+  { path: "executions/[executionId]/logs", handler: executionLogs, methods: ["GET"] },
+  { path: "executions/[executionId]/status", handler: executionStatus, methods: ["GET"] },
+];
 
-  // Single segment
-  if (segments.length === 1) {
-    if (segments[0] === "create") {
-      return { handler: createWorkflow, methods: ["POST"] };
-    }
-    if (segments[0] === "current") {
-      return { handler: currentWorkflow, methods: ["GET", "POST"] };
-    }
-    // Treat as workflow ID
-    return { handler: workflowCrud, methods: ["GET", "PATCH", "DELETE"] };
-  }
+function matchRoute(segments: string[]): { handler: RouteHandler; methods: string[] } | null {
+  for (const route of routes) {
+    const patternSegments = route.path === "" ? [] : route.path.split("/");
+    if (patternSegments.length !== segments.length) continue;
 
-  // Two segments: <id>/<action>
-  if (segments.length === 2) {
-    switch (segments[1]) {
-      case "code":
-        return { handler: workflowCode, methods: ["GET"] };
-      case "download":
-        return { handler: workflowDownload, methods: ["GET"] };
-      case "duplicate":
-        return { handler: workflowDuplicate, methods: ["POST"] };
-      case "executions":
-        return { handler: workflowExecutionsHandler, methods: ["GET", "DELETE"] };
-      case "execute":
-        return { handler: workflowExecute, methods: ["POST"] };
-      case "cron":
-        return { handler: workflowCron, methods: ["GET"] };
-      case "webhook":
-        return { handler: workflowWebhook, methods: ["POST", "OPTIONS"] };
+    const isMatch = patternSegments.every(
+      (pattern, i) => pattern.startsWith("[") && pattern.endsWith("]") || pattern === segments[i],
+    );
+
+    if (isMatch) {
+      return { handler: route.handler, methods: route.methods };
     }
   }
-
-  // Three segments: executions/<id>/<action>
-  if (segments.length === 3 && segments[0] === "executions") {
-    switch (segments[2]) {
-      case "logs":
-        return { handler: executionLogs, methods: ["GET"] };
-      case "status":
-        return { handler: executionStatus, methods: ["GET"] };
-    }
-  }
-
   return null;
 }
 
