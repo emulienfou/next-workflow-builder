@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next';
 import { generateApiRoute } from './generate-route.js';
+import workflowNext from "workflow/next";
+const { withWorkflow } = workflowNext;
 
 export interface WorkflowConfig {
   /** UI theme: 'light' | 'dark' | 'system'. Default: 'system' */
@@ -29,7 +31,7 @@ const defaultConfig: WorkflowConfig = {
   autoGenerateApiRoute: true,
 };
 
-export default function workflowBuilder(workflowConfig: WorkflowConfig = {}) {
+const workflowBuilder = (workflowConfig: WorkflowConfig = {}) => {
   const resolvedConfig = { ...defaultConfig, ...workflowConfig };
 
   if (resolvedConfig.autoGenerateApiRoute) {
@@ -47,7 +49,7 @@ export default function workflowBuilder(workflowConfig: WorkflowConfig = {}) {
     }
   }
 
-  return (nextConfig: NextConfig = {}): NextConfig => ({
+  return (nextConfig: NextConfig = {}) => withWorkflow({
     ...nextConfig,
     transpilePackages: [
       ...(nextConfig.transpilePackages || []),
@@ -65,4 +67,6 @@ export default function workflowBuilder(workflowConfig: WorkflowConfig = {}) {
       ...(nextConfig.turbopack ?? {}),
     },
   });
-}
+};
+
+export default workflowBuilder;

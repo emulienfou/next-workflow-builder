@@ -31,12 +31,14 @@ pnpm add next-workflow-builder
 // next.config.ts
 import workflowBuilder from "next-workflow-builder";
 
+// Set up WorkflowBuilder with its configuration
 const withWorkflowBuilder = workflowBuilder({
-  // your workflowBuilder config
+  // ... Add WorkflowBuilder specific options here
 });
 
+// Export the final Next.js config with workflowBuilder included
 const nextConfig = withWorkflowBuilder({
-  // your Next.js config
+  // ... Add regular Next.js options here
 });
 
 export default nextConfig;
