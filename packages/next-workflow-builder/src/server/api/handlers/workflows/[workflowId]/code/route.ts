@@ -1,5 +1,5 @@
-import { errorResponse, jsonResponse, requireOwnedWorkflow, requireSession } from "../../../handler-utils.js";
-import type { RouteHandler } from "../../../types.js";
+import { errorResponse, jsonResponse, requireOwnedWorkflow, requireSession } from "../../../../handler-utils";
+import type { RouteHandler } from "../../../../types";
 
 export const workflowCode: RouteHandler = async (route, ctx) => {
   try {

@@ -1,17 +1,17 @@
 import { errorResponse } from "./handler-utils.js";
-import { listWorkflows } from "./handlers/route.js";
-import { createWorkflow } from "./handlers/create/route.js";
-import { currentWorkflow } from "./handlers/current/route.js";
-import { workflowCrud } from "./handlers/[workflowId]/route.js";
-import { workflowCode } from "./handlers/[workflowId]/code/route.js";
-import { workflowCron } from "./handlers/[workflowId]/cron/route.js";
-import { workflowDownload } from "./handlers/[workflowId]/download/route.js";
-import { workflowDuplicate } from "./handlers/[workflowId]/duplicate/route.js";
-import { workflowExecute } from "./handlers/[workflowId]/execute/route.js";
-import { workflowExecutionsHandler } from "./handlers/[workflowId]/executions/route.js";
-import { workflowWebhook } from "./handlers/[workflowId]/webhook/route.js";
-import { executionLogs } from "./handlers/executions/[executionId]/logs/route.js";
-import { executionStatus } from "./handlers/executions/[executionId]/status/route.js";
+import { workflowCode } from "./handlers/workflows/[workflowId]/code/route.js";
+import { workflowCron } from "./handlers/workflows/[workflowId]/cron/route.js";
+import { workflowDownload } from "./handlers/workflows/[workflowId]/download/route.js";
+import { workflowDuplicate } from "./handlers/workflows/[workflowId]/duplicate/route.js";
+import { workflowExecute } from "./handlers/workflows/[workflowId]/execute/route.js";
+import { workflowExecutionsHandler } from "./handlers/workflows/[workflowId]/executions/route.js";
+import { workflowCrud } from "./handlers/workflows/[workflowId]/route.js";
+import { workflowWebhook } from "./handlers/workflows/[workflowId]/webhook/route.js";
+import { createWorkflow } from "./handlers/workflows/create/route.js";
+import { currentWorkflow } from "./handlers/workflows/current/route.js";
+import { executionLogs } from "./handlers/workflows/executions/[executionId]/logs/route.js";
+import { executionStatus } from "./handlers/workflows/executions/[executionId]/status/route.js";
+import { listWorkflows } from "./handlers/workflows/route";
 import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
 
 type RouteDefinition = {
@@ -21,19 +21,19 @@ type RouteDefinition = {
 };
 
 const routes: RouteDefinition[] = [
-  { path: "", handler: listWorkflows, methods: ["GET"] },
-  { path: "create", handler: createWorkflow, methods: ["POST"] },
-  { path: "current", handler: currentWorkflow, methods: ["GET", "POST"] },
-  { path: "[id]", handler: workflowCrud, methods: ["GET", "PATCH", "DELETE"] },
-  { path: "[id]/code", handler: workflowCode, methods: ["GET"] },
-  { path: "[id]/download", handler: workflowDownload, methods: ["GET"] },
-  { path: "[id]/duplicate", handler: workflowDuplicate, methods: ["POST"] },
-  { path: "[id]/executions", handler: workflowExecutionsHandler, methods: ["GET", "DELETE"] },
-  { path: "[id]/execute", handler: workflowExecute, methods: ["POST"] },
-  { path: "[id]/cron", handler: workflowCron, methods: ["GET"] },
-  { path: "[id]/webhook", handler: workflowWebhook, methods: ["POST", "OPTIONS"] },
-  { path: "executions/[executionId]/logs", handler: executionLogs, methods: ["GET"] },
-  { path: "executions/[executionId]/status", handler: executionStatus, methods: ["GET"] },
+  { path: "/workflows/[workflowId]", handler: workflowCrud, methods: ["GET", "PATCH", "DELETE"] },
+  { path: "/workflows/[workflowId]/code", handler: workflowCode, methods: ["GET"] },
+  { path: "/workflows/[workflowId]/cron", handler: workflowCron, methods: ["GET"] },
+  { path: "/workflows/[workflowId]/download", handler: workflowDownload, methods: ["GET"] },
+  { path: "/workflows/[workflowId]/duplicate", handler: workflowDuplicate, methods: ["POST"] },
+  { path: "/workflows/[workflowId]/execute", handler: workflowExecute, methods: ["POST"] },
+  { path: "/workflows/[workflowId]/executions", handler: workflowExecutionsHandler, methods: ["GET", "DELETE"] },
+  { path: "/workflows/[workflowId]/webhook", handler: workflowWebhook, methods: ["POST", "OPTIONS"] },
+  { path: "/workflows/create", handler: createWorkflow, methods: ["POST"] },
+  { path: "/workflows/current", handler: currentWorkflow, methods: ["GET", "POST"] },
+  { path: "/workflows/executions/[executionId]/logs", handler: executionLogs, methods: ["GET"] },
+  { path: "/workflows/executions/[executionId]/status", handler: executionStatus, methods: ["GET"] },
+  { path: "/workflows", handler: listWorkflows, methods: ["GET"] },
 ];
 
 function matchRoute(segments: string[]): { handler: RouteHandler; methods: string[] } | null {

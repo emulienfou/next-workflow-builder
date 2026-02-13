@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { workflowExecutionLogs, workflowExecutions } from "../../../../../db/schema.js";
-import { errorResponse, jsonResponse, requireSession } from "../../../../handler-utils.js";
-import type { RouteHandler } from "../../../../types.js";
+import { workflowExecutionLogs, workflowExecutions } from "../../../../../../db/schema";
+import { errorResponse, jsonResponse, requireSession } from "../../../../../handler-utils";
+import type { RouteHandler } from "../../../../../types";
 
 export const executionStatus: RouteHandler = async (route, ctx) => {
   try {

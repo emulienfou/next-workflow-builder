@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { workflowExecutions, workflows } from "../../../../db/schema.js";
-import { errorResponse, jsonResponse } from "../../../handler-utils.js";
-import type { HandlerContext, RouteHandler } from "../../../types.js";
+import { workflowExecutions, workflows } from "../../../../../db/schema";
+import { errorResponse, jsonResponse } from "../../../../handler-utils";
+import type { HandlerContext, RouteHandler } from "../../../../types";
 
 async function executeScheduledWorkflow(
   ctx: HandlerContext,

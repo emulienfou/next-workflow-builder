@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { workflows } from "../../../db/schema.js";
+import { workflows } from "../../../../db/schema";
 import {
   errorResponse,
   getOptionalSession,
@@ -7,8 +7,8 @@ import {
   requireOwnedWorkflow,
   requireSession,
   serializeWorkflow,
-} from "../../handler-utils.js";
-import type { HandlerContext, RouteHandler } from "../../types.js";
+} from "../../../handler-utils";
+import type { HandlerContext, RouteHandler } from "../../../types";
 
 function sanitizeNodesForPublicView(
   nodes: Record<string, unknown>[],

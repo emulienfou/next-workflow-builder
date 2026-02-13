@@ -1,8 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
-import { generateId } from "../../../../lib/utils/id.js";
-import { workflows } from "../../../db/schema.js";
-import { errorResponse, jsonResponse, requireSession } from "../../handler-utils.js";
-import type { RouteHandler } from "../../types.js";
+import { generateId } from "../../../../../lib/utils/id";
+import { workflows } from "../../../../db/schema";
+import { errorResponse, jsonResponse, requireSession } from "../../../handler-utils";
+import type { RouteHandler } from "../../../types";
 
 const CURRENT_WORKFLOW_NAME = "~~__CURRENT__~~";
 
