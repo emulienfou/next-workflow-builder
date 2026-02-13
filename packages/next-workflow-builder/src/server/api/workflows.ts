@@ -1,6 +1,6 @@
 import { errorResponse } from "./handler-utils.js";
-import { executeScheduledWorkflow } from "./handlers/workflow/[workflowId]/cron/route";
-import { executeWorkflowBackground } from "./handlers/workflow/[workflowId]/execute/route";
+import { executeScheduledWorkflow } from "./handlers/workflow/[workflowId]/cron/route.js";
+import { executeWorkflowBackground } from "./handlers/workflow/[workflowId]/execute/route.js";
 import { workflowCode } from "./handlers/workflows/[workflowId]/code/route.js";
 import { workflowDownload } from "./handlers/workflows/[workflowId]/download/route.js";
 import { workflowDuplicate } from "./handlers/workflows/[workflowId]/duplicate/route.js";
@@ -11,7 +11,7 @@ import { createWorkflow } from "./handlers/workflows/create/route.js";
 import { currentWorkflow } from "./handlers/workflows/current/route.js";
 import { executionLogs } from "./handlers/workflows/executions/[executionId]/logs/route.js";
 import { executionStatus } from "./handlers/workflows/executions/[executionId]/status/route.js";
-import { listWorkflows } from "./handlers/workflows/route";
+import { listWorkflows } from "./handlers/workflows/route.js";
 import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
 
 type RouteDefinition = {

@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { generateId } from "../../../../../../lib/utils/id";
-import { workflows } from "../../../../../db/schema";
-import { errorResponse, getOptionalSession, jsonResponse, serializeWorkflow } from "../../../../handler-utils";
-import type { RouteHandler } from "../../../../types";
+import { generateId } from "../../../../../../lib/utils/id.js";
+import { workflows } from "../../../../../db/schema.js";
+import { errorResponse, getOptionalSession, jsonResponse, serializeWorkflow } from "../../../../handler-utils.js";
+import type { RouteHandler } from "../../../../types.js";
 
 type WorkflowNodeLike = {
   id: string;

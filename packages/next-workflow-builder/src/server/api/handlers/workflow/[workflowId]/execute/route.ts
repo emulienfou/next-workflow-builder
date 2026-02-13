@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { workflowExecutions, workflows } from "../../../../../db/schema";
-import { errorResponse, jsonResponse, requireSession } from "../../../../handler-utils";
-import type { HandlerContext, RouteHandler } from "../../../../types";
+import { workflowExecutions, workflows } from "../../../../../db/schema.js";
+import { errorResponse, jsonResponse, requireSession } from "../../../../handler-utils.js";
+import type { HandlerContext, RouteHandler } from "../../../../types.js";
 
 async function runInBackground(
   ctx: HandlerContext,
