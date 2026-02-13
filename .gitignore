@@ -11,3 +11,4 @@ yarn-error.log*
 .vscode/*
 .idea/
 /apps/web/app/api/workflow/\[...slug\]/route.ts
+/.turbo
