@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { api } from "next-workflow-builder/lib/api-client";
+import { api } from "../../../lib/api-client";
 
-export default function WorkflowsPage() {
+const WorkflowsRedirect = () => {
   const router = useRouter();
 
   useEffect(() => {
@@ -35,4 +35,6 @@ export default function WorkflowsPage() {
   }, [router]);
 
   return null;
-}
+};
+
+export { WorkflowsRedirect };

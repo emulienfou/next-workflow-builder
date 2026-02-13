@@ -30,6 +30,10 @@
       "types": "./dist/lib/api-client.d.ts",
       "import": "./dist/lib/api-client.js"
     },
+    "./lib/workflow-store": {
+      "types": "./dist/lib/workflow-store.d.ts",
+      "import": "./dist/lib/workflow-store.js"
+    },
     "./*": {
       "types": "./dist/client/*.d.ts",
       "import": "./dist/client/*.js"

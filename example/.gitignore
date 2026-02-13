@@ -41,4 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Auto-generated workflow API route
-src/app/api/workflow/\[\[...all\]\]/route.ts
+src/app/api/workflow/\[...all\]/route.ts
