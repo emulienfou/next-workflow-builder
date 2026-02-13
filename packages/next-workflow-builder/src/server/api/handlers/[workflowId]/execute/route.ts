@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm';
-import { workflowExecutions, workflows } from '../../../../db/schema.js';
-import { errorResponse, jsonResponse, requireSession } from '../../../handler-utils.js';
-import type { HandlerContext, RouteHandler } from '../../../types.js';
+import { eq } from "drizzle-orm";
+import { workflowExecutions, workflows } from "../../../../db/schema.js";
+import { errorResponse, jsonResponse, requireSession } from "../../../handler-utils.js";
+import type { HandlerContext, RouteHandler } from "../../../types.js";
 
 async function executeWorkflowBackground(
   ctx: HandlerContext,
@@ -14,7 +14,7 @@ async function executeWorkflowBackground(
   input: Record<string, unknown>,
 ) {
   try {
-    console.log('[Workflow Execute] Starting execution:', executionId);
+    console.log("[Workflow Execute] Starting execution:", executionId);
 
     if (ctx.startExecution && ctx.executeWorkflow) {
       ctx.startExecution(ctx.executeWorkflow, [
@@ -22,15 +22,15 @@ async function executeWorkflowBackground(
       ]);
     }
 
-    console.log('[Workflow Execute] Workflow started successfully');
+    console.log("[Workflow Execute] Workflow started successfully");
   } catch (error) {
-    console.error('[Workflow Execute] Error during execution:', error);
+    console.error("[Workflow Execute] Error during execution:", error);
 
     await ctx.db
       .update(workflowExecutions)
       .set({
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "error",
+        error: error instanceof Error ? error.message : "Unknown error",
         completedAt: new Date(),
       })
       .where(eq(workflowExecutions.id, executionId));
@@ -43,11 +43,11 @@ export const workflowExecute: RouteHandler = async (route, ctx) => {
 
     const session = await requireSession(ctx, route.request);
     if (!session) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse("Unauthorized", 401);
     }
 
     if (!ctx.startExecution || !ctx.executeWorkflow) {
-      return errorResponse('Workflow execution not configured', 501);
+      return errorResponse("Workflow execution not configured", 501);
     }
 
     const workflow = await ctx.db.query.workflows.findFirst({
@@ -55,19 +55,19 @@ export const workflowExecute: RouteHandler = async (route, ctx) => {
     });
 
     if (!workflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     if (workflow.userId !== session.user.id) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse("Forbidden", 403);
     }
 
     // Validate integration references if validator is provided
     if (ctx.validateIntegrations) {
       const validation = await ctx.validateIntegrations(workflow.nodes, session.user.id);
       if (!validation.valid) {
-        console.error('[Workflow Execute] Invalid integration references:', validation.invalidIds);
-        return errorResponse('Workflow contains invalid integration references', 403);
+        console.error("[Workflow Execute] Invalid integration references:", validation.invalidIds);
+        return errorResponse("Workflow contains invalid integration references", 403);
       }
     }
 
@@ -79,21 +79,21 @@ export const workflowExecute: RouteHandler = async (route, ctx) => {
       .values({
         workflowId,
         userId: session.user.id,
-        status: 'running',
+        status: "running",
         input,
       })
       .returning();
 
-    console.log('[API] Created execution:', execution.id);
+    console.log("[API] Created execution:", execution.id);
 
     // Execute in background (don't await)
     executeWorkflowBackground(ctx, execution.id, workflowId, workflow.nodes, workflow.edges, input);
 
-    return jsonResponse({ executionId: execution.id, status: 'running' });
+    return jsonResponse({ executionId: execution.id, status: "running" });
   } catch (error) {
-    console.error('Failed to start workflow execution:', error);
+    console.error("Failed to start workflow execution:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to execute workflow',
+      error instanceof Error ? error.message : "Failed to execute workflow",
       500,
     );
   }

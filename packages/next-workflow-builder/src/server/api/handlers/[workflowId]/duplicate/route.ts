@@ -1,9 +1,9 @@
-import { eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
-import { workflows } from '../../../../db/schema.js';
-import { generateId } from '../../../../../lib/utils/id.js';
-import { errorResponse, getOptionalSession, jsonResponse, serializeWorkflow } from '../../../handler-utils.js';
-import type { RouteHandler } from '../../../types.js';
+import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import { generateId } from "../../../../../lib/utils/id.js";
+import { workflows } from "../../../../db/schema.js";
+import { errorResponse, getOptionalSession, jsonResponse, serializeWorkflow } from "../../../handler-utils.js";
+import type { RouteHandler } from "../../../types.js";
 
 type WorkflowNodeLike = {
   id: string;
@@ -34,7 +34,7 @@ function stripIntegrationIds(nodes: WorkflowNodeLike[]): WorkflowNodeLike[] {
         const { integrationId: _, ...configWithoutIntegration } = data.config;
         data.config = configWithoutIntegration;
       }
-      data.status = 'idle';
+      data.status = "idle";
       newNode.data = data;
     }
     return newNode;
@@ -65,7 +65,7 @@ export const workflowDuplicate: RouteHandler = async (route, ctx) => {
 
     const session = await getOptionalSession(ctx, route.request);
     if (!session?.user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse("Unauthorized", 401);
     }
 
     const sourceWorkflow = await ctx.db.query.workflows.findFirst({
@@ -73,13 +73,13 @@ export const workflowDuplicate: RouteHandler = async (route, ctx) => {
     });
 
     if (!sourceWorkflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     const isOwner = session.user.id === sourceWorkflow.userId;
 
-    if (!isOwner && sourceWorkflow.visibility !== 'public') {
-      return errorResponse('Workflow not found', 404);
+    if (!isOwner && sourceWorkflow.visibility !== "public") {
+      return errorResponse("Workflow not found", 404);
     }
 
     const oldNodes = sourceWorkflow.nodes as WorkflowNodeLike[];
@@ -94,16 +94,16 @@ export const workflowDuplicate: RouteHandler = async (route, ctx) => {
       where: eq(workflows.userId, session.user.id),
     });
 
-    const baseName = `${sourceWorkflow.name} (Copy)`;
+    const baseName = `${ sourceWorkflow.name } (Copy)`;
     let workflowName = baseName;
     const existingNames = new Set(userWorkflows.map((w: { name: string }) => w.name));
 
     if (existingNames.has(workflowName)) {
       let counter = 2;
-      while (existingNames.has(`${baseName} ${counter}`)) {
+      while (existingNames.has(`${ baseName } ${ counter }`)) {
         counter += 1;
       }
-      workflowName = `${baseName} ${counter}`;
+      workflowName = `${ baseName } ${ counter }`;
     }
 
     const newWorkflowId = generateId();
@@ -116,7 +116,7 @@ export const workflowDuplicate: RouteHandler = async (route, ctx) => {
         nodes: newNodes,
         edges: newEdges,
         userId: session.user.id,
-        visibility: 'private',
+        visibility: "private",
       })
       .returning();
 
@@ -125,9 +125,9 @@ export const workflowDuplicate: RouteHandler = async (route, ctx) => {
       isOwner: true,
     });
   } catch (error) {
-    console.error('Failed to duplicate workflow:', error);
+    console.error("Failed to duplicate workflow:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to duplicate workflow',
+      error instanceof Error ? error.message : "Failed to duplicate workflow",
       500,
     );
   }

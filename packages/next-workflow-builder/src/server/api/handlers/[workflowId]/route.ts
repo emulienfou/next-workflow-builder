@@ -1,5 +1,5 @@
-import { and, eq } from 'drizzle-orm';
-import { workflows } from '../../../db/schema.js';
+import { eq } from "drizzle-orm";
+import { workflows } from "../../../db/schema.js";
 import {
   errorResponse,
   getOptionalSession,
@@ -7,8 +7,8 @@ import {
   requireOwnedWorkflow,
   requireSession,
   serializeWorkflow,
-} from '../../handler-utils.js';
-import type { HandlerContext, RouteHandler } from '../../types.js';
+} from "../../handler-utils.js";
+import type { HandlerContext, RouteHandler } from "../../types.js";
 
 function sanitizeNodesForPublicView(
   nodes: Record<string, unknown>[],
@@ -17,11 +17,11 @@ function sanitizeNodesForPublicView(
     const sanitizedNode = { ...node };
     if (
       sanitizedNode.data &&
-      typeof sanitizedNode.data === 'object' &&
+      typeof sanitizedNode.data === "object" &&
       sanitizedNode.data !== null
     ) {
       const data = { ...(sanitizedNode.data as Record<string, unknown>) };
-      if (data.config && typeof data.config === 'object' && data.config !== null) {
+      if (data.config && typeof data.config === "object" && data.config !== null) {
         const { integrationId: _, ...configWithoutIntegration } =
           data.config as Record<string, unknown>;
         data.config = configWithoutIntegration;
@@ -48,14 +48,14 @@ export const workflowCrud: RouteHandler = async (route, ctx) => {
   const workflowId = route.segments[0];
 
   switch (route.method) {
-    case 'GET':
+    case "GET":
       return getWorkflow(workflowId, route, ctx);
-    case 'PATCH':
+    case "PATCH":
       return updateWorkflow(workflowId, route, ctx);
-    case 'DELETE':
+    case "DELETE":
       return deleteWorkflow(workflowId, route, ctx);
     default:
-      return errorResponse('Method not allowed', 405);
+      return errorResponse("Method not allowed", 405);
   }
 };
 
@@ -72,13 +72,13 @@ async function getWorkflow(
     });
 
     if (!workflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     const isOwner = session?.user?.id === workflow.userId;
 
-    if (!isOwner && workflow.visibility !== 'public') {
-      return errorResponse('Workflow not found', 404);
+    if (!isOwner && workflow.visibility !== "public") {
+      return errorResponse("Workflow not found", 404);
     }
 
     return jsonResponse({
@@ -89,9 +89,9 @@ async function getWorkflow(
       isOwner,
     });
   } catch (error) {
-    console.error('Failed to get workflow:', error);
+    console.error("Failed to get workflow:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to get workflow',
+      error instanceof Error ? error.message : "Failed to get workflow",
       500,
     );
   }
@@ -105,12 +105,12 @@ async function updateWorkflow(
   try {
     const session = await requireSession(ctx, route.request);
     if (!session) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse("Unauthorized", 401);
     }
 
     const existingWorkflow = await requireOwnedWorkflow(ctx, workflowId, session.user.id);
     if (!existingWorkflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     const body = await route.request.json();
@@ -118,14 +118,14 @@ async function updateWorkflow(
     if (Array.isArray(body.nodes) && ctx.validateIntegrations) {
       const validation = await ctx.validateIntegrations(body.nodes, session.user.id);
       if (!validation.valid) {
-        return errorResponse('Invalid integration references in workflow', 403);
+        return errorResponse("Invalid integration references in workflow", 403);
       }
     }
 
     if (
       body.visibility !== undefined &&
-      body.visibility !== 'private' &&
-      body.visibility !== 'public'
+      body.visibility !== "private" &&
+      body.visibility !== "public"
     ) {
       return errorResponse("Invalid visibility value. Must be 'private' or 'public'", 400);
     }
@@ -139,7 +139,7 @@ async function updateWorkflow(
       .returning();
 
     if (!updatedWorkflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     return jsonResponse({
@@ -147,9 +147,9 @@ async function updateWorkflow(
       isOwner: true,
     });
   } catch (error) {
-    console.error('Failed to update workflow:', error);
+    console.error("Failed to update workflow:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to update workflow',
+      error instanceof Error ? error.message : "Failed to update workflow",
       500,
     );
   }
@@ -163,21 +163,21 @@ async function deleteWorkflow(
   try {
     const session = await requireSession(ctx, route.request);
     if (!session) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse("Unauthorized", 401);
     }
 
     const existingWorkflow = await requireOwnedWorkflow(ctx, workflowId, session.user.id);
     if (!existingWorkflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     await ctx.db.delete(workflows).where(eq(workflows.id, workflowId));
 
     return jsonResponse({ success: true });
   } catch (error) {
-    console.error('Failed to delete workflow:', error);
+    console.error("Failed to delete workflow:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to delete workflow',
+      error instanceof Error ? error.message : "Failed to delete workflow",
       500,
     );
   }

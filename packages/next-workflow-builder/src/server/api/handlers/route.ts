@@ -1,7 +1,7 @@
-import { desc, eq } from 'drizzle-orm';
-import { workflows } from '../../db/schema.js';
-import { errorResponse, getOptionalSession, jsonResponse, serializeWorkflow } from '../handler-utils.js';
-import type { RouteHandler } from '../types.js';
+import { desc, eq } from "drizzle-orm";
+import { workflows } from "../../db/schema.js";
+import { errorResponse, getOptionalSession, jsonResponse, serializeWorkflow } from "../handler-utils.js";
+import type { RouteHandler } from "../types.js";
 
 export const listWorkflows: RouteHandler = async (route, ctx) => {
   try {
@@ -19,9 +19,9 @@ export const listWorkflows: RouteHandler = async (route, ctx) => {
 
     return jsonResponse(userWorkflows.map(serializeWorkflow));
   } catch (error) {
-    console.error('Failed to get workflows:', error);
+    console.error("Failed to get workflows:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to get workflows',
+      error instanceof Error ? error.message : "Failed to get workflows",
       500,
     );
   }

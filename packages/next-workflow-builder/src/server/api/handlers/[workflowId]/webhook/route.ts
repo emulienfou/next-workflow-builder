@@ -1,13 +1,13 @@
-import { createHash } from 'node:crypto';
-import { eq } from 'drizzle-orm';
-import { apiKeys, workflowExecutions, workflows } from '../../../../db/schema.js';
-import { errorResponse, jsonResponse } from '../../../handler-utils.js';
-import type { HandlerContext, RouteHandler } from '../../../types.js';
+import { eq } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { apiKeys, workflowExecutions, workflows } from "../../../../db/schema.js";
+import { errorResponse, jsonResponse } from "../../../handler-utils.js";
+import type { HandlerContext, RouteHandler } from "../../../types.js";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
 async function validateApiKey(
@@ -17,29 +17,29 @@ async function validateApiKey(
   workflowUserId: string,
 ): Promise<{ valid: boolean; error?: string; statusCode?: number }> {
   if (!authHeader) {
-    return { valid: false, error: 'Missing Authorization header', statusCode: 401 };
+    return { valid: false, error: "Missing Authorization header", statusCode: 401 };
   }
 
-  const key = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+  const key = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
 
-  if (!key?.startsWith('wfb_')) {
-    return { valid: false, error: 'Invalid API key format', statusCode: 401 };
+  if (!key?.startsWith("wfb_")) {
+    return { valid: false, error: "Invalid API key format", statusCode: 401 };
   }
 
-  const keyHash = createHash('sha256').update(key).digest('hex');
+  const keyHash = createHash("sha256").update(key).digest("hex");
 
   const apiKey = await db.query.apiKeys.findFirst({
     where: eq(apiKeys.keyHash, keyHash),
   });
 
   if (!apiKey) {
-    return { valid: false, error: 'Invalid API key', statusCode: 401 };
+    return { valid: false, error: "Invalid API key", statusCode: 401 };
   }
 
   if (apiKey.userId !== workflowUserId) {
     return {
       valid: false,
-      error: 'You do not have permission to run this workflow',
+      error: "You do not have permission to run this workflow",
       statusCode: 403,
     };
   }
@@ -48,7 +48,8 @@ async function validateApiKey(
   db.update(apiKeys)
     .set({ lastUsedAt: new Date() })
     .where(eq(apiKeys.id, apiKey.id))
-    .catch(() => {});
+    .catch(() => {
+    });
 
   return { valid: true };
 }
@@ -64,7 +65,7 @@ async function executeWorkflowBackground(
   input: Record<string, unknown>,
 ) {
   try {
-    console.log('[Webhook] Starting execution:', executionId);
+    console.log("[Webhook] Starting execution:", executionId);
 
     if (ctx.startExecution && ctx.executeWorkflow) {
       ctx.startExecution(ctx.executeWorkflow, [
@@ -72,15 +73,15 @@ async function executeWorkflowBackground(
       ]);
     }
 
-    console.log('[Webhook] Workflow started successfully');
+    console.log("[Webhook] Workflow started successfully");
   } catch (error) {
-    console.error('[Webhook] Error during execution:', error);
+    console.error("[Webhook] Error during execution:", error);
 
     await ctx.db
       .update(workflowExecutions)
       .set({
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "error",
+        error: error instanceof Error ? error.message : "Unknown error",
         completedAt: new Date(),
       })
       .where(eq(workflowExecutions.id, executionId));
@@ -88,7 +89,7 @@ async function executeWorkflowBackground(
 }
 
 export const workflowWebhook: RouteHandler = async (route, ctx) => {
-  if (route.method === 'OPTIONS') {
+  if (route.method === "OPTIONS") {
     return jsonResponse({}, 200, corsHeaders);
   }
 
@@ -96,7 +97,7 @@ export const workflowWebhook: RouteHandler = async (route, ctx) => {
     const workflowId = route.segments[0];
 
     if (!ctx.startExecution || !ctx.executeWorkflow) {
-      return errorResponse('Workflow execution not configured', 501);
+      return errorResponse("Workflow execution not configured", 501);
     }
 
     const workflow = await ctx.db.query.workflows.findFirst({
@@ -104,16 +105,16 @@ export const workflowWebhook: RouteHandler = async (route, ctx) => {
     });
 
     if (!workflow) {
-      return errorResponse('Workflow not found', 404);
+      return errorResponse("Workflow not found", 404);
     }
 
     // Validate API key
-    const authHeader = route.request.headers.get('Authorization');
+    const authHeader = route.request.headers.get("Authorization");
     const apiKeyValidation = await validateApiKey(ctx.db, authHeader, workflow.userId);
 
     if (!apiKeyValidation.valid) {
       return errorResponse(
-        apiKeyValidation.error || 'Unauthorized',
+        apiKeyValidation.error || "Unauthorized",
         apiKeyValidation.statusCode || 401,
         corsHeaders,
       );
@@ -123,12 +124,12 @@ export const workflowWebhook: RouteHandler = async (route, ctx) => {
     // biome-ignore lint/suspicious/noExplicitAny: JSONB node type
     const triggerNode = (workflow.nodes as any[]).find(
       // biome-ignore lint/suspicious/noExplicitAny: JSONB node type
-      (node: any) => node.data.type === 'trigger',
+      (node: any) => node.data.type === "trigger",
     );
 
-    if (!triggerNode || triggerNode.data.config?.triggerType !== 'Webhook') {
+    if (!triggerNode || triggerNode.data.config?.triggerType !== "Webhook") {
       return errorResponse(
-        'This workflow is not configured for webhook triggers',
+        "This workflow is not configured for webhook triggers",
         400,
         corsHeaders,
       );
@@ -138,9 +139,9 @@ export const workflowWebhook: RouteHandler = async (route, ctx) => {
     if (ctx.validateIntegrations) {
       const validation = await ctx.validateIntegrations(workflow.nodes, workflow.userId);
       if (!validation.valid) {
-        console.error('[Webhook] Invalid integration references:', validation.invalidIds);
+        console.error("[Webhook] Invalid integration references:", validation.invalidIds);
         return errorResponse(
-          'Workflow contains invalid integration references',
+          "Workflow contains invalid integration references",
           403,
           corsHeaders,
         );
@@ -154,21 +155,21 @@ export const workflowWebhook: RouteHandler = async (route, ctx) => {
       .values({
         workflowId,
         userId: workflow.userId,
-        status: 'running',
+        status: "running",
         input: body,
       })
       .returning();
 
-    console.log('[Webhook] Created execution:', execution.id);
+    console.log("[Webhook] Created execution:", execution.id);
 
     // Execute in background (don't await)
     executeWorkflowBackground(ctx, execution.id, workflowId, workflow.nodes, workflow.edges, body);
 
-    return jsonResponse({ executionId: execution.id, status: 'running' }, 200, corsHeaders);
+    return jsonResponse({ executionId: execution.id, status: "running" }, 200, corsHeaders);
   } catch (error) {
-    console.error('[Webhook] Failed to start workflow execution:', error);
+    console.error("[Webhook] Failed to start workflow execution:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to execute workflow',
+      error instanceof Error ? error.message : "Failed to execute workflow",
       500,
       corsHeaders,
     );

@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm';
-import { workflowExecutionLogs, workflowExecutions } from '../../../../../db/schema.js';
-import { errorResponse, jsonResponse, requireSession } from '../../../../handler-utils.js';
-import type { RouteHandler } from '../../../../types.js';
+import { eq } from "drizzle-orm";
+import { workflowExecutionLogs, workflowExecutions } from "../../../../../db/schema.js";
+import { errorResponse, jsonResponse, requireSession } from "../../../../handler-utils.js";
+import type { RouteHandler } from "../../../../types.js";
 
 export const executionStatus: RouteHandler = async (route, ctx) => {
   try {
@@ -10,7 +10,7 @@ export const executionStatus: RouteHandler = async (route, ctx) => {
 
     const session = await requireSession(ctx, route.request);
     if (!session) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse("Unauthorized", 401);
     }
 
     const execution = await ctx.db.query.workflowExecutions.findFirst({
@@ -19,11 +19,11 @@ export const executionStatus: RouteHandler = async (route, ctx) => {
     });
 
     if (!execution) {
-      return errorResponse('Execution not found', 404);
+      return errorResponse("Execution not found", 404);
     }
 
     if (execution.workflow.userId !== session.user.id) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse("Forbidden", 403);
     }
 
     const logs = await ctx.db.query.workflowExecutionLogs.findMany({
@@ -39,9 +39,9 @@ export const executionStatus: RouteHandler = async (route, ctx) => {
 
     return jsonResponse({ status: execution.status, nodeStatuses });
   } catch (error) {
-    console.error('Failed to get execution status:', error);
+    console.error("Failed to get execution status:", error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to get execution status',
+      error instanceof Error ? error.message : "Failed to get execution status",
       500,
     );
   }
