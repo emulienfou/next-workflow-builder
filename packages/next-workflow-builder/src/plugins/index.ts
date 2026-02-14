@@ -30,3 +30,5 @@ export {
   parseActionId,
   registerIntegration,
 } from "./registry.js";
+
+export { LEGACY_ACTION_MAPPINGS } from "./legacy-mappings.js";

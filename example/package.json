@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "nwb discover-plugins && next dev",
+    "build": "nwb discover-plugins && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "discover-plugins": "nwb discover-plugins",
+    "create-plugin": "nwb create-plugin",
+    "db:migrate:prod": "nwb migrate-prod"
   },
   "dependencies": {
     "better-auth": "^1.4.18",
@@ -25,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "tsx": "^4.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
