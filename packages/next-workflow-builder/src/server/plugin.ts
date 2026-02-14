@@ -6,7 +6,7 @@ const { withWorkflow } = workflowNext;
 export interface WorkflowConfig {
   /** UI theme: 'light' | 'dark' | 'system'. Default: 'system' */
   theme?: 'light' | 'dark' | 'system';
-  /** Base route for workflow API handlers. Default: '/api/workflow' */
+  /** Base route for workflow API handlers. Default: '/api' */
   apiRoute?: string;
   /** Database connection string (required for persistence) */
   databaseUrl?: string;
@@ -27,7 +27,7 @@ export interface WorkflowConfig {
 
 const defaultConfig: WorkflowConfig = {
   theme: 'system',
-  apiRoute: '/api/workflow',
+  apiRoute: '/api',
   autoGenerateApiRoute: true,
 };
 

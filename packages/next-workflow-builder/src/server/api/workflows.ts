@@ -39,7 +39,7 @@ const routes: RouteDefinition[] = [
 
 function matchRoute(segments: string[]): { handler: RouteHandler; methods: string[] } | null {
   for (const route of routes) {
-    const patternSegments = route.path === "" ? [] : route.path.split("/");
+    const patternSegments = route.path === "" ? [] : route.path.split("/").filter(Boolean);
     if (patternSegments.length !== segments.length) continue;
 
     const isMatch = patternSegments.every(

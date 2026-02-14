@@ -30,18 +30,18 @@ export function resolveAppDir(projectDir: string): string | null {
 }
 
 /**
- * Convert an API route like `/api/workflow` to a filesystem path segment
- * with an optional catch-all: `api/workflow/[...all]`
+ * Convert an API route like `/api` to a filesystem path segment
+ * with an optional catch-all: `api/[...slug]`
  */
 export function apiRouteToFsPath(apiRoute: string): string {
   const stripped = apiRoute.replace(/^\/+|\/+$/g, '');
-  return path.join(stripped, '[...all]');
+  return path.join(stripped, '[...slug]');
 }
 
 export interface GenerateApiRouteOptions {
   /** Absolute path to the project root (where next.config.ts lives) */
   projectDir?: string;
-  /** The API route prefix. Default: '/api/workflow' */
+  /** The API route prefix. Default: '/api' */
   apiRoute?: string;
   /** Import path for the database module. Default: '@/lib/db' */
   dbImportPath?: string;
@@ -60,7 +60,7 @@ export interface GenerateApiRouteOptions {
  */
 export function generateApiRoute(options: GenerateApiRouteOptions = {}): void {
   const projectDir = options.projectDir ?? process.cwd();
-  const apiRoute = options.apiRoute ?? '/api/workflow';
+  const apiRoute = options.apiRoute ?? '/api';
   const dbImportPath = options.dbImportPath ?? '@/lib/db';
   const authImportPath = options.authImportPath ?? '@/lib/auth';
 
