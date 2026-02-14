@@ -28,7 +28,7 @@ import {
 } from "../../../lib/integrations-store";
 import type { IntegrationType } from "../../../lib/types/integration";
 import { cn } from "../../../lib/utils";
-import { getIntegration } from "../../../plugins/index";
+import { getIntegration } from "../../../plugins/index.js";
 
 type IntegrationSelectorProps = {
   integrationType: IntegrationType;

@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { IntegrationIcon } from "../ui/integration-icon";
 import { Spinner } from "../ui/spinner";
 import { api, type Integration } from "../../../lib/api-client";
-import { getIntegrationLabels } from "../../../plugins/index";
+import { getIntegrationLabels } from "../../../plugins/index.js";
 
 // System integrations that don't have plugins
 const SYSTEM_INTEGRATION_LABELS: Record<string, string> = {

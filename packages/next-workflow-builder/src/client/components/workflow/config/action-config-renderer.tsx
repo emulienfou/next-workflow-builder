@@ -17,7 +17,7 @@ import {
   type ActionConfigField,
   type ActionConfigFieldBase,
   isFieldGroup,
-} from "../../../../plugins/index";
+} from "../../../../plugins/index.js";
 import { SchemaBuilder, type SchemaField } from "./schema-builder";
 
 type FieldProps = {

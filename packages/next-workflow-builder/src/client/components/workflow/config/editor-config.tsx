@@ -2,7 +2,7 @@
 // System actions that need integrations (not in plugin registry)
 import { IntegrationType } from "../../../../lib/types/integration";
 import { WorkflowNode } from "../../../../lib/workflow-store";
-import { findActionById } from "../../../../plugins";
+import { findActionById } from "../../../../plugins/index.js";
 
 const SYSTEM_ACTION_INTEGRATIONS: Record<string, IntegrationType> = {
   "Database Query": "database",

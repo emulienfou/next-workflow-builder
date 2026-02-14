@@ -19,7 +19,7 @@ import {
   getIntegration,
   getIntegrationLabels,
   getSortedIntegrationTypes,
-} from "../../../plugins/index";
+} from "../../../plugins/index.js";
 import { getIntegrationDescriptions } from "../../../plugins/registry";
 import { AiGatewayConsentOverlay } from "./ai-gateway-consent-overlay";
 import { ConfirmOverlay } from "./confirm-overlay";

@@ -68,7 +68,7 @@ import {
   findActionById,
   flattenConfigFields,
   getIntegrationLabels,
-} from "../../../plugins/index";
+} from "../../../plugins/index.js";
 import { Panel } from "../ai-elements/panel";
 import { DeployButton } from "../deploy-button";
 import { ConfigurationOverlay } from "../overlays/configuration-overlay";
