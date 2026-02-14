@@ -6,14 +6,6 @@
 import type { IntegrationConfig, IntegrationType } from "./types/integration.js";
 import type { WorkflowEdge, WorkflowNode } from "./workflow-store.js";
 
-// API base path — configurable via NEXT_PUBLIC_WORKFLOW_API_ROUTE env var
-function getApiBase(): string {
-  if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_WORKFLOW_API_ROUTE) {
-    return process.env.NEXT_PUBLIC_WORKFLOW_API_ROUTE;
-  }
-  return '/api/workflow';
-}
-
 // Workflow data types
 export type WorkflowVisibility = "private" | "public";
 
@@ -100,12 +92,12 @@ type StreamState = {
 
 type OperationHandler = (
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ) => void;
 
 function handleSetName(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.name) {
     state.currentData.name = op.name;
@@ -114,7 +106,7 @@ function handleSetName(
 
 function handleSetDescription(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.description) {
     state.currentData.description = op.description;
@@ -123,7 +115,7 @@ function handleSetDescription(
 
 function handleAddNode(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.node) {
     state.currentData.nodes = [
@@ -135,7 +127,7 @@ function handleAddNode(
 
 function handleAddEdge(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.edge) {
     state.currentData.edges = [
@@ -147,32 +139,32 @@ function handleAddEdge(
 
 function handleRemoveNode(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.nodeId) {
     state.currentData.nodes = state.currentData.nodes.filter(
-      (n) => n.id !== op.nodeId
+      (n) => n.id !== op.nodeId,
     );
     state.currentData.edges = state.currentData.edges.filter(
-      (e) => e.source !== op.nodeId && e.target !== op.nodeId
+      (e) => e.source !== op.nodeId && e.target !== op.nodeId,
     );
   }
 }
 
 function handleRemoveEdge(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.edgeId) {
     state.currentData.edges = state.currentData.edges.filter(
-      (e) => e.id !== op.edgeId
+      (e) => e.id !== op.edgeId,
     );
   }
 }
 
 function handleUpdateNode(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (op?.nodeId && op.updates) {
     state.currentData.nodes = state.currentData.nodes.map((n) => {
@@ -202,7 +194,7 @@ const operationHandlers: Record<string, OperationHandler> = {
 
 function applyOperation(
   op: StreamMessage["operation"],
-  state: StreamState
+  state: StreamState,
 ): void {
   if (!op?.op) {
     return;
@@ -217,7 +209,7 @@ function applyOperation(
 function processStreamLine(
   line: string,
   onUpdate: (data: WorkflowData) => void,
-  state: StreamState
+  state: StreamState,
 ): void {
   if (!line.trim()) {
     return;
@@ -242,7 +234,7 @@ function processStreamChunk(
   value: Uint8Array,
   decoder: TextDecoder,
   onUpdate: (data: WorkflowData) => void,
-  state: StreamState
+  state: StreamState,
 ): void {
   state.buffer += decoder.decode(value, { stream: true });
 
@@ -262,7 +254,7 @@ export const aiApi = {
       nodes: WorkflowNode[];
       edges: WorkflowEdge[];
       name?: string;
-    }
+    },
   ) =>
     apiCall<WorkflowData>("/api/ai/generate", {
       method: "POST",
@@ -275,7 +267,7 @@ export const aiApi = {
       nodes: WorkflowNode[];
       edges: WorkflowEdge[];
       name?: string;
-    }
+    },
   ): Promise<WorkflowData> => {
     const response = await fetch("/api/ai/generate", {
       method: "POST",
@@ -286,7 +278,7 @@ export const aiApi = {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${ response.status }`);
     }
 
     if (!response.body) {
@@ -369,11 +361,11 @@ export type AiGatewayTeamsResponse = {
 export const integrationApi = {
   // List all integrations
   getAll: (type?: IntegrationType) =>
-    apiCall<Integration[]>(`/api/integrations${type ? `?type=${type}` : ""}`),
+    apiCall<Integration[]>(`/api/integrations${ type ? `?type=${ type }` : "" }`),
 
   // Get single integration with config
   get: (id: string) =>
-    apiCall<IntegrationWithConfig>(`/api/integrations/${id}`),
+    apiCall<IntegrationWithConfig>(`/api/integrations/${ id }`),
 
   // Create integration
   create: (data: {
@@ -388,24 +380,24 @@ export const integrationApi = {
 
   // Update integration
   update: (id: string, data: { name?: string; config?: IntegrationConfig }) =>
-    apiCall<IntegrationWithConfig>(`/api/integrations/${id}`, {
+    apiCall<IntegrationWithConfig>(`/api/integrations/${ id }`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
 
   // Delete integration
   delete: (id: string) =>
-    apiCall<{ success: boolean }>(`/api/integrations/${id}`, {
+    apiCall<{ success: boolean }>(`/api/integrations/${ id }`, {
       method: "DELETE",
     }),
 
   // Test existing integration connection
   testConnection: (integrationId: string) =>
     apiCall<{ status: "success" | "error"; message: string }>(
-      `/api/integrations/${integrationId}/test`,
+      `/api/integrations/${ integrationId }/test`,
       {
         method: "POST",
-      }
+      },
     ),
 
   // Test credentials without saving
@@ -418,7 +410,7 @@ export const integrationApi = {
       {
         method: "POST",
         body: JSON.stringify(data),
-      }
+      },
     ),
 };
 
@@ -444,43 +436,43 @@ export const userApi = {
 // Workflow API
 export const workflowApi = {
   // Get all workflows
-  getAll: () => apiCall<SavedWorkflow[]>(`${getApiBase()}`),
+  getAll: () => apiCall<SavedWorkflow[]>(`/api/workflows`),
 
   // Get a specific workflow
-  getById: (id: string) => apiCall<SavedWorkflow>(`${getApiBase()}/${id}`),
+  getById: (id: string) => apiCall<SavedWorkflow>(`/api/workflows/${ id }`),
 
   // Create a new workflow
   create: (workflow: Omit<WorkflowData, "id">) =>
-    apiCall<SavedWorkflow>(`${getApiBase()}/create`, {
+    apiCall<SavedWorkflow>(`/api/workflows/create`, {
       method: "POST",
       body: JSON.stringify(workflow),
     }),
 
   // Update a workflow
   update: (id: string, workflow: Partial<WorkflowData>) =>
-    apiCall<SavedWorkflow>(`${getApiBase()}/${id}`, {
+    apiCall<SavedWorkflow>(`/api/workflows/${ id }`, {
       method: "PATCH",
       body: JSON.stringify(workflow),
     }),
 
   // Delete a workflow
   delete: (id: string) =>
-    apiCall<{ success: boolean }>(`${getApiBase()}/${id}`, {
+    apiCall<{ success: boolean }>(`/api/workflows/${ id }`, {
       method: "DELETE",
     }),
 
   // Duplicate a workflow
   duplicate: (id: string) =>
-    apiCall<SavedWorkflow>(`${getApiBase()}/${id}/duplicate`, {
+    apiCall<SavedWorkflow>(`/api/workflows/${ id }/duplicate`, {
       method: "POST",
     }),
 
   // Get current workflow state
-  getCurrent: () => apiCall<WorkflowData>(`${getApiBase()}/current`),
+  getCurrent: () => apiCall<WorkflowData>(`/api/workflows/current`),
 
   // Save current workflow state
   saveCurrent: (nodes: WorkflowNode[], edges: WorkflowEdge[]) =>
-    apiCall<WorkflowData>(`${getApiBase()}/current`, {
+    apiCall<WorkflowData>(`/api/workflows/current`, {
       method: "POST",
       body: JSON.stringify({ nodes, edges }),
     }),
@@ -493,7 +485,7 @@ export const workflowApi = {
       output?: unknown;
       error?: string;
       duration?: number;
-    }>(`${getApiBase()}/${id}/execute`, {
+    }>(`/api/workflow/${ id }/execute`, {
       method: "POST",
       body: JSON.stringify({ input }),
     }),
@@ -503,7 +495,7 @@ export const workflowApi = {
     apiCall<{
       executionId: string;
       status: string;
-    }>(`${getApiBase()}/${id}/webhook`, {
+    }>(`/api/workflows/${ id }/webhook`, {
       method: "POST",
       body: JSON.stringify(input),
     }),
@@ -511,7 +503,7 @@ export const workflowApi = {
   // Get workflow code
   getCode: (id: string) =>
     apiCall<{ code: string; workflowName: string }>(
-      `${getApiBase()}/${id}/code`
+      `/api/workflows/${ id }/code`,
     ),
 
   // Get executions
@@ -529,15 +521,15 @@ export const workflowApi = {
         completedAt: Date | null;
         duration: string | null;
       }>
-    >(`${getApiBase()}/${id}/executions`),
+    >(`/api/workflows/${ id }/executions`),
 
   // Delete executions
   deleteExecutions: (id: string) =>
     apiCall<{ success: boolean; deletedCount: number }>(
-      `${getApiBase()}/${id}/executions`,
+      `/api/workflows/${ id }/executions`,
       {
         method: "DELETE",
-      }
+      },
     ),
 
   // Get execution logs
@@ -575,7 +567,7 @@ export const workflowApi = {
         completedAt: Date | null;
         duration: string | null;
       }>;
-    }>(`${getApiBase()}/executions/${executionId}/logs`),
+    }>(`/api/workflows/executions/${ executionId }/logs`),
 
   // Get execution status
   getExecutionStatus: (executionId: string) =>
@@ -585,7 +577,7 @@ export const workflowApi = {
         nodeId: string;
         status: "pending" | "running" | "success" | "error";
       }>;
-    }>(`${getApiBase()}/executions/${executionId}/status`),
+    }>(`/api/workflows/executions/${ executionId }/status`),
 
   // Download workflow
   download: (id: string) =>
@@ -593,7 +585,7 @@ export const workflowApi = {
       success: boolean;
       files?: Record<string, string>;
       error?: string;
-    }>(`${getApiBase()}/${id}/download`),
+    }>(`/api/workflows/${ id }/download`),
 
   // Auto-save with debouncing (kept for backwards compatibility)
   autoSaveCurrent: (() => {
@@ -621,7 +613,7 @@ export const workflowApi = {
     return (
       id: string,
       data: Partial<WorkflowData>,
-      debounce = true
+      debounce = true,
     ): Promise<SavedWorkflow> | undefined => {
       if (!debounce) {
         return workflowApi.update(id, data);
