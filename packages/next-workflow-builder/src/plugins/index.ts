@@ -5,7 +5,7 @@ export type {
   ActionWithFullId,
   IntegrationPlugin,
   PluginAction,
-} from "./registry";
+} from "./registry.js";
 
 // Export the registry utilities
 export {
@@ -29,4 +29,4 @@ export {
   isFieldGroup,
   parseActionId,
   registerIntegration,
-} from "./registry";
+} from "./registry.js";

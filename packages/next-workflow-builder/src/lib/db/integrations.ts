@@ -1,5 +1,3 @@
-import "server-only";
-
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import type { IntegrationConfig, IntegrationType } from "../types/integration.js";
