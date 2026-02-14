@@ -23,6 +23,10 @@ type RouteDefinition = {
 const routes: RouteDefinition[] = [
   { path: "/workflow/[workflowId]/cron", handler: executeWorkflowBackground, methods: ["POST"] },
   { path: "/workflow/[workflowId]/execute", handler: executeWorkflowBackground, methods: ["POST"] },
+  { path: "/workflows/create", handler: createWorkflow, methods: ["POST"] },
+  { path: "/workflows/current", handler: currentWorkflow, methods: ["GET", "POST"] },
+  { path: "/workflows/executions/[executionId]/logs", handler: executionLogs, methods: ["GET"] },
+  { path: "/workflows/executions/[executionId]/status", handler: executionStatus, methods: ["GET"] },
   { path: "/workflows/[workflowId]", handler: workflowCrud, methods: ["GET", "PATCH", "DELETE"] },
   { path: "/workflows/[workflowId]/code", handler: workflowCode, methods: ["GET"] },
   { path: "/workflows/[workflowId]/cron", handler: executeScheduledWorkflow, methods: ["GET"] },
@@ -30,10 +34,6 @@ const routes: RouteDefinition[] = [
   { path: "/workflows/[workflowId]/duplicate", handler: workflowDuplicate, methods: ["POST"] },
   { path: "/workflows/[workflowId]/executions", handler: workflowExecutionsHandler, methods: ["GET", "DELETE"] },
   { path: "/workflows/[workflowId]/webhook", handler: workflowWebhook, methods: ["POST", "OPTIONS"] },
-  { path: "/workflows/create", handler: createWorkflow, methods: ["POST"] },
-  { path: "/workflows/current", handler: currentWorkflow, methods: ["GET", "POST"] },
-  { path: "/workflows/executions/[executionId]/logs", handler: executionLogs, methods: ["GET"] },
-  { path: "/workflows/executions/[executionId]/status", handler: executionStatus, methods: ["GET"] },
   { path: "/workflows", handler: listWorkflows, methods: ["GET"] },
 ];
 
