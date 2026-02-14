@@ -1,7 +1,5 @@
 import { defineConfig } from 'tsup';
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-
 export default defineConfig({
   name: 'next-workflow-builder',
   // 1. Try to point to "barrel" files (index.ts) if possible.
@@ -17,9 +15,9 @@ export default defineConfig({
   // 2. This is the secret sauce.
   // experimentalDts uses a much more efficient way to generate types.
   dts: true,
-  splitting: IS_PRODUCTION,
-  clean: IS_PRODUCTION,
-  sourcemap: IS_PRODUCTION,
+  splitting: true,
+  clean: true,
+  sourcemap: true,
   bundle: false,
   // 3. Limit concurrency if you're on a machine with many cores but low RAM
   // concurrency: 4,
