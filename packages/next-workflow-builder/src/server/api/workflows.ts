@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { defaultAuthOptions } from "../../lib/auth.js";
+import { getDefaultAuthOptions } from "../../lib/auth.js";
 import { schema } from "../db/schema.js";
 import { errorResponse } from "./handler-utils.js";
 import routes from "./routes.js";
@@ -78,11 +78,11 @@ export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
 
       const route: ParsedRoute = { segments, method, request: req };
 
-      // Initialize Better Auth
-      const auth = betterAuth({ ...defaultAuthOptions, ...options.authOptions });
-
       // Initialize Drizzle
       const db = drizzle(options.databaseUrl, { schema });
+
+      // Initialize Better Auth
+      const auth = betterAuth({ ...getDefaultAuthOptions(db), ...options.authOptions });
 
       return await match.handler(route, { ...options, auth, db });
     } catch (error) {
