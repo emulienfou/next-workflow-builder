@@ -83,6 +83,7 @@ export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
 
       // Initialize Better Auth
       const auth = betterAuth({ ...getDefaultAuthOptions(db), ...options.authOptions });
+      await auth.handler(req);
 
       return await match.handler(route, { ...options, auth, db });
     } catch (error) {

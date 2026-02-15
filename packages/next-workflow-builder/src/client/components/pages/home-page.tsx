@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { api } from "../../../lib/api-client";
+import { authClient, useSession } from "../../../lib/auth-client";
 import {
   currentWorkflowNameAtom,
   edgesAtom,
@@ -32,6 +33,7 @@ function createDefaultTriggerNode() {
 
 const HomePage = () => {
   const router = useRouter();
+  const { data: session } = useSession();
   const nodes = useAtomValue(nodesAtom);
   const edges = useAtomValue(edgesAtom);
   const setNodes = useSetAtom(nodesAtom);
@@ -51,8 +53,16 @@ const HomePage = () => {
 
   // Update page title when workflow name changes
   useEffect(() => {
-    document.title = `${currentWorkflowName} - AI Workflow Builder`;
+    document.title = `${ currentWorkflowName } - AI Workflow Builder`;
   }, [currentWorkflowName]);
+
+  // Helper to create anonymous session if needed
+  const ensureSession = useCallback(async () => {
+    if (!session) {
+      await authClient.signIn.anonymous();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }, [session]);
 
   // Handler to add the first node (replaces the "add" node)
   const handleAddNode = useCallback(() => {
@@ -94,6 +104,8 @@ const HomePage = () => {
       hasCreatedWorkflowRef.current = true;
 
       try {
+        await ensureSession();
+
         // Create workflow with all real nodes
         const newWorkflow = await api.workflow.create({
           name: "Untitled Workflow",
@@ -108,7 +120,7 @@ const HomePage = () => {
 
         // Redirect to the workflow page
         console.log("[Homepage] Navigating to workflow page");
-        router.replace(`/workflows/${newWorkflow.id}`);
+        router.replace(`/workflows/${ newWorkflow.id }`);
       } catch (error) {
         console.error("Failed to create workflow:", error);
         toast.error("Failed to create workflow");
@@ -116,7 +128,7 @@ const HomePage = () => {
     };
 
     createWorkflowAndRedirect();
-  }, [nodes, edges, router, setIsTransitioningFromHomepage]);
+  }, [nodes, edges, router, ensureSession, setIsTransitioningFromHomepage]);
 
   // Canvas and toolbar are rendered by PersistentCanvas in the layout
   return null;

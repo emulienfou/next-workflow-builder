@@ -1,4 +1,4 @@
-import { BetterAuthOptions } from "better-auth";
+import { Auth, BetterAuthOptions } from "better-auth";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { schema } from "../db/schema.js";
 
@@ -8,13 +8,6 @@ export type AuthSession = {
     [key: string]: any;
   };
 };
-
-export interface AuthInstance {
-  api: {
-    getSession: (opts: { headers: Headers }) => Promise<AuthSession | null>;
-  };
-  handler: (request: Request) => Response | Promise<Response>;
-}
 
 export interface ParsedRoute {
   segments: string[];
@@ -53,7 +46,7 @@ export interface WorkflowApiHandlerOptions {
 
 export type HandlerContext = Omit<WorkflowApiHandlerOptions, "authOptions"> & {
   /** Better Auth instance */
-  auth: AuthInstance;
+  auth: Auth;
   /** Drizzle database instance — must be created with the workflow schema */
   db: PostgresJsDatabase<typeof schema>;
 };
