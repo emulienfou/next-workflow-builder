@@ -40,6 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Auto-generated workflow API route
-src/app/api/\[...slug\]/route.ts
 plugins/index.ts

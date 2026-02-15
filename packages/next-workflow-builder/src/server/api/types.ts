@@ -1,4 +1,5 @@
-// biome-ignore lint/suspicious/noExplicitAny: Better Auth session type varies by consumer
+import { BetterAuthOptions } from "better-auth";
+
 export type AuthSession = {
   user: {
     id: string;
@@ -23,7 +24,7 @@ export interface WorkflowApiHandlerOptions {
   // biome-ignore lint/suspicious/noExplicitAny: Drizzle db type varies by consumer
   db: any;
   /** Better Auth instance */
-  auth: AuthInstance;
+  authOptions?: BetterAuthOptions;
   /** Optional integration validation function */
   validateIntegrations?: (
     // biome-ignore lint/suspicious/noExplicitAny: Workflow nodes are JSONB
@@ -48,9 +49,15 @@ export interface WorkflowApiHandlerOptions {
   }>;
 }
 
-export type HandlerContext = WorkflowApiHandlerOptions;
+export type HandlerContext = Omit<WorkflowApiHandlerOptions, "authOptions"> & { auth: AuthInstance };
 
 export type RouteHandler = (
   route: ParsedRoute,
   ctx: HandlerContext,
 ) => Promise<Response>;
+
+export type RouteDefinition = {
+  path: string;
+  handler: RouteHandler;
+  methods: string[];
+};

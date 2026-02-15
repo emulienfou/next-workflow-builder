@@ -44,9 +44,23 @@ const nextConfig = withWorkflowBuilder({
 export default nextConfig;
 ```
 
-The plugin auto-generates the API route at `app/api/workflow/[...all]/route.ts` on startup.
+### 3. Create the API Route
 
-### 3. Set Up the Database
+Create a catch-all API route to handle all workflow API requests:
+
+```ts
+// src/app/api/[...slug]/route.ts
+import { db } from "@/lib/db";
+import { createWorkflowApiHandler } from "next-workflow-builder";
+
+// Create the handler once
+const handler = createWorkflowApiHandler({ db });
+
+// Export the methods you strictly need (OPTIONS is usually auto-handled)
+export { handler as GET, handler as POST, handler as PUT, handler as DELETE, handler as PATCH };
+```
+
+### 4. Set Up the Database
 
 Create your database module with the schema exports that `next-workflow-builder` expects:
 
@@ -89,7 +103,7 @@ export const db = drizzle(queryClient, { schema });
 
 See [`example/src/lib/db/schema.ts`](example/src/lib/db/schema.ts) for the full Drizzle schema definition.
 
-### 4. Set Up Authentication
+### 5. Set Up Authentication
 
 ```ts
 // src/lib/auth.ts
@@ -116,7 +130,7 @@ import { auth } from "@/lib/auth";
 export const { GET, POST } = toNextJsHandler(auth);
 ```
 
-### 5. Add the Layout Provider
+### 6. Add the Layout Provider
 
 Wrap your app with `LayoutProvider` — it provides theme, state management, auth, and the persistent workflow canvas:
 
@@ -140,7 +154,7 @@ export default function RootLayout({
 }
 ```
 
-### 6. Add the Workflow Pages
+### 7. Add the Workflow Pages
 
 Use the catch-all `WorkflowPage` component to handle all workflow routes with a single file:
 
@@ -157,7 +171,7 @@ This handles three routes:
 | `/workflows`      | Redirects to the most recently updated workflow   |
 | `/workflows/[id]` | Opens the workflow editor for a specific workflow |
 
-### 7. Environment Variables
+### 8. Environment Variables
 
 ```env
 DATABASE_URL=postgres://localhost:5432/workflow
@@ -170,9 +184,8 @@ BETTER_AUTH_URL=http://localhost:3000
 workflowBuilder({
   theme: "dark",           // 'light' | 'dark' | 'system' (default: 'system')
   apiRoute: "/api/workflow", // API route base path (default: '/api/workflow')
-  autoGenerateApiRoute: true, // Auto-generate the API route file (default: true)
-  dbImportPath: "@/lib/db",  // Import path for db in generated route (default: '@/lib/db')
-  authImportPath: "@/lib/auth", // Import path for auth in generated route (default: '@/lib/auth')
+  dbImportPath: "@/lib/db",  // Import path for db (default: '@/lib/db')
+  authImportPath: "@/lib/auth", // Import path for auth (default: '@/lib/auth')
   databaseUrl: "...",       // Database connection string
   ai: {                     // AI generation config
     provider: "openai",     // 'openai' | 'anthropic'
@@ -190,7 +203,6 @@ workflowBuilder({
 import workflowBuilder, {
   createWorkflowApiHandler,
   createExecutionHandler,
-  generateApiRoute,
   schema,
 } from "next-workflow-builder";
 ```
@@ -226,7 +238,7 @@ import { nodesAtom, edgesAtom } from "next-workflow-builder/lib/workflow-store";
 │   │   │   ├── [[...slug]]/    # Catch-all workflow pages
 │   │   │   └── api/
 │   │   │       ├── auth/       # Better Auth handler
-│   │   │       └── workflow/   # Auto-generated workflow API
+│   │   │       └── [...slug]/  # Workflow API route
 │   │   └── lib/
 │   │       ├── auth.ts         # Better Auth setup
 │   │       └── db/             # Drizzle ORM setup + schema
