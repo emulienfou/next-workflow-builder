@@ -94,7 +94,7 @@ export const workflowWebhook: RouteHandler = async (route, ctx) => {
   }
 
   try {
-    const workflowId = route.segments[0];
+    const workflowId = route.segments[1];
 
     if (!ctx.startExecution || !ctx.executeWorkflow) {
       return errorResponse("Workflow execution not configured", 501);

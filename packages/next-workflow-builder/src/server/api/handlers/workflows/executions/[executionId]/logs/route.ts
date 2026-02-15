@@ -7,7 +7,7 @@ import type { RouteHandler } from "../../../../../types.js";
 export const executionLogs: RouteHandler = async (route, ctx) => {
   try {
     // segments: ['executions', '<executionId>', 'logs']
-    const executionId = route.segments[1];
+    const executionId = route.segments[2];
 
     const session = await requireSession(ctx, route.request);
     if (!session) {

@@ -4,7 +4,7 @@ import { errorResponse, jsonResponse, requireOwnedWorkflow, requireSession } fro
 import type { RouteHandler } from "../../../../types.js";
 
 export const workflowExecutionsHandler: RouteHandler = async (route, ctx) => {
-  const workflowId = route.segments[0];
+  const workflowId = route.segments[1];
 
   if (route.method === "GET") {
     return getExecutions(workflowId, route, ctx);

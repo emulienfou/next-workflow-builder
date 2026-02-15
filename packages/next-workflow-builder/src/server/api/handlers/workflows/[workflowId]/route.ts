@@ -45,7 +45,7 @@ function buildUpdateData(body: Record<string, unknown>): Record<string, unknown>
 }
 
 export const workflowCrud: RouteHandler = async (route, ctx) => {
-  const workflowId = route.segments[0];
+  const workflowId = route.segments[1];
 
   switch (route.method) {
     case "GET":
@@ -78,7 +78,7 @@ async function getWorkflow(
     const isOwner = session?.user?.id === workflow.userId;
 
     if (!isOwner && workflow.visibility !== "public") {
-      return errorResponse("Workflow not found", 404);
+      return errorResponse(`Workflow not found for user ${ session?.user?.id }`, 404);
     }
 
     return jsonResponse({

@@ -587,8 +587,7 @@ const WorkflowEditor = ({ workflowId }: Props) => {
 
     // Poll immediately and then every 500ms
     pollSelectedExecution();
-    const pollInterval = setInterval(pollSelectedExecution, 500);
-    selectedExecutionPollingIntervalRef.current = pollInterval;
+    selectedExecutionPollingIntervalRef.current = setInterval(pollSelectedExecution, 500);
 
     return () => {
       if (selectedExecutionPollingIntervalRef.current) {

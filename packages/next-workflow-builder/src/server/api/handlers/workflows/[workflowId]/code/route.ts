@@ -3,7 +3,7 @@ import type { RouteHandler } from "../../../../types.js";
 
 export const workflowCode: RouteHandler = async (route, ctx) => {
   try {
-    const workflowId = route.segments[0];
+    const workflowId = route.segments[1];
 
     const session = await requireSession(ctx, route.request);
     if (!session) {

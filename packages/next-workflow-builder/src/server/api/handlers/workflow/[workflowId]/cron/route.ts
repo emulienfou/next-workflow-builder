@@ -38,7 +38,7 @@ async function runScheduledInBackground(
 
 export const executeScheduledWorkflow: RouteHandler = async (route, ctx) => {
   try {
-    const workflowId = route.segments[0];
+    const workflowId = route.segments[1];
 
     // Verify the request is from Vercel Cron
     const authHeader = route.request.headers.get("authorization");
