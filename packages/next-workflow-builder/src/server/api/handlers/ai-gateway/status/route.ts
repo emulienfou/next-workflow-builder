@@ -29,7 +29,7 @@ export const aiGatewayStatus: RouteHandler = async (route, ctx) => {
   }
 
   // Check if user signed in with Vercel
-  const account = await ctx.db.query.accounts.findFirst({
+  const account = await ctx.db.query.account.findFirst({
     where: eq(accounts.userId, session.user.id),
   });
 

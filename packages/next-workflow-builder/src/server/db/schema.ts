@@ -42,10 +42,10 @@ export type {
 
 // Construct schema object for drizzle
 export const schema = {
-  users,
-  sessions,
-  accounts,
-  verifications,
+  user: users,
+  session: sessions,
+  account: accounts,
+  verification: verifications,
   workflows,
   workflowExecutions,
   workflowExecutionLogs,

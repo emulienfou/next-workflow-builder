@@ -153,7 +153,7 @@ async function handleConsent(
     return errorResponse("Not authenticated", 401);
   }
 
-  const account = await ctx.db.query.accounts.findFirst({
+  const account = await ctx.db.query.account.findFirst({
     where: eq(accounts.userId, session.user.id),
   });
 
@@ -252,7 +252,7 @@ async function revokeConsent(
   }
 
   if (config?.managedKeyId && config?.teamId) {
-    const account = await ctx.db.query.accounts.findFirst({
+    const account = await ctx.db.query.account.findFirst({
       where: eq(accounts.userId, session.user.id),
     });
 

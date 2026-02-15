@@ -15,11 +15,40 @@ import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./typ
 function matchRoute(segments: string[]): { handler: RouteHandler; methods: string[] } | null {
   for (const route of routes) {
     const patternSegments = route.path === "" ? [] : route.path.split("/").filter(Boolean);
-    if (patternSegments.length !== segments.length) continue;
 
-    const isMatch = patternSegments.every(
-      (pattern, i) => pattern.startsWith("[") && pattern.endsWith("]") || pattern === segments[i],
-    );
+    let isMatch = true;
+    for (let i = 0; i < patternSegments.length; i++) {
+      const pattern = patternSegments[i];
+
+      // Catch-all pattern like [...all] matches one or more remaining segments
+      if (pattern.startsWith("[...") && pattern.endsWith("]")) {
+        isMatch = segments.length > i; // must match at least one segment
+        break;
+      }
+
+      // Not enough segments to match this pattern
+      if (i >= segments.length) {
+        isMatch = false;
+        break;
+      }
+
+      // Dynamic segment like [id] matches any single segment
+      if (pattern.startsWith("[") && pattern.endsWith("]")) {
+        continue;
+      }
+
+      // Exact match
+      if (pattern !== segments[i]) {
+        isMatch = false;
+        break;
+      }
+    }
+
+    // If no catch-all was found, lengths must match exactly
+    const hasCatchAll = patternSegments.some(p => p.startsWith("[...") && p.endsWith("]"));
+    if (isMatch && !hasCatchAll && patternSegments.length !== segments.length) {
+      isMatch = false;
+    }
 
     if (isMatch) {
       return { handler: route.handler, methods: route.methods };

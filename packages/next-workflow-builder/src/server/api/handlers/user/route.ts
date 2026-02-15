@@ -24,7 +24,7 @@ async function getUser(
       return errorResponse("Unauthorized", 401);
     }
 
-    const userData = await ctx.db.query.users.findFirst({
+    const userData = await ctx.db.query.user.findFirst({
       where: eq(users.id, session.user.id),
       columns: {
         id: true,
@@ -40,7 +40,7 @@ async function getUser(
     }
 
     // Get the user's account to determine auth provider
-    const userAccount = await ctx.db.query.accounts.findFirst({
+    const userAccount = await ctx.db.query.account.findFirst({
       where: eq(accounts.userId, session.user.id),
       columns: {
         providerId: true,
@@ -71,7 +71,7 @@ async function updateUser(
     }
 
     // Check if user is an OAuth user (can't update profile)
-    const userAccount = await ctx.db.query.accounts.findFirst({
+    const userAccount = await ctx.db.query.account.findFirst({
       where: eq(accounts.userId, session.user.id),
       columns: {
         providerId: true,
