@@ -4,6 +4,7 @@ import { aiGatewayTeams } from "./handlers/ai-gateway/teams/route.js";
 import { aiGenerate } from "./handlers/ai/generate/route.js";
 import { apiKeyHandler } from "./handlers/api-keys/[keyId]/route.js";
 import { apiKeysHandler } from "./handlers/api-keys/route.js";
+import { authHandler } from "./handlers/auth/route.js";
 import { integrationHandler } from "./handlers/integrations/[integrationId]/route.js";
 import { integrationTestHandler } from "./handlers/integrations/[integrationId]/test/route.js";
 import { integrationsHandler } from "./handlers/integrations/route.js";
@@ -35,6 +36,8 @@ const routes: RouteDefinition[] = [
   // API Keys (static routes before parameterized)
   { path: "/api-keys", handler: apiKeysHandler, methods: ["GET", "POST"] },
   { path: "/api-keys/[keyId]", handler: apiKeyHandler, methods: ["DELETE"] },
+  // Auth
+  { path: "/auth/[...all]", handler: authHandler, methods: ["GET", "POST"] },
   // Integrations (static routes before parameterized)
   { path: "/integrations/test", handler: integrationsTestHandler, methods: ["POST"] },
   { path: "/integrations", handler: integrationsHandler, methods: ["GET", "POST"] },

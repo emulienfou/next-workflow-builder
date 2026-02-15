@@ -11,6 +11,7 @@ export interface AuthInstance {
   api: {
     getSession: (opts: { headers: Headers }) => Promise<AuthSession | null>;
   };
+  handler: (request: Request) => Response | Promise<Response>;
 }
 
 export interface ParsedRoute {
