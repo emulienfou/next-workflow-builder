@@ -1,4 +1,4 @@
-import { findActionById, flattenConfigFields } from "../plugins/index.js";
+import { findActionById, flattenConfigFields } from "../plugins/registry.js";
 import {
   analyzeNodeUsage,
   buildAccessPath,

@@ -3,7 +3,7 @@
 import { Database, HelpCircle } from "lucide-react";
 import type { IntegrationType } from "../../../lib/types/integration";
 import { cn } from "../../../lib/utils";
-import { getIntegration } from "../../../plugins/index.js";
+import { getIntegration } from "../../../plugins/registry.js";
 
 interface IntegrationIconProps {
   integration: string;

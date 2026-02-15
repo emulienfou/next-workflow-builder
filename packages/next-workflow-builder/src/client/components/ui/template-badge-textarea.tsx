@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "../../../lib/utils";
 import { nodesAtom, selectedNodeAtom } from "../../../lib/workflow-store";
-import { findActionById } from "../../../plugins/index.js";
+import { findActionById } from "../../../plugins/registry.js";
 import { TemplateAutocomplete } from "./template-autocomplete";
 
 export interface TemplateBadgeTextareaProps {

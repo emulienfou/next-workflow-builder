@@ -1,5 +1,5 @@
 import { streamText } from "ai";
-import { generateAIActionPrompts } from "../../../../../plugins/index.js";
+import { generateAIActionPrompts } from "../../../../../plugins/registry.js";
 import { errorResponse, requireSession } from "../../../handler-utils.js";
 import type { RouteHandler } from "../../../types.js";
 

@@ -1,8 +1,6 @@
 /**
  * Executable step function for HTTP Request action
  */
-import "server-only";
-
 import { getErrorMessage } from "../utils";
 import { type StepInput, withStepLogging } from "./step-handler";
 

@@ -4,8 +4,6 @@
  * SECURITY PATTERN - External Secret Store:
  * Step fetches credentials using workflow ID reference
  */
-import "server-only";
-
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";

@@ -4,7 +4,6 @@ import workflowBuilder from "next-workflow-builder";
 const withWorkflowBuilder = workflowBuilder({
   // ... Add WorkflowBuilder specific options here
   theme: "dark",
-  databaseUrl: process.env.DATABASE_URL,
 });
 
 // Export the final Next.js config with workflowBuilder included

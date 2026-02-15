@@ -13,8 +13,6 @@
  * - Step uses: apiClient.call(credentials.apiKey)  ← In memory only
  * - Step returns: { result: data }  ← Safe to log (no credentials)
  */
-import "server-only";
-
 import { getCredentialMapping, getIntegration } from "../plugins/registry";
 import { getIntegrationById } from "./db/integrations";
 import type { IntegrationConfig, IntegrationType } from "./types/integration";

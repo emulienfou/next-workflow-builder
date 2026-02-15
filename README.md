@@ -52,10 +52,8 @@ Create a catch-all API route to handle all workflow API requests:
 // src/app/api/[...slug]/route.ts
 import { createWorkflowApiHandler } from "next-workflow-builder";
 
-// Create the handler once
-const handler = createWorkflowApiHandler({
-  databaseUrl: process.env.DATABASE_URL || "postgres://localhost:5432/workflow",
-});
+// Create the handler once — database URL is read from NEXT_WORKFLOW_BUILDER_DATABASE_URL env var
+const handler = createWorkflowApiHandler({});
 
 // Export the methods you strictly need (OPTIONS is usually auto-handled)
 export { handler as GET, handler as POST, handler as PUT, handler as DELETE, handler as PATCH };
@@ -105,7 +103,7 @@ This handles three routes:
 ### 6. Environment Variables
 
 ```env
-DATABASE_URL=postgres://localhost:5432/workflow
+NEXT_WORKFLOW_BUILDER_DATABASE_URL=postgres://localhost:5432/workflow
 BETTER_AUTH_URL=http://localhost:3000
 ```
 
@@ -117,13 +115,13 @@ workflowBuilder({
   apiRoute: "/api/workflow", // API route base path (default: '/api/workflow')
   dbImportPath: "@/lib/db",  // Import path for db (default: '@/lib/db')
   authImportPath: "@/lib/auth", // Import path for auth (default: '@/lib/auth')
-  databaseUrl: process.env.DATABASE_URL || "postgres://localhost:5432/workflow", // Database connection string
   ai: {                     // AI generation config
     provider: "openai",     // 'openai' | 'anthropic'
     model: "gpt-4",
   },
   plugins: [],              // Enabled integration plugins
 });
+// Database URL is read from the NEXT_WORKFLOW_BUILDER_DATABASE_URL env var
 ```
 
 ## Exports

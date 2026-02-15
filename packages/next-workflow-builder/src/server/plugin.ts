@@ -8,8 +8,6 @@ export interface WorkflowConfig {
   theme?: "light" | "dark" | "system";
   /** Base route for workflow API handlers. Default: '/api' */
   apiRoute?: string;
-  /** Database connection string (required for persistence) */
-  databaseUrl?: string;
   /** Enable AI-powered workflow generation */
   ai?: {
     provider?: "openai" | "anthropic";
@@ -44,9 +42,6 @@ const workflowBuilder = (workflowConfig: WorkflowConfig = {}) => {
       ...nextConfig.env,
       NEXT_WORKFLOW_THEME: resolvedConfig.theme,
       NEXT_WORKFLOW_API_ROUTE: resolvedConfig.apiRoute,
-      ...(resolvedConfig.databaseUrl && {
-        NEXT_WORKFLOW_DATABASE_URL: resolvedConfig.databaseUrl,
-      }),
     },
     turbopack: {
       ...(nextConfig.turbopack ?? {}),

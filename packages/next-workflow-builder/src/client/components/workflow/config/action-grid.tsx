@@ -29,7 +29,7 @@ import {
 } from "../../ui/tooltip";
 import { useIsTouch } from "../../../hooks/use-touch";
 import { cn } from "../../../../lib/utils";
-import { getAllActions } from "../../../../plugins/index.js";
+import { getAllActions } from "../../../../plugins/registry.js";
 
 type ActionType = {
   id: string;

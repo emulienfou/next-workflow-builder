@@ -107,8 +107,12 @@ export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
 
       const route: ParsedRoute = { segments, method, request: req };
 
-      // Initialize Drizzle
-      const db = drizzle(options.databaseUrl, { schema });
+      // Initialize Drizzle from env
+      const databaseUrl = process.env.NEXT_WORKFLOW_BUILDER_DATABASE_URL;
+      if (!databaseUrl) {
+        return errorResponse("NEXT_WORKFLOW_BUILDER_DATABASE_URL is not set", 500);
+      }
+      const db = drizzle(databaseUrl, { schema });
 
       // Initialize Better Auth
       const auth = betterAuth({ ...getDefaultAuthOptions(db), ...options.authOptions });

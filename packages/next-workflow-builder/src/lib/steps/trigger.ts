@@ -2,8 +2,6 @@
  * Trigger step - handles trigger execution with proper logging
  * Also handles workflow completion when called with _workflowComplete
  */
-import "server-only";
-
 import {
   logWorkflowComplete,
   type StepInput,

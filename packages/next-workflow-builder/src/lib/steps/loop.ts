@@ -3,8 +3,6 @@
  * Iterates over an array and executes downstream nodes for each item/batch
  * Similar to n8n's SplitInBatches node
  */
-import "server-only";
-
 import { type StepInput, withStepLogging } from "./step-handler";
 
 export type LoopInput = StepInput & {

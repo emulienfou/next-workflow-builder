@@ -1,6 +1,6 @@
 import postgres from "postgres";
 import type { IntegrationConfig, IntegrationType } from "../../../../../lib/types/integration.js";
-import { getCredentialMapping, getIntegration as getPluginFromRegistry } from "../../../../../plugins/index.js";
+import { getCredentialMapping, getIntegration as getPluginFromRegistry } from "../../../../../plugins/registry.js";
 import { errorResponse, jsonResponse, requireSession } from "../../../handler-utils.js";
 import type { RouteHandler } from "../../../types.js";
 

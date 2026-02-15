@@ -37,7 +37,7 @@ import {
   getActionsByCategory,
   getAllIntegrations,
   integrationRequiresCredentials,
-} from "../../../../plugins/index.js";
+} from "../../../../plugins/registry.js";
 import { ActionConfigRenderer } from "./action-config-renderer";
 import { SchemaBuilder, type SchemaField } from "./schema-builder";
 

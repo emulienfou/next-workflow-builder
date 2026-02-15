@@ -56,7 +56,7 @@ import {
   type WorkflowNode,
   type WorkflowVisibility,
 } from "../../../lib/workflow-store";
-import { findActionById, flattenConfigFields, getIntegrationLabels } from "../../../plugins/index.js";
+import { findActionById, flattenConfigFields, getIntegrationLabels } from "../../../plugins/registry.js";
 import { Panel } from "../ai-elements/panel";
 import { DeployButton } from "../deploy-button";
 import { ConfigurationOverlay } from "../overlays/configuration-overlay";

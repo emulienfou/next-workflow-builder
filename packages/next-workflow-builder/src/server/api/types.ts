@@ -16,8 +16,6 @@ export interface ParsedRoute {
 }
 
 export interface WorkflowApiHandlerOptions {
-  /** Database connection string (required for persistence) */
-  databaseUrl: string;
   /** Better Auth instance */
   authOptions?: BetterAuthOptions;
   /** Optional integration validation function */

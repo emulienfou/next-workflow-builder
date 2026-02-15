@@ -30,7 +30,7 @@ import {
 } from "../../../lib/workflow-store";
 
 
-import { findActionById } from "../../../plugins/index.js";
+import { findActionById } from "../../../plugins/registry.js";
 import {
   AlertDialog,
   AlertDialogAction,

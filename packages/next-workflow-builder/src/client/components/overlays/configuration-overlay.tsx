@@ -39,7 +39,7 @@ import {
 } from "../../../lib/workflow-store";
 
 
-import { findActionById } from "../../../plugins/index.js";
+import { findActionById } from "../../../plugins/registry.js";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Code, Copy, Eraser, Eye, EyeOff, FileCode, Play, RefreshCw, Settings2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";

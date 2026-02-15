@@ -1,8 +1,8 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
-import type { IntegrationConfig, IntegrationType } from "../types/integration";
-import { db } from "./index";
-import { integrations, type NewIntegration } from "./schema";
+import type { IntegrationConfig, IntegrationType } from "../types/integration.js";
+import { db } from "./index.js";
+import { integrations, type NewIntegration } from "./schema.js";
 
 // Encryption configuration
 const ALGORITHM = "aes-256-gcm";

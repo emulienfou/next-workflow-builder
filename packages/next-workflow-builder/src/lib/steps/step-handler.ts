@@ -3,8 +3,6 @@
  * These functions are called FROM INSIDE steps (within "use step" context)
  * Uses direct database calls for security (no HTTP endpoint)
  */
-import "server-only";
-
 import { redactSensitiveData } from "../utils/redact";
 import {
   logStepCompleteDb,

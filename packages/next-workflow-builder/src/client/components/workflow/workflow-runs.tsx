@@ -27,7 +27,7 @@ import {
   executionLogsAtom,
   selectedExecutionIdAtom,
 } from "../../../lib/workflow-store";
-import { findActionById } from "../../../plugins/index.js";
+import { findActionById } from "../../../plugins/registry.js";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 

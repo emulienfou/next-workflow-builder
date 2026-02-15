@@ -6,7 +6,7 @@ import conditionTemplate from "../../../../lib/codegen-templates/condition";
 import databaseQueryTemplate from "../../../../lib/codegen-templates/database-query";
 import httpRequestTemplate from "../../../../lib/codegen-templates/http-request"; // System action templates (non-plugin actions)
 // System action templates (non-plugin actions)
-import { findActionById } from "../../../../plugins/index.js";
+import { findActionById } from "../../../../plugins/registry.js";
 
 // System action templates (non-plugin actions)
 const SYSTEM_ACTION_TEMPLATES: Record<string, string> = {

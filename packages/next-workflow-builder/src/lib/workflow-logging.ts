@@ -2,10 +2,8 @@
  * Server-only workflow logging functions
  * These replace the HTTP endpoint for better security
  */
-import "server-only";
-
 import { eq } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "./db/index.js";
 import { workflowExecutionLogs, workflowExecutions } from "./db/schema.js";
 
 export type LogStepStartParams = {

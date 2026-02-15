@@ -9,7 +9,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useIsMobile } from "../../hooks/use-mobile";
 import { api, type Integration } from "../../../lib/api-client";
-import { getIntegration, getIntegrationLabels } from "../../../plugins/index.js";
+import { getIntegration, getIntegrationLabels } from "../../../plugins/registry.js";
 import { ConfirmOverlay } from "./confirm-overlay";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";

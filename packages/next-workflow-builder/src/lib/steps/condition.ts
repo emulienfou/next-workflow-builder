@@ -1,8 +1,6 @@
 /**
  * Executable step function for Condition action
  */
-import "server-only";
-
 import { type StepInput, withStepLogging } from "./step-handler";
 
 export type ConditionInput = StepInput & {
