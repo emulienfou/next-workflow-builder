@@ -43,9 +43,7 @@ async function listApiKeys(
         createdAt: true,
         lastUsedAt: true,
       },
-      orderBy: (table: { createdAt: unknown }, { desc }: {
-        desc: (col: unknown) => unknown
-      }) => [desc(table.createdAt)],
+      orderBy: (apiKeys, { desc }) => [desc(apiKeys.createdAt)],
     });
 
     return jsonResponse(keys);

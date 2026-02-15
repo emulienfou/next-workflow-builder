@@ -1,4 +1,6 @@
 import { BetterAuthOptions } from "better-auth";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { schema } from "../db/schema.js";
 
 export type AuthSession = {
   user: {
@@ -21,9 +23,8 @@ export interface ParsedRoute {
 }
 
 export interface WorkflowApiHandlerOptions {
-  /** Drizzle database instance — must be created with the workflow schema */
-  // biome-ignore lint/suspicious/noExplicitAny: Drizzle db type varies by consumer
-  db: any;
+  /** Database connection string (required for persistence) */
+  databaseUrl: string;
   /** Better Auth instance */
   authOptions?: BetterAuthOptions;
   /** Optional integration validation function */
@@ -50,7 +51,12 @@ export interface WorkflowApiHandlerOptions {
   }>;
 }
 
-export type HandlerContext = Omit<WorkflowApiHandlerOptions, "authOptions"> & { auth: AuthInstance };
+export type HandlerContext = Omit<WorkflowApiHandlerOptions, "authOptions"> & {
+  /** Better Auth instance */
+  auth: AuthInstance;
+  /** Drizzle database instance — must be created with the workflow schema */
+  db: PostgresJsDatabase<typeof schema>;
+};
 
 export type RouteHandler = (
   route: ParsedRoute,

@@ -1,3 +1,16 @@
+import {
+  accounts,
+  apiKeys,
+  integrations,
+  sessions,
+  users,
+  verifications,
+  workflowExecutionLogs,
+  workflowExecutions,
+  workflowExecutionsRelations,
+  workflows,
+} from "./schema.js";
+
 export {
   users,
   sessions,
@@ -26,3 +39,17 @@ export type {
   NewApiKey,
   WorkflowVisibility,
 } from '../../lib/db/schema.js';
+
+// Construct schema object for drizzle
+export const schema = {
+  users,
+  sessions,
+  accounts,
+  verifications,
+  workflows,
+  workflowExecutions,
+  workflowExecutionLogs,
+  workflowExecutionsRelations,
+  apiKeys,
+  integrations,
+};

@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { defaultAuthOptions } from "../../lib/auth.js";
+import { schema } from "../db/schema.js";
 import { errorResponse } from "./handler-utils.js";
 import routes from "./routes.js";
 import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
@@ -75,9 +77,14 @@ export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
       }
 
       const route: ParsedRoute = { segments, method, request: req };
+
+      // Initialize Better Auth
       const auth = betterAuth({ ...defaultAuthOptions, ...options.authOptions });
 
-      return await match.handler(route, { ...options, auth });
+      // Initialize Drizzle
+      const db = drizzle(options.databaseUrl, { schema });
+
+      return await match.handler(route, { ...options, auth, db });
     } catch (error) {
       console.error("[WorkflowAPI] Unhandled error:", error);
       return errorResponse("Internal server error", 500);
