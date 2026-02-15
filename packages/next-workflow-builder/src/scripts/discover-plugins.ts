@@ -28,16 +28,15 @@ import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
 /**
- * Import from the installed package, falling back to local source for package development.
- * During development the dist/ files may not exist, so we fall back to source .ts files.
+ * Import from local source (for development) or the installed package (for published consumers).
+ * Local source is tried first because dist/ may not exist during development.
  */
 async function importPackageOrLocal(localRelPath: string): Promise<Record<string, unknown>> {
-  try {
-    return await import("next-workflow-builder/plugins");
-  } catch {
-    const localPath = join(import.meta.dirname, "..", "plugins", localRelPath);
+  const localPath = join(import.meta.dirname, "..", "plugins", localRelPath);
+  if (existsSync(localPath)) {
     return await import(pathToFileURL(localPath).href);
   }
+  return await import("next-workflow-builder/plugins");
 }
 
 /**
@@ -146,9 +145,32 @@ function generateIndexFile(plugins: string[]): void {
  */
 
 ${imports || "// No plugins discovered"}
+
+export {};
+
 `;
 
   writeFileSync(OUTPUT_FILE, content, "utf-8");
+}
+
+/**
+ * Ensure plugins/index.ts is listed in the consumer's .gitignore
+ * (it's auto-generated and should not be committed).
+ */
+function ensureGitignore(): void {
+  const gitignorePath = join(process.cwd(), ".gitignore");
+  const entry = "plugins/index.ts";
+
+  if (existsSync(gitignorePath)) {
+    const content = readFileSync(gitignorePath, "utf-8");
+    if (content.split("\n").some((line) => line.trim() === entry)) {
+      return;
+    }
+    writeFileSync(gitignorePath, content.trimEnd() + `\n${entry}\n`, "utf-8");
+  } else {
+    writeFileSync(gitignorePath, `${entry}\n`, "utf-8");
+  }
+  console.log('Updated .gitignore with "plugins/index.ts"');
 }
 
 /**
@@ -839,6 +861,7 @@ async function main(): Promise<void> {
 
   console.log("\nGenerating plugins/index.ts...");
   generateIndexFile(plugins);
+  ensureGitignore();
 
   // Import each plugin directly to populate the registry before generation steps
   await importConsumerPlugins(plugins);

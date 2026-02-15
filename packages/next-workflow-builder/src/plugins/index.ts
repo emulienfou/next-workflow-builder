@@ -7,6 +7,8 @@ export type {
   PluginAction,
 } from "./registry.js";
 
+export type { IntegrationType } from "../lib/types/integration.js";
+
 // Export the registry utilities
 export {
   computeActionId,

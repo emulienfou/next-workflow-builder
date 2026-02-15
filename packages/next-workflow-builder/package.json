@@ -22,8 +22,9 @@
       "import": "./dist/client/hooks/index.js"
     },
     "./plugins": {
-      "types": "./dist/plugins/index.d.ts",
-      "import": "./dist/plugins/index.js"
+      "types": "./src/plugins/index.ts",
+      "import": "./src/plugins/index.ts",
+      "default": "./src/plugins/index.ts"
     },
     "./styles/globals.css": "./dist/styles/globals.css",
     "./lib/api-client": {
@@ -45,7 +46,7 @@
   "files": [
     "dist",
     "src/scripts",
-    "src/plugins/_template"
+    "src/plugins"
   ],
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=8192' NODE_ENV=production tsup",
