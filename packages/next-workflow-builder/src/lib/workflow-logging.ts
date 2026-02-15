@@ -3,7 +3,7 @@
  * These replace the HTTP endpoint for better security
  */
 import { eq } from "drizzle-orm";
-import { db } from "./db/index.js";
+import { getDb } from "./db/index.js";
 import { workflowExecutionLogs, workflowExecutions } from "./db/schema.js";
 
 export type LogStepStartParams = {
@@ -25,7 +25,7 @@ export type LogStepStartResult = {
 export async function logStepStartDb(
   params: LogStepStartParams
 ): Promise<LogStepStartResult> {
-  const [log] = await db
+  const [log] = await getDb()
     .insert(workflowExecutionLogs)
     .values({
       executionId: params.executionId,
@@ -60,7 +60,7 @@ export async function logStepCompleteDb(
 ): Promise<void> {
   const duration = Date.now() - params.startTime;
 
-  await db
+  await getDb()
     .update(workflowExecutionLogs)
     .set({
       status: params.status,
@@ -88,7 +88,7 @@ export async function logWorkflowCompleteDb(
 ): Promise<void> {
   const duration = Date.now() - params.startTime;
 
-  await db
+  await getDb()
     .update(workflowExecutions)
     .set({
       status: params.status,

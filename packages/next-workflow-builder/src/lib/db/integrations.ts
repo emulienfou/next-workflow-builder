@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import type { IntegrationConfig, IntegrationType } from "../types/integration.js";
-import { db } from "./index.js";
+import { getDb } from "./index.js";
 import { integrations, type NewIntegration } from "./schema.js";
 
 // Encryption configuration
@@ -117,7 +117,7 @@ export async function getIntegrations(
     conditions.push(eq(integrations.type, type));
   }
 
-  const results = await db
+  const results = await getDb()
     .select()
     .from(integrations)
     .where(and(...conditions));
@@ -135,7 +135,7 @@ export async function getIntegration(
   integrationId: string,
   userId: string
 ): Promise<DecryptedIntegration | null> {
-  const result = await db
+  const result = await getDb()
     .select()
     .from(integrations)
     .where(
@@ -159,7 +159,7 @@ export async function getIntegration(
 export async function getIntegrationById(
   integrationId: string
 ): Promise<DecryptedIntegration | null> {
-  const result = await db
+  const result = await getDb()
     .select()
     .from(integrations)
     .where(eq(integrations.id, integrationId))
@@ -186,7 +186,7 @@ export async function createIntegration(
 ): Promise<DecryptedIntegration> {
   const encryptedConfig = encryptConfig(config);
 
-  const [result] = await db
+  const [result] = await getDb()
     .insert(integrations)
     .values({
       userId,
@@ -225,7 +225,7 @@ export async function updateIntegration(
     updateData.config = encryptConfig(updates.config);
   }
 
-  const [result] = await db
+  const [result] = await getDb()
     .update(integrations)
     .set(updateData)
     .where(
@@ -250,7 +250,7 @@ export async function deleteIntegration(
   integrationId: string,
   userId: string
 ): Promise<boolean> {
-  const result = await db
+  const result = await getDb()
     .delete(integrations)
     .where(
       and(eq(integrations.id, integrationId), eq(integrations.userId, userId))
@@ -312,7 +312,7 @@ export async function validateWorkflowIntegrations(
 
   // Query for ALL integrations with these IDs (regardless of user)
   // to check if any belong to other users
-  const existingIntegrations = await db
+  const existingIntegrations = await getDb()
     .select({ id: integrations.id, userId: integrations.userId })
     .from(integrations)
     .where(inArray(integrations.id, integrationIds));

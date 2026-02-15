@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
-import { drizzle } from "drizzle-orm/postgres-js";
 import { getDefaultAuthOptions } from "../../lib/auth.js";
-import { schema } from "../db/schema.js";
+import { getDb } from "../../lib/db/index.js";
 import { errorResponse } from "./handler-utils.js";
 import routes from "./routes.js";
 import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
@@ -73,7 +72,7 @@ function matchRoute(segments: string[]): { handler: RouteHandler; methods: strin
  * export const POST = createWorkflowApiHandler(options);
  * ```
  */
-export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
+export function createWorkflowApiHandler(options?: WorkflowApiHandlerOptions) {
   return async function handler(
     req: Request,
     nextCtx?: { params: Promise<{ slug?: string[] }> },
@@ -108,14 +107,10 @@ export function createWorkflowApiHandler(options: WorkflowApiHandlerOptions) {
       const route: ParsedRoute = { segments, method, request: req };
 
       // Initialize Drizzle from env
-      const databaseUrl = process.env.NEXT_WORKFLOW_BUILDER_DATABASE_URL;
-      if (!databaseUrl) {
-        return errorResponse("NEXT_WORKFLOW_BUILDER_DATABASE_URL is not set", 500);
-      }
-      const db = drizzle(databaseUrl, { schema });
+      const db = getDb();
 
       // Initialize Better Auth
-      const auth = betterAuth({ ...getDefaultAuthOptions(db), ...options.authOptions });
+      const auth = betterAuth({ ...getDefaultAuthOptions(db), ...options?.authOptions });
 
       return await match.handler(route, { ...options, auth, db });
     } catch (error) {
