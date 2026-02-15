@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 import workflowNext from "workflow/next";
+import {
+  type PluginRegistry,
+  setPluginRegistry,
+} from "../lib/plugin-registry.js";
 
 const { withWorkflow } = workflowNext;
 
@@ -14,7 +18,7 @@ export interface WorkflowConfig {
     model?: string;
   };
   /** Enabled integration plugins */
-  plugins?: string[];
+  plugins?: PluginRegistry;
   /** Auto-generate the catch-all API route file. Default: true */
   autoGenerateApiRoute?: boolean;
   /** Import path for the database module in generated route. Default: '@/lib/db' */
@@ -31,6 +35,11 @@ const defaultConfig: WorkflowConfig = {
 
 const workflowBuilder = (workflowConfig: WorkflowConfig = {}) => {
   const resolvedConfig = { ...defaultConfig, ...workflowConfig };
+
+  // Store plugin registry so the workflow executor can access it at runtime
+  if (resolvedConfig.plugins) {
+    setPluginRegistry(resolvedConfig.plugins);
+  }
 
   return (nextConfig: NextConfig = {}) => withWorkflow({
     ...nextConfig,

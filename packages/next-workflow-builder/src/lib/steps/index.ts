@@ -11,12 +11,21 @@
 // import type { createTicketStep } from "../../plugins/linear/steps/create-ticket";
 // import type { sendEmailStep } from "../../plugins/resend/steps/send-email";
 // import type { sendSlackMessageStep } from "../../plugins/slack/steps/send-slack-message";
-import type { conditionStep } from "./condition";
-import type { databaseQueryStep } from "./database-query";
-import type { httpRequestStep } from "./http-request";
+import type { conditionStep } from "./condition.js";
+import type { databaseQueryStep } from "./database-query.js";
+import type { httpRequestStep } from "./http-request.js";
 
 // Step function type
 export type StepFunction = (input: Record<string, unknown>) => Promise<unknown>;
+
+// Step modules may contain the step function plus other exports (types, constants, etc.)
+// biome-ignore lint/suspicious/noExplicitAny: Dynamic module with mixed exports
+export type StepModule = Record<string, any>;
+
+export type StepImporter = {
+  importer: () => Promise<StepModule>;
+  stepFunction: string;
+};
 
 // Registry of all available steps
 export const stepRegistry: Record<string, StepFunction> = {

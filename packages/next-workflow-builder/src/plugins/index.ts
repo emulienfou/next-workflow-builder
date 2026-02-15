@@ -6,4 +6,6 @@ export { type StepInput, withStepLogging } from "../lib/steps/step-handler.js";
 
 // Export the registry utilities
 export type { IntegrationPlugin } from "./registry.js";
-export { registerIntegration } from "./registry.js";
+
+// Export the steps utilities
+export type { StepImporter } from "../lib/steps/index.js";
