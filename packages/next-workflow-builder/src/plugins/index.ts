@@ -1,5 +1,5 @@
 // Export the lib utilities
-export { getErrorMessage } from "../lib/utils";
+export { getErrorMessage, getErrorMessageAsync } from "../lib/utils";
 export type { IntegrationType } from "../lib/types/integration";
 export { fetchCredentials } from "../lib/credential-fetcher";
 export { type StepInput, withStepLogging } from "../lib/steps/step-handler";
