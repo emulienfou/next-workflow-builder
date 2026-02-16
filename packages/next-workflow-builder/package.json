@@ -49,8 +49,8 @@
     "src/plugins"
   ],
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' NODE_ENV=production tsup",
-    "dev": "tsup --watch",
+    "prebuild": "rimraf dist",
+    "build": "tsc --noCheck && node scripts/fix-esm-imports.mjs && mkdir -p dist/styles dist/client && cp src/styles/globals.css dist/styles/globals.css && echo '{\"sideEffects\":false}' > dist/client/package.json",
     "test": "vitest --typecheck",
     "types:check": "tsc --noEmit",
     "prepublishOnly": "pnpm build"
@@ -104,8 +104,8 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "postcss": "^8.5.6",
+    "rimraf": "^5.0.5",
     "tailwindcss": "^4.1.18",
-    "tsup": "^8.0.0",
     "typescript": "^5.0.0",
     "vitest": "^2.0.0"
   }

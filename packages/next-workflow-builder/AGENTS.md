@@ -16,5 +16,10 @@ Do NOT update package `workflow-builder-template` only `next-workflow-builder`
 Package `next-workflow-builder` should be able to load generated files above to be able to load plugins.
 
 Update/add/generate new code inside `next-workflow-builder` package to load these files.
-File `example/lib/types/integration.ts` should be merged with file `packages/next-workflow-builder/src/lib/types/integration.ts`.
+File `example/lib/types/integration.ts` should be merged with file
+`packages/next-workflow-builder/src/lib/types/integration.ts`.
 Load/import file `example/plugins/index.ts`
+
+Map `integrationRegistry` seems to be empty when calling functions `generateTypesFile`, `generateStepRegistry`,
+`generateOutputDisplayConfigs` from `packages/next-workflow-builder/src/scripts/discover-plugins.ts`.
+Plugins seem to not register correctly, find a solution and fix it!

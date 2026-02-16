@@ -1,12 +1,12 @@
 // Export the lib utilities
-export { getErrorMessage } from "../lib/utils.js";
-export type { IntegrationType } from "../lib/types/integration.js";
-export { fetchCredentials } from "../lib/credential-fetcher.js";
-export { type StepInput, withStepLogging } from "../lib/steps/step-handler.js";
+export { getErrorMessage } from "../lib/utils";
+export type { IntegrationType } from "../lib/types/integration";
+export { fetchCredentials } from "../lib/credential-fetcher";
+export { type StepInput, withStepLogging } from "../lib/steps/step-handler";
 
 // Export the registry utilities
-export type { IntegrationPlugin } from "./registry.js";
-export { registerIntegration } from "./registry.js";
+export type { IntegrationPlugin } from "./registry";
+export { registerIntegration } from "./registry";
 
 // Export the steps utilities
-export type { StepImporter } from "../lib/steps/index.js";
+export type { StepImporter } from "../lib/steps/index";

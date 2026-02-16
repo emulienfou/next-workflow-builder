@@ -1,5 +1,5 @@
 import type { IntegrationType } from "../lib/types/integration";
-import { LEGACY_ACTION_MAPPINGS } from "./legacy-mappings.js";
+import { LEGACY_ACTION_MAPPINGS } from "./legacy-mappings";
 
 /**
  * Select Option
