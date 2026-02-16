@@ -1,10 +1,12 @@
+"use client";
+
+import { ReactFlowProvider } from "@xyflow/react";
+import { Provider } from "jotai";
+import * as React from "react";
 import { AuthProvider } from "./auth/provider";
 import { OverlayProvider } from "./overlays/overlay-provider";
 import { ThemeProvider } from "./theme-provider";
 import { PersistentCanvas } from "./workflow/persistent-canvas";
-import { ReactFlowProvider } from "@xyflow/react";
-import { Provider } from "jotai";
-import * as React from "react";
 
 const LayoutProvider = (props: React.PropsWithChildren) => {
   return (

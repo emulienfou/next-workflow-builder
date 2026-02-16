@@ -783,20 +783,6 @@ export const PanelInner = () => {
           className="flex flex-col overflow-hidden"
           value="properties"
         >
-          {/* Display node ID */}
-          <div className="flex-1 space-y-4 overflow-y-auto p-4">
-            <div className="space-y-2">
-              <Label className="ml-1" htmlFor="node-id">
-                Node ID
-              </Label>
-              <Input
-                disabled
-                id="node-id"
-                value={ selectedNode?.id || "" }
-              />
-            </div>
-          </div>
-
           {/* Action selection - full height flex layout */ }
           { selectedNode.data.type === "action" &&
             !selectedNode.data.config?.actionType &&
@@ -823,6 +809,18 @@ export const PanelInner = () => {
             isOwner
           ) && (
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              {/* Display node ID */}
+              <div className="space-y-2">
+                <Label className="ml-1" htmlFor="node-id">
+                  Node ID
+                </Label>
+                <Input
+                  disabled
+                  id="node-id"
+                  value={ selectedNode?.id || "" }
+                />
+              </div>
+
               { selectedNode.data.type === "trigger" && (
                 <TriggerConfig
                   config={ selectedNode.data.config || {} }

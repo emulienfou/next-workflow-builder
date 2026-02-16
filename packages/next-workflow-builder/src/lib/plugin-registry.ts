@@ -5,7 +5,7 @@ import type { StepImporter } from "./steps/index.js";
 export interface PluginRegistry {
   stepImporters: Record<string, StepImporter>;
   actionLabels: Record<string, string>;
-  plugins: IntegrationPlugin[];
+  plugins?: IntegrationPlugin[];
 }
 
 let _registry: PluginRegistry = {
@@ -21,7 +21,7 @@ let _registry: PluginRegistry = {
 export function setPluginRegistry(registry: PluginRegistry) {
   _registry = registry;
 
-  for (const plugin of registry.plugins) {
+  for (const plugin of registry.plugins ?? []) {
     registerIntegration(plugin);
   }
 }

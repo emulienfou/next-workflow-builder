@@ -109,7 +109,13 @@ function discoverPlugins(): string[] {
  * Generate the plugins/index.ts file
  */
 function generateIndexFile(plugins: string[]): void {
-  const imports = plugins.map((plugin) => `import "./${ plugin }";`).join("\n");
+  const pluginImports = plugins
+    .map((plugin) => `import ${ plugin }Plugin from "./${ plugin }";`)
+    .join("\n");
+
+  const registrations = plugins
+    .map((plugin) => `registerIntegration(${ plugin }Plugin);`)
+    .join("\n");
 
   const content = `/**
  * Plugins Index (Auto-Generated)
@@ -127,7 +133,7 @@ function generateIndexFile(plugins: string[]): void {
  * 2. Run: pnpm discover-plugins (or it runs automatically on build)
  */
 
-${ imports || "// No plugins discovered" }
+${ plugins.length > 0 ? `import { registerIntegration } from "next-workflow-builder/plugins";\n${ pluginImports }\n\n${ registrations }` : "// No plugins discovered" }
 
 export {};
 

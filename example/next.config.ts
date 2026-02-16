@@ -1,9 +1,8 @@
-import slackPlugin from "@/plugins/slack";
 import workflowBuilder from "next-workflow-builder";
 
 // Set up WorkflowBuilder with its configuration
 const withWorkflowBuilder = workflowBuilder({
-  // ... Add WorkflowBuilder specific options here
+  // ... Add Wor\kflowBuilder specific options here
   theme: "dark",
   plugins: {
     stepImporters: {
@@ -19,7 +18,6 @@ const withWorkflowBuilder = workflowBuilder({
     actionLabels: {
       "slack/send-message": "Send Slack Message",
     },
-    plugins: [slackPlugin],
   },
 });
 

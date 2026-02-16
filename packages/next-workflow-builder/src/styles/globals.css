@@ -1,4 +1,4 @@
-@source "../../src";
+@source "../client/components";
 
 @custom-variant dark (&:is(.dark *));
 
