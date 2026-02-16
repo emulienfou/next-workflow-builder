@@ -22,9 +22,9 @@
       "import": "./dist/client/hooks/index.js"
     },
     "./plugins": {
-      "types": "./src/plugins/index.ts",
-      "import": "./src/plugins/index.ts",
-      "default": "./src/plugins/index.ts"
+      "types": "./dist/plugins/index.d.ts",
+      "import": "./dist/plugins/index.js",
+      "default": "./dist/plugins/index.js"
     },
     "./styles/globals.css": "./dist/styles/globals.css",
     "./lib/api-client": {
