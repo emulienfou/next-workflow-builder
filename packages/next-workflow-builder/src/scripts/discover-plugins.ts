@@ -55,6 +55,7 @@ async function importPackageOrLocal(localRelPath: string): Promise<Record<string
  * which may not resolve during development (dist/ not built yet).
  */
 async function importConsumerPlugins(plugins: string[]): Promise<void> {
+  console.log("Importing consumer plugins...", { plugins });
   for (const plugin of plugins) {
     const pluginIndex = join(PLUGINS_DIR, plugin, "index.ts");
     if (existsSync(pluginIndex)) {
@@ -630,6 +631,7 @@ async function generateStepRegistry(): Promise<void> {
     );
   const { LEGACY_ACTION_MAPPINGS } = await import("../plugins/legacy-mappings");
   const integrations = getAllIntegrations();
+  console.log("Generating step registry for integrations:", integrations.map(i => i.type));
 
   // Collect all action -> step mappings
   const stepEntries: Array<{

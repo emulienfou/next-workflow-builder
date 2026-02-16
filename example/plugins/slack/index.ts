@@ -1,4 +1,4 @@
-import { IntegrationPlugin } from "next-workflow-builder/plugins";
+import { IntegrationPlugin, registerIntegration } from "next-workflow-builder/plugins";
 import { SlackIcon } from "./icon";
 
 const slackPlugin: IntegrationPlugin = {
@@ -66,5 +66,8 @@ const slackPlugin: IntegrationPlugin = {
     },
   ],
 };
+
+// Auto-register on import
+registerIntegration(slackPlugin);
 
 export default slackPlugin;
