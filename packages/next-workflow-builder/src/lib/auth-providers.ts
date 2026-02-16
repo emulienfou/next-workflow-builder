@@ -34,27 +34,9 @@ export function getEnabledAuthProviders(): EnabledProviders {
 
   return {
     email: enabledProviders.includes("email"),
-    github:
-      enabledProviders.includes("github") &&
-      !!(
-        process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID ||
-        (typeof window !== "undefined" &&
-          (window as WindowWithEnv).ENV?.NEXT_PUBLIC_GITHUB_CLIENT_ID)
-      ),
-    google:
-      enabledProviders.includes("google") &&
-      !!(
-        process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-        (typeof window !== "undefined" &&
-          (window as WindowWithEnv).ENV?.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
-      ),
-    vercel:
-      enabledProviders.includes("vercel") &&
-      !!(
-        process.env.NEXT_PUBLIC_VERCEL_CLIENT_ID ||
-        (typeof window !== "undefined" &&
-          (window as WindowWithEnv).ENV?.NEXT_PUBLIC_VERCEL_CLIENT_ID)
-      ),
+    github: enabledProviders.includes("github"),
+    google: enabledProviders.includes("google"),
+    vercel: enabledProviders.includes("vercel"),
   };
 }
 
@@ -63,6 +45,7 @@ export function getEnabledAuthProviders(): EnabledProviders {
  */
 export function getEnabledProvidersList(): AuthProvider[] {
   const providers = getEnabledAuthProviders();
+  console.log({ providers });
   return Object.entries(providers)
     .filter(([, enabled]) => enabled)
     .map(([name]) => name as AuthProvider);
