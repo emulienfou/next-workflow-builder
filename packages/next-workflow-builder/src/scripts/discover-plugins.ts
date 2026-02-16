@@ -53,13 +53,25 @@ async function importPackageOrLocal(localRelPath: string): Promise<Record<string
  * We import the individual plugin index files rather than the generated
  * plugins/index.ts because the generated file re-exports from the package
  * which may not resolve during development (dist/ not built yet).
+ *
+ * NOTE: Consumer plugins import `registerIntegration` from "next-workflow-builder/plugins"
+ * which may resolve to a different module instance than our relative import of
+ * "../plugins/registry". Node.js ESM caches modules by resolved URL, so the same
+ * file loaded via a package specifier vs a relative path creates two separate
+ * module instances with separate registries. To fix this, we explicitly register
+ * each plugin's default export with our local registry instance.
  */
 async function importConsumerPlugins(plugins: string[]): Promise<void> {
+  const { registerIntegration } = await import("../plugins/registry");
   console.log("Importing consumer plugins...", { plugins });
   for (const plugin of plugins) {
     const pluginIndex = join(PLUGINS_DIR, plugin, "index.ts");
     if (existsSync(pluginIndex)) {
-      await import(pathToFileURL(pluginIndex).href);
+      const mod = await import(pathToFileURL(pluginIndex).href);
+      // Explicitly register with our local registry to avoid dual module instance issues
+      if (mod.default) {
+        registerIntegration(mod.default);
+      }
     }
   }
 }
