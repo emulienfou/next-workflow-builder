@@ -1,5 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Copy, Eraser, Eye, EyeOff, FileCode, RefreshCw, Trash2 } from "lucide-react";
+import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -782,6 +783,18 @@ export const PanelInner = () => {
           className="flex flex-col overflow-hidden"
           value="properties"
         >
+          {/* Display node ID */}
+          <div className="space-y-2">
+            <Label className="ml-1" htmlFor="node-id">
+              Node ID
+            </Label>
+            <Input
+              disabled
+              id="node-id"
+              value={selectedNode?.id || ""}
+            />
+          </div>
+
           {/* Action selection - full height flex layout */ }
           { selectedNode.data.type === "action" &&
             !selectedNode.data.config?.actionType &&
