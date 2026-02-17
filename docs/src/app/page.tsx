@@ -1,3 +1,6 @@
+"use client";
+
+import { CodeBlock } from "@/components/code-block";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WorkflowIcon } from "@/components/workflow-icon";
@@ -15,7 +18,7 @@ import Link from "next/link";
 
 function Hero() {
   return (
-    <section className="flex flex-col items-center gap-8 px-4 pt-24 pb-16 text-center md:pt-32 md:pb-24">
+    <section className="flex flex-col items-center gap-8 px-4 pt-24 pb-16 text-center md:pt-32 md:pb-20">
       <Badge variant="outline" className="gap-2 px-3 py-1 text-sm font-normal">
         <WorkflowIcon className="size-3.5" />
         Built for Next.js 16
@@ -49,7 +52,7 @@ function Hero() {
 
 function Screenshot() {
   return (
-    <section className="px-4 pb-16 md:pb-24">
+    <section className="px-4 pb-20 md:pb-28">
       <div className="mx-auto max-w-5xl">
         <div className="overflow-hidden rounded-xl border border-border/60 bg-muted/20 shadow-2xl">
           <Image
@@ -107,7 +110,7 @@ function Features() {
   ];
 
   return (
-    <section className="px-4 py-16 md:py-24">
+    <section className="bg-background px-4 py-16 md:py-24">
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -139,40 +142,56 @@ function Features() {
   );
 }
 
-function Setup() {
-  const steps = [
-    {
-      step: "1",
-      title: "Configure Next.js",
-      code: `import workflowBuilder from "next-workflow-builder";
+const SETUP_STEPS = [
+  {
+    step: "1",
+    title: "Configure Next.js",
+    file: "next.config.ts",
+    code: `import workflowBuilder from "next-workflow-builder";
 
 const withWorkflowBuilder = workflowBuilder({});
 
 export default withWorkflowBuilder({});`,
-    },
-    {
-      step: "2",
-      title: "Create API route",
-      code: `import { createWorkflowApiHandler } from "next-workflow-builder";
+  },
+  {
+    step: "2",
+    title: "Create API route",
+    file: "src/app/api/[...slug]/route.ts",
+    code: `import { createWorkflowApiHandler } from "next-workflow-builder";
 
 const handler = createWorkflowApiHandler({});
 
-export { handler as GET, handler as POST,
-  handler as PUT, handler as DELETE };`,
-    },
-    {
-      step: "3",
-      title: "Add layout + pages",
-      code: `// layout.tsx
+export {
+  handler as GET,
+  handler as POST,
+  handler as PUT,
+  handler as DELETE,
+};`,
+  },
+  {
+    step: "3",
+    title: "Add layout and pages",
+    file: "src/app/layout.tsx + src/app/[[...slug]]/page.tsx",
+    code: `// layout.tsx
 import { LayoutProvider } from "next-workflow-builder/components";
 import "next-workflow-builder/styles/globals.css";
 
-// [[...slug]]/page.tsx
-export { WorkflowPage as default }
-  from "next-workflow-builder/components";`,
-    },
-  ];
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <LayoutProvider>{children}</LayoutProvider>
+      </body>
+    </html>
+  );
+}
 
+// [[...slug]]/page.tsx
+export { WorkflowPage as default } from "next-workflow-builder/components";`,
+  },
+];
+
+function Setup() {
   return (
     <section className="px-4 py-16 md:py-24">
       <div className="mx-auto max-w-5xl">
@@ -185,21 +204,17 @@ export { WorkflowPage as default }
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {steps.map((item) => (
-            <div key={item.step} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-8">
+          {SETUP_STEPS.map((item) => (
+            <div key={item.step} className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <span
-                  className="flex size-7 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
+                  className="flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
                   {item.step}
                 </span>
-                <span className="font-medium">{item.title}</span>
+                <span className="font-semibold">{item.title}</span>
               </div>
-              <div className="overflow-hidden rounded-lg border border-border/60 bg-[#0a0a0a]">
-                <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-zinc-300">
-                  <code>{item.code}</code>
-                </pre>
-              </div>
+              <CodeBlock code={item.code} filename={item.file} language="typescript" />
             </div>
           ))}
         </div>
@@ -208,26 +223,7 @@ export { WorkflowPage as default }
   );
 }
 
-function PluginShowcase() {
-  return (
-    <section className="px-4 py-16 md:py-24">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Extensible plugin system
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Each plugin is a self-contained directory with credentials, actions, step handlers, and optional routes.
-            Auto-discovered and fully typed.
-          </p>
-        </div>
-
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-[#0a0a0a]">
-          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-            <span className="text-xs text-zinc-500">plugins/my-service/index.ts</span>
-          </div>
-          <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-zinc-300">
-            <code>{`import { registerIntegration } from "next-workflow-builder/plugins";
+const PLUGIN_CODE = `import { registerIntegration } from "next-workflow-builder/plugins";
 import { MyServiceIcon } from "./icon";
 
 const myPlugin = {
@@ -257,9 +253,23 @@ const myPlugin = {
 };
 
 registerIntegration(myPlugin);
-export default myPlugin;`}</code>
-          </pre>
+export default myPlugin;`;
+
+function PluginShowcase() {
+  return (
+    <section className="bg-background px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Extensible plugin system
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Each plugin is a self-contained directory with credentials, actions, step handlers, and optional routes.
+            Auto-discovered and fully typed.
+          </p>
         </div>
+
+        <CodeBlock code={PLUGIN_CODE} filename="plugins/my-service/index.ts" language="typescript" />
       </div>
     </section>
   );
