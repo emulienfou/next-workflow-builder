@@ -1,114 +1,100 @@
 # Contributing
 
-Thank you for your interest in contributing to the Workflow Marketplace! We're excited to have you here and appreciate your help in expanding the plugin ecosystem for everyone.
+## Monorepo setup
 
-## How to contribute a plugin
+The project is a pnpm monorepo managed with Turborepo:
 
-Adding a new integration to the marketplace is straightforward. Here's the process:
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/emulienfou/useworkflow-marketplace.git
-cd useworkflow-marketplace
+```
+next-workflow-builder/
+├── packages/
+│   ├── next-workflow-builder/    # The published npm package
+│   └── workflow-builder-template/ # Full template with 14+ plugins
+├── example/                       # Minimal example consumer app
+├── docs/                          # Documentation (Nextra)
+├── pnpm-workspace.yaml
+└── turbo.json
 ```
 
-### 2. Install dependencies
+## Getting started
 
 ```bash
+# Clone the repository
+git clone <repo-url>
+cd next-workflow-builder
+
+# Install dependencies
 pnpm install
+
+# Build the package
+pnpm build:nwb
+
+# Run the example app
+pnpm dev:example
 ```
 
-### 3. Create your plugin
+## Development workflow
 
-Add your plugin inside the correct category folder under [`plugins/`](https://github.com/emulienfou/useworkflow-marketplace/tree/main/plugins). Categories include:
-
-- **ai** — AI and machine learning services (e.g., OpenAI, Anthropic)
-- **communication** — Messaging and notification services (e.g., Slack, Discord)
-- **productivity** — Project management and collaboration tools
-- **data** — Databases, storage, and data processing
-- **developer** — Developer tools and utilities
-- **other** — Integrations that don't fit the above categories
-
-> If your integration doesn't fit an existing category, feel free to propose a new one in your pull request.
-
-#### Plugin structure
-
-Each plugin lives in its own directory with all components self-contained:
-
-```
-plugins/<category>/<my-integration>/
-├── credentials.ts        # Credential type definition
-├── icon.tsx              # Icon component (SVG)
-├── index.ts              # Plugin definition (ties everything together)
-├── steps/                # Action implementations
-│   └── my-action.ts      # Server-side step function with stepHandler
-├── test.ts               # Connection test function
-└── README.md             # Plugin documentation (required)
-```
-
-You can use the interactive wizard to scaffold your plugin:
+### Building the package
 
 ```bash
-pnpm create-plugin
+pnpm build:nwb
 ```
 
-This will prompt you for:
-- **Integration name** (e.g., "Stripe")
-- **Integration description** (e.g., "Process payments with Stripe")
-- **Action name** (e.g., "Create Payment")
-- **Action description** (e.g., "Creates a new payment intent")
+This runs TypeScript compilation, fixes ESM imports, and copies static assets.
 
-The script creates the full plugin structure with your names filled in. You'll still need to customize the generated files (API logic, input/output types, icon, etc.).
-
-### 4. Add a README.md
-
-Every plugin **must** include a `README.md` file at its root. This file is displayed on the marketplace and should contain:
-
-- **Plugin name and description** — What the integration does
-- **Setup instructions** — How to obtain API keys or configure credentials
-- **Available actions** — List of actions with descriptions
-- **Example usage** — How to use the plugin in a workflow
-- **Links** — Link to the service's documentation or API reference
-
-### 5. Test your plugin
-
-Before submitting, make sure everything works:
+### Running the example app
 
 ```bash
-pnpm type-check    # TypeScript validation
-pnpm fix           # Auto-fix linting issues
-pnpm dev           # Run locally to test
+pnpm dev:example
 ```
 
-### 6. Create a Pull Request
+The example app uses `workspace:*` to link the local package, so changes to the package are reflected after rebuilding.
 
-Push your changes to a fork and open a pull request against the `main` branch.
+### Running docs
 
-**PR guidelines:**
+```bash
+pnpm dev:docs
+```
 
-- Use a clear title with conventional commit format (e.g., `feat: add Stripe integration`)
-- Include a description of what your plugin does
-- Include screenshots if applicable
-- Make sure all checks pass
+### Running tests
 
-## Plugin development guide
+```bash
+pnpm test
+```
 
-For a detailed, step-by-step guide on building plugins — including credential types, test functions, step handlers, declarative config fields, and more — refer to the full [CONTRIBUTING.md](https://github.com/emulienfou/useworkflow-marketplace/blob/main/CONTRIBUTING.md) file in the repository.
+## Package development guidelines
 
-## Review process
+- Only modify code in `packages/next-workflow-builder/`
+- Do not modify `packages/workflow-builder-template/` directly
+- The `example/` app serves as a minimal integration test
+- Run `nwb discover-plugins` in the example directory after changing plugin-related code
 
-All contributions go through a review process. Our team reviews each submission focusing on:
+## Plugin development
 
-- **Security** — Protecting user data and system integrity
-- **User value** — Ensuring the plugin benefits users
-- **Code quality** — Maintaining high standards for maintainability
-- **Documentation** — Plugin includes a clear README.md
+When creating community plugins:
 
-We do our best to review submissions promptly. We may provide feedback for improvements or, in some cases, decline contributions that don't align with the project's direction. We appreciate every contribution and will always explain our reasoning.
+- Follow the plugin structure documented in [Creating Plugins](/docs/creating-plugins)
+- Prefer `fetch` over SDK dependencies to reduce supply chain attack surface
+- Always import `"server-only"` in step files
+- Use `withStepLogging` for execution tracking
+- Include a connection test function
+- Test with the example app before publishing
 
-## Need help?
+## Docs development
 
-- Check existing integrations in [`plugins/`](https://github.com/emulienfou/useworkflow-marketplace/tree/main/plugins) for reference
-- Read the full [CONTRIBUTING.md](https://github.com/emulienfou/useworkflow-marketplace/blob/main/CONTRIBUTING.md) for detailed technical guidance
-- Open an [issue](https://github.com/emulienfou/useworkflow-marketplace/issues) on GitHub
+The docs use [Nextra](https://nextra.site/) (v4) with the docs theme. Pages are markdown files under
+`docs/src/app/docs/`.
+
+To add a new page:
+
+1. Create `docs/src/app/docs/{page-name}/page.md`
+2. Add an entry in `docs/src/app/_meta.global.tsx` under the `docs.items` object
+3. Write your content in markdown
+
+## Submitting changes
+
+1. Create a branch from `main`
+2. Make your changes
+3. Ensure the package builds: `pnpm build:nwb`
+4. Test with the example app
+5. Open a pull request against `main`

@@ -18,6 +18,39 @@ const meta = {
     title: "Documentation",
     items: {
       index: "Introduction",
+      "getting-started": {
+        title: "Getting Started",
+      },
+      configuration: {
+        title: "Configuration",
+      },
+      plugins: {
+        title: "Plugins",
+      },
+      "creating-plugins": {
+        title: "Creating Plugins",
+      },
+      "api-reference": {
+        title: "API Reference",
+      },
+      "cli-reference": {
+        title: "CLI Reference",
+      },
+      components: {
+        title: "Components",
+      },
+      database: {
+        title: "Database",
+      },
+      authentication: {
+        title: "Authentication",
+      },
+      deployment: {
+        title: "Deployment",
+      },
+      architecture: {
+        title: "Architecture",
+      },
       contributing: {
         title: "Contributing",
       },

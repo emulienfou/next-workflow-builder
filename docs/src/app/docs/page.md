@@ -1,42 +1,46 @@
 # Introduction
 
-Learn how to discover, install, and use plugins with your AI Workflow Builder.
+**next-workflow-builder** is a Next.js plugin for building visual workflow automation platforms. It provides a complete
+drag-and-drop workflow editor, code generation, AI-powered workflow creation, real-time execution tracking, and an
+extensible plugin system for third-party integrations.
 
-## What are plugins?
+Built with Next.js 16, React 19, Drizzle ORM, Better Auth, React Flow, and the Vercel AI SDK.
 
-Plugins are reusable extensions for the **AI Workflow Builder Template**.   
-They provide specific capabilities and integrations that help you build more powerful workflow automation platforms.   
-Think of them as building blocks that expand what your workflows can achieve, from code generation to third-party
-service connections.
+## Features
 
-## Getting started
+- **Visual workflow editor** - Drag-and-drop canvas with triggers, actions, and conditions
+- **Plugin system** - Extensible integration architecture for any third-party service
+- **Code generation** - Export workflows as standalone TypeScript code
+- **AI generation** - Create workflows from natural language descriptions
+- **Workflow execution** - Run workflows with real-time status tracking and logs
+- **Authentication** - Built-in auth via Better Auth with anonymous user support
+- **Theming** - Dark, light, and system theme support
 
-To use these plugins, we require that you first have an instance of the platform running. You can do this in two ways:
+## How it works
 
-1. **Deploy** the [AI Workflow Builder Template](https://github.com/vercel-labs/workflow-builder-template) on Vercel.
-2. **Clone** the repository to your local machine.
+The package embeds a full workflow builder UI into your Next.js app through a few integration points:
 
-Once your platform is set up, installing a plugin is simple:
+1. **Next.js plugin** wraps your config to enable transpilation and environment setup
+2. **Catch-all API route** handles all workflow CRUD, execution, auth, and integration endpoints
+3. **Layout provider** wraps your app with theme, state management, and auth context
+4. **Catch-all page** renders the workflow editor, homepage, and workflow list
 
-1. Navigate to the plugin you wish to use in
-   the [Marketplace Repository](https://github.com/emulienfou/useworkflow-marketplace/tree/main/plugins).
-2. **Copy** the plugin source code or repository link.
-3. **Paste** it into your AI Workflow Builder project configuration to make it available to your users.
+Plugins extend the builder with new integrations (e.g. Slack, GitHub, Stripe). Each plugin defines its
+connection credentials, available actions, step handlers, and optionally custom API routes and display components.
 
-## Community Driven
+## Quick links
 
-The WorkflowBuilder Marketplace is powered by the community.   
-Unlike centralized stores with opaque rankings, our plugins are open-source and hosted directly on GitHub.   
-This ensures transparency and allows developers to easily contribute their own integrations to the ecosystem.
+- [Getting Started](/docs/getting-started) - Install and set up in 5 minutes
+- [Configuration](/docs/configuration) - All configuration options
+- [Plugins](/docs/plugins) - Understanding the plugin system
+- [Creating Plugins](/docs/creating-plugins) - Build your own integration plugin
+- [API Reference](/docs/api-reference) - Server and client exports
+- [CLI Reference](/docs/cli-reference) - The `nwb` command-line tool
 
-## Browse plugins
+## Requirements
 
-Visit the homepage to browse the full directory of available plugins and discover new capabilities for your automation
-platform.
-
-## Security and Review
-
-Since plugins are installed via direct code integration or repository links, we recommend reviewing the source code of
-any plugin before adding it to your production environment.   
-As an open-source project, security is a shared responsibility, and we encourage the community to report any potential
-issues directly on the GitHub repository.
+- Next.js 16+
+- React 19+
+- TypeScript 5+
+- PostgreSQL database
+- Node.js 18+
