@@ -247,15 +247,6 @@ export function generateWorkflowSDKCode(
     ];
   }
 
-  function buildSlackParams(config: Record<string, unknown>): string[] {
-    imports.add("import { WebClient } from '@slack/web-api';");
-    return [
-      `slackChannel: \`${ convertTemplateToJS((config.slackChannel as string) || "#general") }\``,
-      `slackMessage: \`${ convertTemplateToJS((config.slackMessage as string) || "No message") }\``,
-      "apiKey: process.env.SLACK_API_KEY!",
-    ];
-  }
-
   function buildTicketParams(config: Record<string, unknown>): string[] {
     imports.add("import { LinearClient } from '@linear/sdk';");
     const params = [
@@ -476,7 +467,6 @@ export function generateWorkflowSDKCode(
   ): string[] {
     const paramBuilders: Record<string, () => string[]> = {
       "Send Email": () => buildEmailParams(config),
-      "Send Slack Message": () => buildSlackParams(config),
       "Create Ticket": () => buildTicketParams(config),
       "Generate Text": () => buildAITextParams(config),
       "Generate Image": () => buildAIImageParams(config),

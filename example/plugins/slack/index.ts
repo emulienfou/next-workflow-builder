@@ -31,6 +31,15 @@ const slackPlugin: IntegrationPlugin = {
     },
   },
 
+  routes: [
+    {
+      path: "/slack/channels",
+      methods: ["GET"],
+      handler: "slackChannels",
+      handlerImportPath: "routes/channels",
+    },
+  ],
+
   actions: [
     {
       slug: "send-message",

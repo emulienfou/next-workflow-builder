@@ -11,7 +11,6 @@ export type EnvVarConfig = {
   LINEAR_TEAM_ID?: string;
   RESEND_API_KEY?: string;
   RESEND_FROM_EMAIL?: string;
-  SLACK_API_KEY?: string;
   OPENAI_API_KEY?: string;
   AI_GATEWAY_API_KEY?: string;
   DATABASE_URL?: string;
@@ -35,7 +34,6 @@ export function getCredentials(
     LINEAR_TEAM_ID: process.env.LINEAR_TEAM_ID,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
-    SLACK_API_KEY: process.env.SLACK_API_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
@@ -57,8 +55,6 @@ export function enrichStepInput(
     "Create Ticket": () => enrichLinearCredentials(enrichedInput, credentials),
     "Find Issues": () => enrichLinearCredentials(enrichedInput, credentials),
     "Send Email": () => enrichResendCredentials(enrichedInput, credentials),
-    "Send Slack Message": () =>
-      enrichSlackCredentials(enrichedInput, credentials),
     "Generate Text": () => enrichAICredentials(enrichedInput, credentials),
     "Generate Image": () => enrichAICredentials(enrichedInput, credentials),
     "Database Query": () =>
@@ -96,15 +92,6 @@ function enrichResendCredentials(
   }
   if (credentials.RESEND_FROM_EMAIL) {
     input.fromEmail = credentials.RESEND_FROM_EMAIL;
-  }
-}
-
-function enrichSlackCredentials(
-  input: Record<string, unknown>,
-  credentials: EnvVarConfig
-): void {
-  if (credentials.SLACK_API_KEY) {
-    input.apiKey = credentials.SLACK_API_KEY;
   }
 }
 

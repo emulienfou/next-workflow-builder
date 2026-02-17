@@ -10,7 +10,6 @@
 // import type { firecrawlSearchStep } from "../../plugins/firecrawl/steps/search";
 // import type { createTicketStep } from "../../plugins/linear/steps/create-ticket";
 // import type { sendEmailStep } from "../../plugins/resend/steps/send-email";
-// import type { sendSlackMessageStep } from "../../plugins/slack/steps/send-slack-message";
 import type { conditionStep } from "./condition";
 import type { databaseQueryStep } from "./database-query";
 import type { httpRequestStep } from "./http-request";
@@ -45,10 +44,6 @@ export const stepRegistry: Record<string, StepFunction> = {
   //   (await import("../../plugins/resend/steps/send-email")).sendEmailStep(
   //     input as Parameters<typeof sendEmailStep>[0]
   //   ),
-  // "Send Slack Message": async (input) =>
-  //   (
-  //     await import("../../plugins/slack/steps/send-slack-message")
-  //   ).sendSlackMessageStep(input as Parameters<typeof sendSlackMessageStep>[0]),
   // "Create Ticket": async (input) =>
   //   (await import("../../plugins/linear/steps/create-ticket")).createTicketStep(
   //     input as Parameters<typeof createTicketStep>[0]

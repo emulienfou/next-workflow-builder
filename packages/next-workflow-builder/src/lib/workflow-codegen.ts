@@ -498,40 +498,6 @@ export function generateWorkflowCode(
     ];
   }
 
-  function generateSlackActionCode(
-    node: WorkflowNode,
-    indent: string,
-    varName: string
-  ): string[] {
-    const stepInfo = getStepInfo("Send Slack Message");
-    imports.add(
-      `import { ${stepInfo.functionName} } from '${stepInfo.importPath}';`
-    );
-
-    const config = node.data.config || {};
-    const slackChannel = (config.slackChannel as string) || "#general";
-    const slackMessage = (config.slackMessage as string) || "Message content";
-
-    const convertedChannel = convertTemplateToJS(slackChannel);
-    const convertedMessage = convertTemplateToJS(slackMessage);
-    const hasTemplateRefs = (str: string) => str.includes("${");
-    const escapeForOuterTemplate = (str: string) => str.replace(/\$\{/g, "$${");
-
-    const channelValue = hasTemplateRefs(convertedChannel)
-      ? `\`${escapeForOuterTemplate(convertedChannel).replace(/`/g, "\\`")}\``
-      : `"${slackChannel}"`;
-    const messageValue = hasTemplateRefs(convertedMessage)
-      ? `\`${escapeForOuterTemplate(convertedMessage).replace(/`/g, "\\`")}\``
-      : `"${slackMessage}"`;
-
-    return [
-      `${indent}const ${varName} = await ${stepInfo.functionName}({`,
-      `${indent}  slackChannel: ${channelValue},`,
-      `${indent}  slackMessage: ${messageValue},`,
-      `${indent}});`,
-    ];
-  }
-
   function formatTemplateValue(value: string): string {
     const converted = convertTemplateToJS(value);
     const hasTemplateRefs = converted.includes("${");
@@ -775,10 +741,6 @@ export function generateWorkflowCode(
     } else if (actionType === "Send Email") {
       lines.push(
         ...wrapActionCall(generateEmailActionCode(node, indent, varName))
-      );
-    } else if (actionType === "Send Slack Message") {
-      lines.push(
-        ...wrapActionCall(generateSlackActionCode(node, indent, varName))
       );
     } else if (actionType === "Create Ticket") {
       lines.push(
