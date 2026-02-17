@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
-import { isAiGatewayManagedKeysEnabled } from "../../../../../lib/ai-gateway/config.js";
-import { accounts } from "../../../../db/schema.js";
-import { errorResponse, jsonResponse, requireSession } from "../../../handler-utils.js";
-import type { RouteHandler } from "../../../types.js";
+import { isAiGatewayManagedKeysEnabled } from "../lib/config";
+import type { RouteHandler } from "next-workflow-builder";
+import { eq, errorResponse, jsonResponse, requireSession, schema } from "next-workflow-builder";
 
-export type VercelTeam = {
+const { accounts } = schema;
+
+type VercelTeam = {
   id: string;
   name: string;
   slug: string;
@@ -24,12 +24,9 @@ type VercelUserResponse = {
   defaultTeamId: string | null;
 };
 
-/**
- * Fetch user's default team ID from Vercel API
- */
 async function fetchDefaultTeamId(accessToken: string): Promise<string | null> {
   const response = await fetch("https://api.vercel.com/v2/user", {
-    headers: { Authorization: `Bearer ${ accessToken }` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   if (!response.ok) return null;
@@ -38,12 +35,9 @@ async function fetchDefaultTeamId(accessToken: string): Promise<string | null> {
   return data.user?.defaultTeamId ?? null;
 }
 
-/**
- * Fetch teams from Vercel API and transform to our format
- */
 async function fetchTeams(accessToken: string): Promise<VercelTeam[]> {
   const response = await fetch("https://api.vercel.com/v2/teams", {
-    headers: { Authorization: `Bearer ${ accessToken }` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   if (!response.ok) return [];
@@ -57,7 +51,7 @@ async function fetchTeams(accessToken: string): Promise<VercelTeam[]> {
       id: team.id,
       name: team.name,
       slug: team.slug,
-      avatar: `https://vercel.com/api/www/avatar?teamId=${ team.id }&s=64`,
+      avatar: `https://vercel.com/api/www/avatar?teamId=${team.id}&s=64`,
       isPersonal: false,
     });
   }
@@ -84,19 +78,16 @@ export const aiGatewayTeams: RouteHandler = async (route, ctx) => {
   }
 
   try {
-    // Fetch default team ID and teams in parallel
     const [defaultTeamId, teams] = await Promise.all([
       fetchDefaultTeamId(account.accessToken),
       fetchTeams(account.accessToken),
     ]);
 
-    // Mark the user's default team as personal
     const teamsWithPersonal = teams.map((team) => ({
       ...team,
       isPersonal: team.id === defaultTeamId,
     }));
 
-    // Sort: personal/default team first, then alphabetically by name
     const sortedTeams = teamsWithPersonal.sort((a, b) => {
       if (a.isPersonal) return -1;
       if (b.isPersonal) return 1;

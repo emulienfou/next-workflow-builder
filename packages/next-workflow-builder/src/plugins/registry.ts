@@ -197,6 +197,19 @@ export type IntegrationPlugin = {
 
   // Actions provided by this integration
   actions: PluginAction[];
+
+  // API routes provided by this integration (server-only)
+  // Stores metadata only — actual handlers are imported via discover-plugins codegen
+  routes?: Array<{
+    /** Route path relative to /api, e.g. "/ai-gateway/consent" */
+    path: string;
+    /** Allowed HTTP methods, e.g. ["POST", "DELETE"] */
+    methods: string[];
+    /** Export name of the handler function, e.g. "aiGatewayConsent" */
+    handler: string;
+    /** Import path relative to the plugin directory, e.g. "routes/consent" */
+    handlerImportPath: string;
+  }>;
 };
 
 /**

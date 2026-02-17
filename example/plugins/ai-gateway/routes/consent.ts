@@ -1,22 +1,18 @@
-import { and, eq } from "drizzle-orm";
-import { isAiGatewayManagedKeysEnabled } from "../../../../../lib/ai-gateway/config.js";
-import { decrypt, encrypt } from "../../../../../lib/db/integrations.js";
-import { generateId } from "../../../../../lib/utils/id.js";
-import { accounts, integrations } from "../../../../db/schema.js";
-import { errorResponse, jsonResponse, requireSession } from "../../../handler-utils.js";
-import type { HandlerContext, RouteHandler } from "../../../types.js";
+import { isAiGatewayManagedKeysEnabled } from "../lib/config";
+import type { HandlerContext, RouteHandler } from "next-workflow-builder";
+import { and, eq, errorResponse, jsonResponse, requireSession, schema, encrypt, decrypt, generateId } from "next-workflow-builder";
+
+const { accounts, integrations } = schema;
 
 const API_KEY_PURPOSE = "ai-gateway";
 const API_KEY_NAME = "Workflow Builder Gateway Key";
 
 /**
  * Get team ID from Vercel API
- * First tries /v2/teams, then falls back to userinfo endpoint
  */
 async function getTeamId(accessToken: string): Promise<string | null> {
-  // First, try to get teams the user has granted access to
   const teamsResponse = await fetch("https://api.vercel.com/v2/teams", {
-    headers: { Authorization: `Bearer ${ accessToken }` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   if (teamsResponse.ok) {
@@ -28,10 +24,9 @@ async function getTeamId(accessToken: string): Promise<string | null> {
     }
   }
 
-  // Fallback: get user ID from userinfo endpoint
   const userinfoResponse = await fetch(
     "https://api.vercel.com/login/oauth/userinfo",
-    { headers: { Authorization: `Bearer ${ accessToken }` } },
+    { headers: { Authorization: `Bearer ${accessToken}` } },
   );
 
   if (!userinfoResponse.ok) {
@@ -50,11 +45,11 @@ async function createVercelApiKey(
   teamId: string,
 ): Promise<{ token: string; id: string } | null> {
   const response = await fetch(
-    `https://api.vercel.com/v1/api-keys?teamId=${ teamId }`,
+    `https://api.vercel.com/v1/api-keys?teamId=${teamId}`,
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${ accessToken }`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -121,10 +116,10 @@ async function deleteVercelApiKey(
   teamId: string,
 ): Promise<void> {
   await fetch(
-    `https://api.vercel.com/v1/api-keys/${ apiKeyId }?teamId=${ teamId }`,
+    `https://api.vercel.com/v1/api-keys/${apiKeyId}?teamId=${teamId}`,
     {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${ accessToken }` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     },
   );
 }
@@ -161,7 +156,6 @@ async function handleConsent(
     return errorResponse("No Vercel account linked", 400);
   }
 
-  // Get teamId and teamName from request body
   let teamId: string | null = null;
   let teamName: string | null = null;
   try {
@@ -172,7 +166,6 @@ async function handleConsent(
     // If no body, try to auto-detect
   }
 
-  // If no teamId provided, try to auto-detect
   if (!teamId) {
     teamId = await getTeamId(account.accessToken);
   }
@@ -240,7 +233,6 @@ async function revokeConsent(
     return errorResponse("Integration not found", 404);
   }
 
-  // Get managedKeyId and teamId from config (decrypt it first)
   let config: { managedKeyId?: string; teamId?: string } | null = null;
   if (managedIntegration?.config) {
     try {

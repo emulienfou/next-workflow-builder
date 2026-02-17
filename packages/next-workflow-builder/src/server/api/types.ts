@@ -40,6 +40,8 @@ export interface WorkflowApiHandlerOptions {
     files?: Record<string, string>;
     error?: string;
   }>;
+  /** Plugin-provided route definitions (merged with core routes) */
+  pluginRoutes?: RouteDefinition[];
 }
 
 export type HandlerContext = Omit<WorkflowApiHandlerOptions, "authOptions"> & {

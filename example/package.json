@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "ai": "^5.0.0",
+    "jotai": "^2.0.0",
     "next": "16.1.6",
     "next-workflow-builder": "workspace:*",
     "postcss": "^8.5.6",

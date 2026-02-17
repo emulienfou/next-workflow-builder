@@ -1,72 +1,35 @@
 "use client";
 
 import { useAtomValue, useSetAtom } from "jotai";
-import { Loader2, Sparkles, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Label } from "../ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import {
-  aiGatewayStatusAtom,
-  aiGatewayTeamsAtom,
-  aiGatewayTeamsLoadingAtom,
-} from "../../../lib/ai-gateway/state";
-import { api } from "../../../lib/api-client";
-import { Overlay } from "./overlay";
-import { useOverlay } from "./overlay-provider";
-import type { OverlayAction } from "./types";
+  managedConnectionStatusAtom,
+  managedConnectionTeamsAtom,
+  managedConnectionTeamsLoadingAtom,
+  type ConsentOverlayProps,
+} from "next-workflow-builder/plugins";
+import { aiGatewayApi } from "../lib/api-client";
 
-type AiGatewayConsentOverlayProps = {
-  overlayId: string;
-  /** Callback when consent is given, receives the integration ID */
-  onConsent?: (integrationId: string) => void;
-  /** Callback when user chooses manual entry instead */
-  onManualEntry?: () => void;
-  /** Callback when user declines */
-  onDecline?: () => void;
-};
+// Import UI components from the package
+import { Overlay } from "next-workflow-builder/components/overlays/overlay";
+import { useOverlay } from "next-workflow-builder/components/overlays/overlay-provider";
+import type { OverlayAction } from "next-workflow-builder/components/overlays/types";
 
-/**
- * AI Gateway consent overlay.
- * Opens when user needs to connect their Vercel AI Gateway credits.
- *
- * @example
- * ```tsx
- * const { push } = useOverlay();
- *
- * push(AiGatewayConsentOverlay, {
- *   onConsent: (integrationId) => {
- *     // Handle successful consent
- *   },
- *   onManualEntry: () => {
- *     // Open manual entry overlay
- *   },
- * });
- * ```
- */
 export function AiGatewayConsentOverlay({
   overlayId,
   onConsent,
   onManualEntry,
   onDecline,
-}: AiGatewayConsentOverlayProps) {
+}: ConsentOverlayProps) {
   const { pop } = useOverlay();
-  const setStatus = useSetAtom(aiGatewayStatusAtom);
+  const setStatus = useSetAtom(managedConnectionStatusAtom);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
 
-  // Use pre-loaded teams from state
-  const teams = useAtomValue(aiGatewayTeamsAtom);
-  const teamsLoading = useAtomValue(aiGatewayTeamsLoadingAtom);
+  const teams = useAtomValue(managedConnectionTeamsAtom);
+  const teamsLoading = useAtomValue(managedConnectionTeamsLoadingAtom);
 
-  // Auto-select first team when teams are loaded
   useEffect(() => {
     if (teams.length > 0 && !selectedTeamId) {
       setSelectedTeamId(teams[0].id);
@@ -95,7 +58,7 @@ export function AiGatewayConsentOverlay({
     setError(null);
 
     try {
-      const result = await api.aiGateway.consent(selectedTeamId, teamName);
+      const result = await aiGatewayApi.consent(selectedTeamId, teamName);
 
       if (!result.success) {
         throw new Error(result.error || "Failed to set up AI Gateway");
@@ -103,7 +66,6 @@ export function AiGatewayConsentOverlay({
 
       const integrationId = result.managedIntegrationId || "";
 
-      // Update status atom
       setStatus((prev) =>
         prev
           ? {
@@ -114,8 +76,6 @@ export function AiGatewayConsentOverlay({
           : null
       );
 
-      // For managed connections, skip testing - the key was just created by Vercel
-      // and is definitely valid. Testing would require decryption which adds complexity.
       completeConsent(integrationId);
     } catch (e) {
       setError(e instanceof Error ? e.message : "An error occurred");
@@ -129,8 +89,6 @@ export function AiGatewayConsentOverlay({
   }, [onDecline, pop]);
 
   const handleManualEntry = useCallback(() => {
-    // Don't pop - let onManualEntry push the manual connection overlay on top
-    // This allows the user to navigate back to this overlay if needed
     onManualEntry?.();
   }, [onManualEntry]);
 
@@ -171,7 +129,9 @@ export function AiGatewayConsentOverlay({
       <div className="space-y-4">
         <div className="flex items-start gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-            <Sparkles className="size-5 text-primary" />
+            <svg className="size-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+            </svg>
           </div>
           <p className="pt-2 text-muted-foreground text-sm">
             This will create an API key on your Vercel account that uses your AI
@@ -180,58 +140,39 @@ export function AiGatewayConsentOverlay({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="team-select">Vercel Team</Label>
+          <label className="text-sm font-medium" htmlFor="team-select">
+            Vercel Team
+          </label>
           {teamsLoading && teams.length === 0 ? (
             <div className="flex h-10 items-center gap-2 rounded-md border px-3 text-muted-foreground text-sm">
-              <Loader2 className="size-4 animate-spin" />
+              <svg className="size-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
               Loading teams...
             </div>
           ) : (
-            <Select
+            <select
+              id="team-select"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               disabled={loading}
-              onValueChange={setSelectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
               value={selectedTeamId}
             >
-              <SelectTrigger id="team-select">
-                <SelectValue placeholder="Select a team" />
-              </SelectTrigger>
-              <SelectContent>
-                {teams.map((team, index) => (
-                  <div key={team.id}>
-                    <SelectItem value={team.id}>
-                      <div className="flex items-center gap-2">
-                        {team.avatar ? (
-                          // biome-ignore lint/correctness/useImageSize: Avatar has fixed size
-                          // biome-ignore lint/performance/noImgElement: External Vercel avatar
-                          <img
-                            alt=""
-                            className="size-4 rounded-full bg-white"
-                            src={team.avatar}
-                          />
-                        ) : (
-                          <div className="size-4 rounded-full bg-white" />
-                        )}
-                        <span>{team.name}</span>
-                        {team.isPersonal && (
-                          <span className="text-muted-foreground text-xs">
-                            (Personal)
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                    {team.isPersonal && index < teams.length - 1 && (
-                      <SelectSeparator />
-                    )}
-                  </div>
-                ))}
-              </SelectContent>
-            </Select>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}{team.isPersonal ? " (Personal)" : ""}
+                </option>
+              ))}
+            </select>
           )}
         </div>
 
         {error && (
           <div className="flex items-start gap-3 rounded-md border border-red-500/30 bg-red-500/10 p-3">
-            <X className="mt-0.5 size-4 shrink-0 text-red-500" />
+            <svg className="mt-0.5 size-4 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
             <p className="text-red-700 text-sm dark:text-red-400">{error}</p>
           </div>
         )}

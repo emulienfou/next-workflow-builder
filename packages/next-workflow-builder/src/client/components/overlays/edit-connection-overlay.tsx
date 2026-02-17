@@ -1,5 +1,6 @@
 "use client";
 
+import { useAtomValue } from "jotai";
 import { Check, Pencil, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useIsMobile } from "../../hooks/use-mobile";
+import { managedConnectionProviderAtom } from "../../../lib/managed-connection";
 import { api, type Integration } from "../../../lib/api-client";
 import { getIntegration, getIntegrationLabels } from "../../../plugins/registry.js";
 import { ConfirmOverlay } from "./confirm-overlay";
@@ -387,6 +389,7 @@ export function DeleteConnectionOverlay({
   onSuccess,
 }: DeleteConnectionOverlayProps) {
   const { pop } = useOverlay();
+  const managedProvider = useAtomValue(managedConnectionProviderAtom);
   const [deleting, setDeleting] = useState(false);
   const [revokeKey, setRevokeKey] = useState(true);
 
@@ -394,8 +397,8 @@ export function DeleteConnectionOverlay({
     try {
       setDeleting(true);
 
-      if (integration.isManaged && revokeKey) {
-        await api.aiGateway.revokeConsent();
+      if (integration.isManaged && revokeKey && managedProvider) {
+        await managedProvider.api.revokeConsent();
       } else {
         await api.integration.delete(integration.id);
       }

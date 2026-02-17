@@ -1,7 +1,9 @@
 import { createWorkflowApiHandler } from "next-workflow-builder";
+import pluginRoutes from "../../../../lib/route-registry";
 
 // Create the handler once — database URL is read from NEXT_WORKFLOW_BUILDER_DATABASE_URL env var
 const handler = createWorkflowApiHandler({
+  pluginRoutes,
   authOptions: {
     emailAndPassword: {
       enabled: false,

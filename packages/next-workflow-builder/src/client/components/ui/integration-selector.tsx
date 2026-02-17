@@ -11,16 +11,16 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfigureConnectionOverlay } from "../overlays/add-connection-overlay";
-import { AiGatewayConsentOverlay } from "../overlays/ai-gateway-consent-overlay";
 import { EditConnectionOverlay } from "../overlays/edit-connection-overlay";
 import { useOverlay } from "../overlays/overlay-provider";
 import { Button } from "./button";
 import {
-  aiGatewayStatusAtom,
-  aiGatewayTeamsAtom,
-  aiGatewayTeamsFetchedAtom,
-  aiGatewayTeamsLoadingAtom,
-} from "../../../lib/ai-gateway/state";
+  managedConnectionProviderAtom,
+  managedConnectionStatusAtom,
+  managedConnectionTeamsAtom,
+  managedConnectionTeamsFetchedAtom,
+  managedConnectionTeamsLoadingAtom,
+} from "../../../lib/managed-connection";
 import { api, type Integration } from "../../../lib/api-client";
 import {
   integrationsAtom,
@@ -54,14 +54,15 @@ export function IntegrationSelector({
   const lastVersionRef = useRef(integrationsVersion);
   const [hasFetched, setHasFetched] = useState(false);
 
-  // AI Gateway user keys state
-  const [aiGatewayStatus, setAiGatewayStatus] = useAtom(aiGatewayStatusAtom);
-  const [aiGatewayStatusFetched, setAiGatewayStatusFetched] = useState(false);
+  // Managed connection state (populated by plugin, e.g. ai-gateway)
+  const managedProvider = useAtomValue(managedConnectionProviderAtom);
+  const [managedStatus, setManagedStatus] = useAtom(managedConnectionStatusAtom);
+  const [managedStatusFetched, setManagedStatusFetched] = useState(false);
 
-  // AI Gateway teams state (pre-loaded for consent modal)
-  const [teams, setTeams] = useAtom(aiGatewayTeamsAtom);
-  const [teamsFetched, setTeamsFetched] = useAtom(aiGatewayTeamsFetchedAtom);
-  const setTeamsLoading = useSetAtom(aiGatewayTeamsLoadingAtom);
+  // Managed connection teams state (pre-loaded for consent modal)
+  const [teams, setTeams] = useAtom(managedConnectionTeamsAtom);
+  const [teamsFetched, setTeamsFetched] = useAtom(managedConnectionTeamsFetchedAtom);
+  const setTeamsLoading = useSetAtom(managedConnectionTeamsLoadingAtom);
 
   // Filter integrations from global cache
   const integrations = useMemo(
@@ -83,64 +84,61 @@ export function IntegrationSelector({
     }
   }, [setGlobalIntegrations]);
 
-  // Load AI Gateway status for ai-gateway type
+  // Load managed connection status when provider matches this integration type
   useEffect(() => {
-    if (integrationType === "ai-gateway" && !aiGatewayStatusFetched) {
-      api.aiGateway
+    if (managedProvider?.integrationType === integrationType && !managedStatusFetched) {
+      managedProvider.api
         .getStatus()
         .then((status) => {
-          setAiGatewayStatus(status);
-          setAiGatewayStatusFetched(true);
+          setManagedStatus(status);
+          setManagedStatusFetched(true);
         })
         .catch(() => {
-          setAiGatewayStatusFetched(true);
+          setManagedStatusFetched(true);
         });
     }
-  }, [integrationType, aiGatewayStatusFetched, setAiGatewayStatus]);
+  }, [integrationType, managedStatusFetched, managedProvider, setManagedStatus]);
 
-  // Load AI Gateway teams when status indicates user can use managed keys
+  // Load teams when status indicates user can use managed keys
   useEffect(() => {
     if (
-      integrationType === "ai-gateway" &&
-      aiGatewayStatus?.enabled &&
-      aiGatewayStatus?.isVercelUser &&
+      managedProvider?.integrationType === integrationType &&
+      managedStatus?.enabled &&
+      managedStatus?.isVercelUser &&
       !teamsFetched
     ) {
       setTeamsLoading(true);
-      api.aiGateway
+      managedProvider.api
         .getTeams()
         .then((response) => {
           setTeams(response.teams);
-          // Only mark as fetched if we got teams - empty might mean expired token
           if (response.teams.length > 0) {
             setTeamsFetched(true);
           }
         })
-        .catch(() => {
-          // Don't mark as fetched on error - allow retry
-        })
+        .catch(() => {})
         .finally(() => {
           setTeamsLoading(false);
         });
     }
   }, [
     integrationType,
-    aiGatewayStatus,
+    managedProvider,
+    managedStatus,
     teamsFetched,
     setTeams,
     setTeamsFetched,
     setTeamsLoading,
   ]);
 
-  // Refresh teams in background (always try if we should use managed keys)
+  // Refresh teams in background
   useEffect(() => {
     if (
-      integrationType === "ai-gateway" &&
-      aiGatewayStatus?.enabled &&
-      aiGatewayStatus?.isVercelUser
+      managedProvider?.integrationType === integrationType &&
+      managedStatus?.enabled &&
+      managedStatus?.isVercelUser
     ) {
-      // Always try to refresh teams - handles token refresh after re-auth
-      api.aiGateway
+      managedProvider.api
         .getTeams()
         .then((response) => {
           if (response.teams.length > 0) {
@@ -148,13 +146,10 @@ export function IntegrationSelector({
             setTeamsFetched(true);
           }
         })
-        .catch(() => {
-          // Silently fail background refresh
-        });
+        .catch(() => {});
     }
-    // Only run on mount and when status changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationType, aiGatewayStatus?.enabled, aiGatewayStatus?.isVercelUser]);
+  }, [integrationType, managedProvider, managedStatus?.enabled, managedStatus?.isVercelUser]);
 
   useEffect(() => {
     loadIntegrations();
@@ -192,10 +187,10 @@ export function IntegrationSelector({
   const handleIntegrationChange = async () => {
     await loadIntegrations();
     setIntegrationsVersion((v) => v + 1);
-    // Refresh AI Gateway status if this is an AI Gateway integration
-    if (integrationType === "ai-gateway") {
-      const status = await api.aiGateway.getStatus();
-      setAiGatewayStatus(status);
+    // Refresh managed connection status if provider matches
+    if (managedProvider?.integrationType === integrationType) {
+      const status = await managedProvider.api.getStatus();
+      setManagedStatus(status);
     }
   };
 
@@ -217,35 +212,36 @@ export function IntegrationSelector({
     [push, handleIntegrationChange]
   );
 
-  // Check if AI Gateway managed keys should be used
+  // Check if managed keys should be used (provider registered + enabled + eligible)
   const shouldUseManagedKeys =
-    integrationType === "ai-gateway" &&
-    aiGatewayStatus?.enabled &&
-    aiGatewayStatus?.isVercelUser &&
-    !aiGatewayStatus?.hasManagedKey;
+    managedProvider?.integrationType === integrationType &&
+    managedStatus?.enabled &&
+    managedStatus?.isVercelUser &&
+    !managedStatus?.hasManagedKey;
 
   const handleConsentSuccess = useCallback(async (integrationId: string) => {
     await loadIntegrations();
     onChange(integrationId);
     setIntegrationsVersion((v) => v + 1);
-    // Refetch AI Gateway status
-    const status = await api.aiGateway.getStatus();
-    setAiGatewayStatus(status);
-  }, [loadIntegrations, onChange, setIntegrationsVersion, setAiGatewayStatus]);
+    // Refetch managed connection status
+    if (managedProvider) {
+      const status = await managedProvider.api.getStatus();
+      setManagedStatus(status);
+    }
+  }, [loadIntegrations, onChange, setIntegrationsVersion, managedProvider, setManagedStatus]);
 
   const handleAddConnection = useCallback(() => {
     if (onAddConnection) {
       onAddConnection();
-    } else if (shouldUseManagedKeys) {
-      // For AI Gateway with managed keys enabled, show consent overlay
-      push(AiGatewayConsentOverlay, {
+    } else if (shouldUseManagedKeys && managedProvider) {
+      push(managedProvider.ConsentOverlay, {
         onConsent: handleConsentSuccess,
         onManualEntry: openNewConnectionOverlay,
       });
     } else {
       openNewConnectionOverlay();
     }
-  }, [onAddConnection, shouldUseManagedKeys, push, handleConsentSuccess, openNewConnectionOverlay]);
+  }, [onAddConnection, shouldUseManagedKeys, managedProvider, push, handleConsentSuccess, openNewConnectionOverlay]);
 
   // Only show loading skeleton if we have no cached data and haven't fetched yet
   if (!hasCachedData && !hasFetched) {

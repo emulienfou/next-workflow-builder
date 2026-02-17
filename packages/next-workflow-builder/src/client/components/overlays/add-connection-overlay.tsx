@@ -9,10 +9,11 @@ import { IntegrationIcon } from "../ui/integration-icon";
 import { Label } from "../ui/label";
 import { useIsMobile } from "../../hooks/use-mobile";
 import {
-  aiGatewayStatusAtom,
-  aiGatewayTeamsAtom,
-  aiGatewayTeamsLoadingAtom,
-} from "../../../lib/ai-gateway/state";
+  managedConnectionProviderAtom,
+  managedConnectionStatusAtom,
+  managedConnectionTeamsAtom,
+  managedConnectionTeamsLoadingAtom,
+} from "../../../lib/managed-connection";
 import { api } from "../../../lib/api-client";
 import type { IntegrationType } from "../../../lib/types/integration";
 import {
@@ -21,7 +22,6 @@ import {
   getSortedIntegrationTypes,
 } from "../../../plugins/registry.js";
 import { getIntegrationDescriptions } from "../../../plugins/registry.js";
-import { AiGatewayConsentOverlay } from "./ai-gateway-consent-overlay";
 import { ConfirmOverlay } from "./confirm-overlay";
 import { Overlay } from "./overlay";
 import { useOverlay } from "./overlay-provider";
@@ -67,14 +67,12 @@ export function AddConnectionOverlay({
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
 
-  // AI Gateway state
-  const aiGatewayStatus = useAtomValue(aiGatewayStatusAtom);
-  const setAiGatewayStatus = useSetAtom(aiGatewayStatusAtom);
-  const setTeams = useSetAtom(aiGatewayTeamsAtom);
-  const setTeamsLoading = useSetAtom(aiGatewayTeamsLoadingAtom);
-
-  const shouldUseManagedKeys =
-    aiGatewayStatus?.enabled && aiGatewayStatus?.isVercelUser;
+  // Managed connection state (populated by plugin)
+  const managedProvider = useAtomValue(managedConnectionProviderAtom);
+  const managedStatus = useAtomValue(managedConnectionStatusAtom);
+  const setManagedStatus = useSetAtom(managedConnectionStatusAtom);
+  const setTeams = useSetAtom(managedConnectionTeamsAtom);
+  const setTeamsLoading = useSetAtom(managedConnectionTeamsLoadingAtom);
 
   const integrationTypes = getIntegrationTypes();
 
@@ -89,28 +87,33 @@ export function AddConnectionOverlay({
   }, [integrationTypes, searchQuery]);
 
   const showConsentModalWithCallbacks = useCallback(() => {
-    push(AiGatewayConsentOverlay, {
+    if (!managedProvider) return;
+    push(managedProvider.ConsentOverlay, {
       onConsent: (integrationId: string) => {
         onSuccess?.(integrationId);
         closeAll();
       },
     });
-  }, [push, closeAll, onSuccess]);
+  }, [managedProvider, push, closeAll, onSuccess]);
 
   const handleSelectType = (type: IntegrationType) => {
-    // If selecting AI Gateway and managed keys are available, show consent modal
-    if (type === "ai-gateway" && shouldUseManagedKeys) {
+    // Check if a managed connection provider handles this type
+    const isManagedType = managedProvider?.integrationType === type;
+    const shouldUseManagedKeys =
+      isManagedType && managedStatus?.enabled && managedStatus?.isVercelUser;
+
+    if (shouldUseManagedKeys) {
       showConsentModalWithCallbacks();
       return;
     }
 
-    // If AI Gateway but need to fetch status first
-    if (type === "ai-gateway" && aiGatewayStatus === null) {
-      api.aiGateway.getStatus().then((status) => {
-        setAiGatewayStatus(status);
+    // If managed type but need to fetch status first
+    if (isManagedType && managedStatus === null) {
+      managedProvider.api.getStatus().then((status) => {
+        setManagedStatus(status);
         if (status?.enabled && status?.isVercelUser) {
           setTeamsLoading(true);
-          api.aiGateway
+          managedProvider.api
             .getTeams()
             .then((response) => {
               setTeams(response.teams);

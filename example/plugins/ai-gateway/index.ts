@@ -64,7 +64,6 @@ const aiGatewayPlugin: IntegrationPlugin = {
           type: "select",
           defaultValue: "meta/llama-4-scout",
           options: [
-            // Current models
             { value: "anthropic/claude-sonnet-4.5", label: "Claude Sonnet 4.5" },
             { value: "anthropic/claude-haiku-4.5", label: "Claude Haiku 4.5" },
             { value: "anthropic/claude-opus-4.5", label: "Claude Opus 4.5" },
@@ -79,7 +78,6 @@ const aiGatewayPlugin: IntegrationPlugin = {
             { value: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite" },
             { value: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash" },
             { value: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-            // Legacy models (kept for backwards compatibility)
             { value: "anthropic/claude-sonnet-4.0", label: "Claude Sonnet 4.0" },
             {
               value: "anthropic/claude-3.5-sonnet-20241022",
@@ -168,6 +166,28 @@ const aiGatewayPlugin: IntegrationPlugin = {
           required: true,
         },
       ],
+    },
+  ],
+
+  // Route metadata for discover-plugins to generate route-registry.ts
+  routes: [
+    {
+      path: "/ai-gateway/consent",
+      methods: ["POST", "DELETE"],
+      handler: "aiGatewayConsent",
+      handlerImportPath: "routes/consent",
+    },
+    {
+      path: "/ai-gateway/status",
+      methods: ["GET"],
+      handler: "aiGatewayStatus",
+      handlerImportPath: "routes/status",
+    },
+    {
+      path: "/ai-gateway/teams",
+      methods: ["GET"],
+      handler: "aiGatewayTeams",
+      handlerImportPath: "routes/teams",
     },
   ],
 };

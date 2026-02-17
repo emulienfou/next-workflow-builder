@@ -10,3 +10,21 @@ export { registerIntegration } from "./registry";
 
 // Export the steps utilities
 export type { StepImporter } from "../lib/steps/index";
+
+// Export managed connection types, atoms, and registration for plugins that provide managed key flows
+export {
+  registerManagedConnectionProvider,
+  managedConnectionProviderAtom,
+  managedConnectionStatusAtom,
+  managedConnectionTeamsAtom,
+  managedConnectionTeamsLoadingAtom,
+  managedConnectionTeamsFetchedAtom,
+} from "../lib/managed-connection";
+export type {
+  ManagedConnectionProvider,
+  ManagedConnectionApi,
+  ManagedConnectionStatus,
+  ManagedConnectionTeam,
+  ManagedConsentResponse,
+  ConsentOverlayProps,
+} from "../lib/managed-connection";

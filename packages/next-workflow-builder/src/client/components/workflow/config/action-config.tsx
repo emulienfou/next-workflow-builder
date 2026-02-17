@@ -4,7 +4,6 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { HelpCircle, Plus, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ConfigureConnectionOverlay } from "../../overlays/add-connection-overlay";
-import { AiGatewayConsentOverlay } from "../../overlays/ai-gateway-consent-overlay";
 import { useOverlay } from "../../overlays/overlay-provider";
 import { Button } from "../../ui/button";
 import { CodeEditor } from "../../ui/code-editor";
@@ -26,7 +25,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../ui/tooltip";
-import { aiGatewayStatusAtom } from "../../../../lib/ai-gateway/state";
+import {
+  managedConnectionProviderAtom,
+  managedConnectionStatusAtom,
+} from "../../../../lib/managed-connection";
 import {
   integrationsAtom,
   integrationsVersionAtom,
@@ -348,8 +350,9 @@ export function ActionConfig({
   const globalIntegrations = useAtomValue(integrationsAtom);
   const { push } = useOverlay();
 
-  // AI Gateway managed keys state
-  const aiGatewayStatus = useAtomValue(aiGatewayStatusAtom);
+  // Managed connection state (populated by plugin)
+  const managedProvider = useAtomValue(managedConnectionProviderAtom);
+  const managedStatus = useAtomValue(managedConnectionStatusAtom);
 
   // Sync category state when actionType changes (e.g., when switching nodes)
   useEffect(() => {
@@ -396,11 +399,11 @@ export function ActionConfig({
     return type;
   }, [actionType]);
 
-  // Check if AI Gateway managed keys should be offered (user can have multiple for different teams)
+  // Check if managed keys should be offered (user can have multiple for different teams)
   const shouldUseManagedKeys =
-    integrationType === "ai-gateway" &&
-    aiGatewayStatus?.enabled &&
-    aiGatewayStatus?.isVercelUser;
+    managedProvider?.integrationType === integrationType &&
+    managedStatus?.enabled &&
+    managedStatus?.isVercelUser;
 
   // Check if there are existing connections for this integration type
   const hasExistingConnections = useMemo(() => {
@@ -426,8 +429,8 @@ export function ActionConfig({
   };
 
   const handleAddSecondaryConnection = () => {
-    if (shouldUseManagedKeys) {
-      push(AiGatewayConsentOverlay, {
+    if (shouldUseManagedKeys && managedProvider) {
+      push(managedProvider.ConsentOverlay, {
         onConsent: handleConsentSuccess,
         onManualEntry: openConnectionOverlay,
       });

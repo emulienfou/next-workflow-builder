@@ -1,6 +1,3 @@
-import { aiGatewayConsent } from "./handlers/ai-gateway/consent/route.js";
-import { aiGatewayStatus } from "./handlers/ai-gateway/status/route.js";
-import { aiGatewayTeams } from "./handlers/ai-gateway/teams/route.js";
 import { aiGenerate } from "./handlers/ai/generate/route.js";
 import { apiKeyHandler } from "./handlers/api-keys/[keyId]/route.js";
 import { apiKeysHandler } from "./handlers/api-keys/route.js";
@@ -29,10 +26,6 @@ import { RouteDefinition } from "./types.js";
 const routes: RouteDefinition[] = [
   // AI
   { path: "/ai/generate", handler: aiGenerate, methods: ["POST"] },
-  // AI Gateway (static routes first)
-  { path: "/ai-gateway/consent", handler: aiGatewayConsent, methods: ["POST", "DELETE"] },
-  { path: "/ai-gateway/status", handler: aiGatewayStatus, methods: ["GET"] },
-  { path: "/ai-gateway/teams", handler: aiGatewayTeams, methods: ["GET"] },
   // API Keys (static routes before parameterized)
   { path: "/api-keys", handler: apiKeysHandler, methods: ["GET", "POST"] },
   { path: "/api-keys/[keyId]", handler: apiKeyHandler, methods: ["DELETE"] },

@@ -47,3 +47,4 @@ lib/step-registry.ts
 lib/output-display-configs.ts
 lib/codegen-registry.ts
 lib/layout-provider.tsx
+lib/route-registry.ts

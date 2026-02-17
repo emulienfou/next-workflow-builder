@@ -2,16 +2,17 @@ import { betterAuth } from "better-auth";
 import { getDefaultAuthOptions } from "../../lib/auth.js";
 import { getDb } from "../../lib/db/index.js";
 import { errorResponse } from "./handler-utils.js";
-import routes from "./routes.js";
-import type { ParsedRoute, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
+import coreRoutes from "./routes.js";
+import type { ParsedRoute, RouteDefinition, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
 
 /**
  * Matches a URL path segment array against the defined routes.
  *
  * @param segments - An array of path segments from the URL
+ * @param routes - The route definitions to match against
  * @returns An object containing the route handler and allowed methods, or null if no match is found
  */
-function matchRoute(segments: string[]): { handler: RouteHandler; methods: string[] } | null {
+function matchRoute(segments: string[], routes: RouteDefinition[]): { handler: RouteHandler; methods: string[] } | null {
   for (const route of routes) {
     const patternSegments = route.path === "" ? [] : route.path.split("/").filter(Boolean);
 
@@ -94,7 +95,8 @@ export function createWorkflowApiHandler(options?: WorkflowApiHandlerOptions) {
       }
 
       const method = req.method;
-      const match = matchRoute(segments);
+      const allRoutes = [...coreRoutes, ...(options?.pluginRoutes ?? [])];
+      const match = matchRoute(segments, allRoutes);
 
       if (!match) {
         return errorResponse("Not found", 404);

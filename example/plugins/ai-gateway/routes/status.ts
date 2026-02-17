@@ -1,13 +1,12 @@
-import { and, eq } from "drizzle-orm";
-import { isAiGatewayManagedKeysEnabled } from "../../../../../lib/ai-gateway/config.js";
-import { accounts, integrations } from "../../../../db/schema.js";
-import { jsonResponse, requireSession } from "../../../handler-utils.js";
-import type { RouteHandler } from "../../../types.js";
+import { isAiGatewayManagedKeysEnabled } from "../lib/config";
+import type { RouteHandler } from "next-workflow-builder";
+import { and, eq, jsonResponse, requireSession, schema } from "next-workflow-builder";
+
+const { accounts, integrations } = schema;
 
 export const aiGatewayStatus: RouteHandler = async (route, ctx) => {
   const enabled = isAiGatewayManagedKeysEnabled();
 
-  // If feature is not enabled, return minimal response
   if (!enabled) {
     return jsonResponse({
       enabled: false,
@@ -28,14 +27,12 @@ export const aiGatewayStatus: RouteHandler = async (route, ctx) => {
     });
   }
 
-  // Check if user signed in with Vercel
   const account = await ctx.db.query.account.findFirst({
     where: eq(accounts.userId, session.user.id),
   });
 
   const isVercelUser = account?.providerId === "vercel";
 
-  // Check if user has a managed AI Gateway integration
   const managedIntegration = await ctx.db.query.integrations.findFirst({
     where: and(
       eq(integrations.userId, session.user.id),

@@ -29,11 +29,13 @@
     "./styles/globals.css": "./dist/styles/globals.css",
     "./lib/api-client": {
       "types": "./dist/lib/api-client.d.ts",
-      "import": "./dist/lib/api-client.js"
+      "import": "./dist/lib/api-client.js",
+      "default": "./dist/lib/api-client.js"
     },
     "./lib/workflow-store": {
       "types": "./dist/lib/workflow-store.d.ts",
-      "import": "./dist/lib/workflow-store.js"
+      "import": "./dist/lib/workflow-store.js",
+      "default": "./dist/lib/workflow-store.js"
     },
     "./*": {
       "types": "./dist/client/*.d.ts",
