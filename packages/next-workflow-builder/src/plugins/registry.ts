@@ -228,6 +228,28 @@ export type ActionWithFullId = PluginAction & {
 const integrationRegistry = new Map<IntegrationType, IntegrationPlugin>();
 
 /**
+ * Codegen Template Registry
+ * Auto-populated by consumer's generated lib/codegen-registry.ts
+ */
+const codegenTemplateRegistry = new Map<string, string>();
+
+/**
+ * Register codegen templates (called from consumer's auto-generated codegen-registry.ts)
+ */
+export function registerCodegenTemplates(templates: Record<string, string>) {
+  for (const [actionId, template] of Object.entries(templates)) {
+    codegenTemplateRegistry.set(actionId, template);
+  }
+}
+
+/**
+ * Get a codegen template for an action
+ */
+export function getCodegenTemplate(actionId: string): string | undefined {
+  return codegenTemplateRegistry.get(actionId);
+}
+
+/**
  * Compute full action ID from integration type and action slug
  */
 export function computeActionId(

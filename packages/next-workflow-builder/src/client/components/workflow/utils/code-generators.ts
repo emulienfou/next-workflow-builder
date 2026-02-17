@@ -1,12 +1,11 @@
 /**
  * Code generation utilities for workflow step functions
  */
-import { AUTO_GENERATED_TEMPLATES } from "../../../../lib/codegen-registry";
 import conditionTemplate from "../../../../lib/codegen-templates/condition";
 import databaseQueryTemplate from "../../../../lib/codegen-templates/database-query";
 import httpRequestTemplate from "../../../../lib/codegen-templates/http-request"; // System action templates (non-plugin actions)
 // System action templates (non-plugin actions)
-import { findActionById } from "../../../../plugins/registry.js";
+import { findActionById, getCodegenTemplate } from "../../../../plugins/registry.js";
 
 // System action templates (non-plugin actions)
 const SYSTEM_ACTION_TEMPLATES: Record<string, string> = {
@@ -75,7 +74,7 @@ function generateActionCode(actionType: string | undefined): string {
   const action = findActionById(actionType);
   if (action) {
     // Prefer auto-generated templates, fall back to manual templates
-    return AUTO_GENERATED_TEMPLATES[action.id] || action.codegenTemplate || FALLBACK_ACTION_CODE;
+    return getCodegenTemplate(action.id) || action.codegenTemplate || FALLBACK_ACTION_CODE;
   }
 
   return FALLBACK_ACTION_CODE;

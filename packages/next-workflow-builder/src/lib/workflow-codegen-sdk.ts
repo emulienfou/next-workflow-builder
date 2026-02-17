@@ -1,6 +1,6 @@
 import "server-only";
 
-import { findActionById } from "../plugins/registry.js";
+import { findActionById, getCodegenTemplate } from "../plugins/registry.js";
 // System action codegen templates (not in plugin registry)
 import conditionTemplate from "./codegen-templates/condition";
 import databaseQueryTemplate from "./codegen-templates/database-query";
@@ -35,7 +35,12 @@ function loadStepImplementation(actionType: string): string | null {
   // Check system actions first
   let template = SYSTEM_CODEGEN_TEMPLATES[actionType];
 
-  // Look up plugin action from registry if not a system action
+  // Look up from codegen template registry (auto-generated templates)
+  if (!template) {
+    template = getCodegenTemplate(actionType);
+  }
+
+  // Fall back to plugin action's inline codegenTemplate
   if (!template) {
     const action = findActionById(actionType);
     if (action?.codegenTemplate) {
