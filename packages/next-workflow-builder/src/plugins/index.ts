@@ -5,9 +5,14 @@ export { fetchCredentials } from "../lib/credential-fetcher";
 export { type StepInput, withStepLogging } from "../lib/steps/step-handler";
 
 // Export the registry utilities
-export type { IntegrationPlugin } from "./registry";
-export { registerIntegration, registerCodegenTemplates, getCodegenTemplate, registerOutputDisplayConfigs, getOutputDisplayConfig } from "./registry";
-export type { SerializableOutputDisplayConfig } from "./registry";
+export {
+  registerIntegration,
+  registerCodegenTemplates,
+  getCodegenTemplate,
+  registerOutputDisplayConfigs,
+  getOutputDisplayConfig,
+} from "./registry";
+export type { SerializableOutputDisplayConfig, ResultComponentProps, IntegrationPlugin } from "./registry";
 
 // Export the steps utilities
 export type { StepImporter } from "../lib/steps/index";

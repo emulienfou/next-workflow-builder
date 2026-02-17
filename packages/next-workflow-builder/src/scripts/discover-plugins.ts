@@ -64,7 +64,7 @@ async function importPackageOrLocal(localRelPath: string): Promise<Record<string
  */
 async function importConsumerPlugins(plugins: string[]): Promise<void> {
   const { registerIntegration } = await import("../plugins/registry");
-  console.log("Importing consumer plugins...", { plugins });
+  console.log("Importing consumer plugins...");
   for (const plugin of plugins) {
     const pluginIndex = join(PLUGINS_DIR, plugin, "index.ts");
     if (existsSync(pluginIndex)) {
@@ -153,7 +153,7 @@ function generateIndexFile(plugins: string[]): void {
  * 2. Run: pnpm discover-plugins (or it runs automatically on build)
  *
  * Usage in your layout.tsx:
- *   import { LayoutProvider } from "@/plugins";
+ *   import { LayoutProvider } from "next-workflow-builder/plugins";
  */
 "use client";
 
@@ -661,7 +661,7 @@ async function generateStepRegistry(): Promise<void> {
     );
   const { LEGACY_ACTION_MAPPINGS } = await import("../plugins/legacy-mappings");
   const integrations = getAllIntegrations();
-  console.log("Generating step registry for integrations:", integrations.map(i => i.type));
+  console.log("Generating step registry for integrations...");
 
   // Collect all action -> step mappings
   const stepEntries: Array<{
