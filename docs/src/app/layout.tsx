@@ -1,7 +1,7 @@
 import { appConfig } from "@/config/app";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Layout, Navbar } from "nextra-theme-docs";
+import { Layout } from "nextra-theme-docs";
 import { Banner } from "nextra/components";
 import { getPageMap } from "nextra/page-map";
 import "nextra-theme-docs/style.css";
@@ -18,17 +18,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: appConfig.name,
+  title: {
+    default: appConfig.name,
+    template: `%s | ${ appConfig.name }`,
+  },
   description: appConfig.description,
 };
 
 const banner = <Banner storageKey="release-banner">{ appConfig.name } 1.0 is released 🎉</Banner>;
-const navbar = (
-  <Navbar
-    logo={ <b>{ appConfig.name }</b> }
-    // ... Your additional navbar options
-  />
-);
 
 const RootLayout = async (props: LayoutProps<"/">) => {
   const pageMap = await getPageMap();
@@ -39,7 +36,7 @@ const RootLayout = async (props: LayoutProps<"/">) => {
       className={ `${ geistSans.variable } ${ geistMono.variable } antialiased` }
     >
       <Layout
-        banner={ banner }
+        // banner={ banner }
         navbar={ props.header }
         pageMap={ pageMap }
         docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
