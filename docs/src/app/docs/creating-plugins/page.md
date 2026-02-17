@@ -291,16 +291,17 @@ Plugin routes are auto-discovered and registered in `lib/route-registry.ts` when
 
 After creating your plugin files:
 
-```bash
-npx nwb discover-plugins
-```
+1. Add an import to `plugins/index.ts`:
+   ```ts
+   import "./my-service";
+   ```
 
-This generates the registry files and your plugin is ready to use. The discovery script:
+2. Run the discovery script to regenerate registry files:
+   ```bash
+   npx nwb discover-plugins
+   ```
 
-1. Scans all directories under `plugins/`
-2. Imports each plugin to populate the registry
-3. Generates `plugins/index.ts` with all plugin imports
-4. Generates type definitions, step registry, display configs, codegen templates, and route registry
+The discovery script imports `plugins/index.ts` to populate the registry, then generates type definitions, step registry, display configs, codegen templates, and route registry.
 
 ## Complete example
 

@@ -73,7 +73,7 @@ my-app/
 │       ├── output-display-configs.ts
 │       └── route-registry.ts
 ├── plugins/
-│   ├── index.ts                    # (auto-generated)
+│   ├── index.ts                    # (user-managed, scaffolded once)
 │   ├── slack/
 │   ├── github/
 │   └── stripe/
@@ -87,8 +87,9 @@ The plugin system is built around a central `Map<IntegrationType, IntegrationPlu
 ### Registration flow
 
 1. Each plugin calls `registerIntegration(plugin)` in its `index.ts`
-2. The `nwb discover-plugins` script imports all plugins to populate the registry
-3. Generated files provide the glue between the registry and the runtime:
+2. You import each plugin in the user-managed `plugins/index.ts` (local imports or npm packages)
+3. The `nwb discover-plugins` script imports `plugins/index.ts` to populate the registry
+4. Generated files provide the glue between the registry and the runtime:
    - **Step registry** maps `actionId -> () => import("plugin/steps/action")`
    - **Type union** ensures type safety for integration slugs
    - **Display configs** and **codegen templates** are registered at import time

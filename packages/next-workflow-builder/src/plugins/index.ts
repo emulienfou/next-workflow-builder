@@ -7,6 +7,7 @@ export { type StepInput, withStepLogging } from "../lib/steps/step-handler";
 // Export the registry utilities
 export {
   registerIntegration,
+  getAllIntegrations,
   registerCodegenTemplates,
   getCodegenTemplate,
   registerOutputDisplayConfigs,

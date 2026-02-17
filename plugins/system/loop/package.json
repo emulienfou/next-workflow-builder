@@ -4,6 +4,7 @@
   "private": true,
   "description": "Loop (iteration) system plugin for Workflow Builder",
   "license": "MIT",
+  "main": "index.ts",
   "dependencies": {
     "next-workflow-builder": "workspace:*"
   }

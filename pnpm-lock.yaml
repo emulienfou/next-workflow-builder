@@ -114,6 +114,9 @@ importers:
 
   example:
     dependencies:
+      '@next-workflow-builder/loop':
+        specifier: workspace:*
+        version: link:../plugins/system/loop
       ai:
         specifier: ^5.0.0
         version: 5.0.133(zod@3.25.76)

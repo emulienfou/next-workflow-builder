@@ -34,10 +34,9 @@ npx nwb discover-plugins
 
 **What it does:**
 
-1. Discovers all plugin directories under `plugins/`
-2. Imports each plugin to populate the integration registry
+1. Scaffolds `plugins/index.ts` if it doesn't exist (never overwrites an existing file)
+2. Imports `plugins/index.ts` to populate the integration registry (both local and npm plugins)
 3. Generates the following files:
-   - `plugins/index.ts` - Imports all plugins and re-exports `LayoutProvider`
    - `lib/types/integration.ts` - Union type of all integration type slugs
    - `lib/step-registry.ts` - Maps action IDs to lazy step import functions
    - `lib/output-display-configs.ts` - Maps action IDs to display configurations
@@ -46,9 +45,9 @@ npx nwb discover-plugins
 
 **When to run:**
 
-- After adding or removing a plugin
 - Before `next dev` and `next build` (recommended in your scripts)
 - After modifying a plugin's actions, routes, or output configs
+- Not needed just for adding/removing plugins — edit `plugins/index.ts` directly
 
 **Typical setup:**
 

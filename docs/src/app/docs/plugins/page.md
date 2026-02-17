@@ -5,10 +5,11 @@ with its own credentials, actions, step handlers, and optionally custom API rout
 
 ## How plugins work
 
-1. Each plugin lives in its own directory under `plugins/` in your consumer app
+1. Each plugin lives in its own directory under `plugins/` or is installed via npm
 2. Plugins auto-register when imported by calling `registerIntegration()`
-3. The `nwb discover-plugins` CLI scans the `plugins/` directory and generates registry files
-4. Generated files wire everything together: types, step imports, display configs, and codegen templates
+3. You manage `plugins/index.ts` — add import lines for each plugin (local or npm)
+4. The `nwb discover-plugins` CLI imports `plugins/index.ts` and generates registry files
+5. Generated files wire everything together: types, step imports, display configs, and codegen templates
 
 ## Plugin structure
 
@@ -34,29 +35,38 @@ Running `nwb discover-plugins` generates these files in your consumer app:
 
 | File | Description |
 | --- | --- |
-| `plugins/index.ts` | Imports all discovered plugins and re-exports `LayoutProvider` |
+| `plugins/index.ts` | **User-managed.** Scaffolded once, then you edit it to add/remove plugin imports |
 | `lib/types/integration.ts` | Union type of all integration type slugs |
 | `lib/step-registry.ts` | Maps action IDs to lazy step import functions |
 | `lib/output-display-configs.ts` | Maps action IDs to output display configurations |
 | `lib/codegen-registry.ts` | Code generation templates for workflow export |
 | `lib/route-registry.ts` | Custom API route definitions from plugins |
 
-These files are regenerated every time you run the discovery script. Do not edit them manually.
+The `lib/` files are regenerated every time you run the discovery script. Do not edit them manually.
+`plugins/index.ts` is scaffolded once and then managed by you — edit it to add or remove plugins.
 
 ## Using plugins
 
-### Installing a plugin
+### Installing a local plugin
 
 1. Copy the plugin directory into your `plugins/` folder
-2. Run the discovery script:
+2. Add an import line to `plugins/index.ts`:
+   ```ts
+   import "./my-plugin";
+   ```
+3. Run `pnpm discover-plugins` (or it runs automatically on build)
 
-```bash
-pnpm discover-plugins
-# or
-npx nwb discover-plugins
-```
+### Installing an npm plugin
 
-3. The plugin is now available in the workflow builder UI
+1. Install the package:
+   ```bash
+   pnpm add @next-workflow-builder/loop
+   ```
+2. Add an import line to `plugins/index.ts`:
+   ```ts
+   import "@next-workflow-builder/loop";
+   ```
+3. Run `pnpm discover-plugins` (or it runs automatically on build)
 
 ### Plugin discovery in your build
 

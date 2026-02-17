@@ -1,14 +1,14 @@
 #!/usr/bin/env tsx
 
 /**
- * Plugin Auto-Discovery Script
+ * Plugin Discovery & Registry Generation Script
  *
- * Automatically discovers all plugins in the plugins/ directory and generates
- * the plugins/index.ts file with imports. Also updates the README.md with
- * the current list of available actions.
+ * Imports plugins from the user-managed plugins/index.ts file, then generates
+ * registry files (types, step-registry, display configs, codegen templates,
+ * route registry) from the populated registry.
  *
- * Additionally generates codegen templates from step files that have
- * a stepHandler function.
+ * plugins/index.ts is scaffolded once if it doesn't exist, then never overwritten.
+ * Users manage their own plugin imports (both local and npm-installed).
  *
  * Run this script:
  * - Manually: pnpm discover-plugins
@@ -50,31 +50,95 @@ async function importPackageOrLocal(localRelPath: string): Promise<Record<string
 }
 
 /**
- * Import each discovered plugin directly to populate the registry.
- * We import the individual plugin index files rather than the generated
- * plugins/index.ts because the generated file re-exports from the package
- * which may not resolve during development (dist/ not built yet).
- *
- * NOTE: Consumer plugins import `registerIntegration` from "next-workflow-builder/plugins"
- * which may resolve to a different module instance than our relative import of
- * "../plugins/registry". Node.js ESM caches modules by resolved URL, so the same
- * file loaded via a package specifier vs a relative path creates two separate
- * module instances with separate registries. To fix this, we explicitly register
- * each plugin's default export with our local registry instance.
+ * Parse plugins/index.ts to extract plugin import specifiers.
+ * Returns both local (e.g. "./slack") and npm (e.g. "@next-workflow-builder/loop") specifiers.
+ * Skips non-plugin imports (client.ts, ../lib/*, re-exports, etc.).
  */
-async function importConsumerPlugins(plugins: string[]): Promise<void> {
-  const { registerIntegration } = await import("../plugins/registry");
-  console.log("Importing consumer plugins...");
-  for (const plugin of plugins) {
-    const pluginIndex = join(PLUGINS_DIR, plugin, "index.ts");
-    if (existsSync(pluginIndex)) {
-      const mod = await import(pathToFileURL(pluginIndex).href);
-      // Explicitly register with our local registry to avoid dual module instance issues
-      if (mod.default) {
-        registerIntegration(mod.default);
+function parsePluginImports(): string[] {
+  if (!existsSync(OUTPUT_FILE)) return [];
+
+  const content = readFileSync(OUTPUT_FILE, "utf-8");
+  const importRegex = /^\s*import\s+["']([^"']+)["']\s*;/gm;
+  const specifiers: string[] = [];
+
+  let match: RegExpExecArray | null;
+  while ((match = importRegex.exec(content)) !== null) {
+    const spec = match[1];
+    // Skip non-plugin imports (auto-generated lib files, client registrations, etc.)
+    if (
+      spec.includes("/client") ||
+      spec.startsWith("../lib/") ||
+      spec.startsWith("../") ||
+      spec === "next-workflow-builder/components" ||
+      spec.startsWith("next-workflow-builder/")
+    ) {
+      continue;
+    }
+    specifiers.push(spec);
+  }
+
+  return specifiers;
+}
+
+/**
+ * Import plugins listed in plugins/index.ts to populate the registry.
+ *
+ * We parse the import specifiers from plugins/index.ts, then import each plugin
+ * individually. This avoids importing client-only code (React components, etc.)
+ * that can't run in the Node.js/tsx context of discover-plugins.
+ *
+ * Because consumer plugins import `registerIntegration` from "next-workflow-builder/plugins"
+ * (the package specifier), they may populate a different module instance than our relative
+ * import of "../plugins/registry". Node.js ESM caches modules by resolved URL, so the same
+ * file loaded via a package specifier vs a relative path creates two separate module instances
+ * with separate registries.
+ *
+ * To fix this, we explicitly re-register each plugin's default export with our local registry.
+ */
+async function importPluginsFromIndex(): Promise<void> {
+  const localRegistry = await import("../plugins/registry");
+  const specifiers = parsePluginImports();
+
+  if (specifiers.length === 0) {
+    console.log("No plugin imports found in plugins/index.ts");
+    return;
+  }
+
+  console.log(`Importing ${ specifiers.length } plugin(s) from plugins/index.ts...`);
+  for (const spec of specifiers) {
+    let resolvedPath: string;
+
+    if (spec.startsWith(".")) {
+      // Local plugin — resolve relative to plugins/ directory
+      resolvedPath = pathToFileURL(join(PLUGINS_DIR, spec, "index.ts")).href;
+    } else {
+      // npm package — resolve from the consumer's directory (process.cwd()),
+      // not from discover-plugins.ts, so the consumer's node_modules is used
+      try {
+        const { createRequire } = await import("node:module");
+        const require = createRequire(join(process.cwd(), "package.json"));
+        resolvedPath = pathToFileURL(require.resolve(spec)).href;
+      } catch {
+        resolvedPath = spec; // fallback to bare specifier
       }
     }
+
+    try {
+      const mod = await import(resolvedPath);
+      // Explicitly register with our local registry to avoid dual module instance issues
+      if (mod.default) {
+        localRegistry.registerIntegration(mod.default);
+        // Track npm-installed plugins for step-registry import path generation
+        if (!spec.startsWith(".")) {
+          npmPluginSpecifiers.set(mod.default.type, spec);
+        }
+      }
+    } catch (error) {
+      console.warn(`   Warning: Failed to import plugin "${ spec }":`, error);
+    }
   }
+
+  console.log(`Registered ${ specifiers.length } plugin(s) with local registry`);
 }
 
 /**
@@ -96,68 +160,77 @@ const generatedCodegenTemplates = new Map<
   { template: string; integrationType: string }
 >();
 
-/**
- * Discover all plugin directories
- */
-function discoverPlugins(): string[] {
-  const entries = readdirSync(PLUGINS_DIR);
+// Track npm package specifiers for integration types (e.g. "loop" -> "@next-workflow-builder/loop")
+// Used by step-registry to generate correct import paths for npm-installed plugins
+const npmPluginSpecifiers = new Map<string, string>();
 
-  const plugins = entries.filter((entry) => {
-    // Skip special directories and files
+
+/**
+ * Discover local plugin directories (subdirectories under plugins/).
+ * Used for scaffolding and for finding client.ts files.
+ */
+function discoverLocalPluginDirs(): string[] {
+  if (!existsSync(PLUGINS_DIR)) return [];
+
+  const entries = readdirSync(PLUGINS_DIR);
+  return entries.filter((entry) => {
     if (
       entry.startsWith("_") ||
       entry.startsWith(".") ||
       entry === "index.ts" ||
-      entry === "registry.ts"
+      entry === "registry.ts" ||
+      entry === "system"
     ) {
       return false;
     }
-
-    // Only include directories
     const fullPath = join(PLUGINS_DIR, entry);
     try {
       return statSync(fullPath).isDirectory();
     } catch {
       return false;
     }
-  });
-
-  return plugins.sort();
+  }).sort();
 }
 
 /**
- * Generate the plugins/index.ts file
+ * Scaffold plugins/index.ts if it doesn't exist yet.
+ * This file is user-managed — the script never overwrites it.
  */
-function generateIndexFile(plugins: string[]): void {
-  const imports = plugins.map((plugin) => `import "./${ plugin }";`).join("\n");
+function scaffoldIndexFile(): void {
+  if (existsSync(OUTPUT_FILE)) {
+    console.log("plugins/index.ts already exists, skipping scaffold");
+    return;
+  }
 
-  // Detect plugins with client.ts for client-only registrations (e.g., managed connection providers)
-  const clientImports = plugins
+  // Discover local plugin directories to pre-populate the scaffold
+  const localPlugins = discoverLocalPluginDirs();
+  const imports = localPlugins.length > 0
+    ? localPlugins.map((plugin) => `import "./${ plugin }";`).join("\n")
+    : '// import "./my-plugin";';
+
+  // Detect plugins with client.ts for client-only registrations
+  const clientImports = localPlugins
     .filter((plugin) => existsSync(join(PLUGINS_DIR, plugin, "client.ts")))
     .map((plugin) => `import "./${ plugin }/client";`)
     .join("\n");
 
   const content = `/**
- * Plugins Index (Auto-Generated)
+ * Plugins Index
  *
- * This file is automatically generated by scripts/discover-plugins.ts
- * DO NOT EDIT MANUALLY - your changes will be overwritten!
+ * This file is managed by you. Add or remove plugin imports as needed.
  *
- * To add a new integration:
- * 1. Create a new directory in plugins/ (e.g., plugins/my-integration/)
- * 2. Add your plugin files (index.tsx, steps/, codegen/, etc.)
- * 3. Run: pnpm discover-plugins (or it runs automatically on build)
+ * To add a local plugin:
+ *   import "./my-plugin";
  *
- * To remove an integration:
- * 1. Delete the plugin directory
- * 2. Run: pnpm discover-plugins (or it runs automatically on build)
+ * To add an npm-installed plugin:
+ *   import "@next-workflow-builder/loop";
  *
- * Usage in your layout.tsx:
- *   import { LayoutProvider } from "next-workflow-builder/plugins";
+ * After editing, run: pnpm discover-plugins (or it runs automatically on build)
  */
 "use client";
 
-${ imports || "// No plugins discovered" }
+// Local plugins (side-effect imports trigger registration)
+${ imports }
 
 // Register auto-generated data into the plugin registry
 import "../lib/output-display-configs";
@@ -169,6 +242,7 @@ export { LayoutProvider } from "next-workflow-builder/components";
 `;
 
   writeFileSync(OUTPUT_FILE, content, "utf-8");
+  console.log("Scaffolded plugins/index.ts");
 }
 
 /**
@@ -180,8 +254,8 @@ function ensureGitignore(): void {
   const SECTION_HEADER = "# Auto-generated by discover-plugins";
 
   // Collect all absolute paths we want to ignore
+  // Note: OUTPUT_FILE (plugins/index.ts) is excluded — it's user-managed and should be committed
   const filesToIgnore = [
-    OUTPUT_FILE,
     TYPES_FILE,
     STEP_REGISTRY_FILE,
     OUTPUT_CONFIGS_FILE,
@@ -568,12 +642,26 @@ async function processStepFilesForCodegen(): Promise<void> {
 
   for (const integration of integrations) {
     for (const action of integration.actions) {
-      const stepFilePath = join(
-        PLUGINS_DIR,
-        integration.type,
-        "steps",
-        `${ action.stepImportPath }.ts`,
-      );
+      // Resolve step file path: local plugins use PLUGINS_DIR, npm plugins use their package directory
+      let stepFilePath: string;
+      const npmSpec = npmPluginSpecifiers.get(integration.type);
+      if (npmSpec) {
+        try {
+          const { createRequire } = await import("node:module");
+          const require = createRequire(join(process.cwd(), "package.json"));
+          const pkgDir = dirname(require.resolve(`${ npmSpec }/package.json`));
+          stepFilePath = join(pkgDir, "steps", `${ action.stepImportPath }.ts`);
+        } catch {
+          continue; // Skip if we can't resolve the npm package
+        }
+      } else {
+        stepFilePath = join(
+          PLUGINS_DIR,
+          integration.type,
+          "steps",
+          `${ action.stepImportPath }.ts`,
+        );
+      }
 
       const template = await generateCodegenTemplate(
         stepFilePath,
@@ -700,9 +788,15 @@ async function generateStepRegistry(): Promise<void> {
   // Include both namespaced IDs and legacy label-based IDs for backward compatibility
   const importerEntries = stepEntries
     .flatMap(({ actionId, integration, stepImportPath, stepFunction }) => {
+      // For npm-installed plugins, use the package specifier; for local plugins, use @/plugins/
+      const npmSpec = npmPluginSpecifiers.get(integration);
+      const importPath = npmSpec
+        ? `${ npmSpec }/steps/${ stepImportPath }`
+        : `@/plugins/${ integration }/steps/${ stepImportPath }`;
+
       const entries = [
         `  "${ actionId }": {
-    importer: () => import("@/plugins/${ integration }/steps/${ stepImportPath }"),
+    importer: () => import("${ importPath }"),
     stepFunction: "${ stepFunction }",
   },`,
       ];
@@ -711,7 +805,7 @@ async function generateStepRegistry(): Promise<void> {
       for (const legacyLabel of legacyLabels) {
         entries.push(
           `  "${ legacyLabel }": {
-    importer: () => import("@/plugins/${ integration }/steps/${ stepImportPath }"),
+    importer: () => import("${ importPath }"),
     stepFunction: "${ stepFunction }",
   },`,
         );
@@ -936,7 +1030,10 @@ export default PLUGIN_ROUTES;
   const routeDefLines: string[] = [];
 
   for (const entry of routeEntries) {
-    const importPath = `@/plugins/${ entry.pluginType }/${ entry.handlerImportPath }`;
+    const npmSpec = npmPluginSpecifiers.get(entry.pluginType);
+    const importPath = npmSpec
+      ? `${ npmSpec }/${ entry.handlerImportPath }`
+      : `@/plugins/${ entry.pluginType }/${ entry.handlerImportPath }`;
     const methodsStr = entry.methods.map((m) => `"${ m }"`).join(", ");
 
     importLines.push(`import { ${ entry.handler } } from "${ importPath }";`);
@@ -983,26 +1080,17 @@ async function main(): Promise<void> {
     mkdirSync(PLUGINS_DIR, { recursive: true });
   }
 
-  console.log("Discovering plugins...");
+  // 1. Scaffold plugins/index.ts if it doesn't exist (user-managed, never overwritten)
+  console.log("Checking plugins/index.ts...");
+  scaffoldIndexFile();
 
-  const plugins = discoverPlugins();
+  // 2. Import plugins/index.ts to populate the registry (handles both local and npm plugins)
+  await importPluginsFromIndex();
 
-  if (plugins.length === 0) {
-    console.log("No plugins found in plugins/ directory");
-  } else {
-    console.log(`Found ${ plugins.length } plugin(s):`);
-    for (const plugin of plugins) {
-      console.log(`   - ${ plugin }`);
-    }
-  }
-
-  console.log("\nGenerating plugins/index.ts...");
-  generateIndexFile(plugins);
+  // 3. Ensure auto-generated files are gitignored
   ensureGitignore();
 
-  // Import each plugin directly to populate the registry before generation steps
-  await importConsumerPlugins(plugins);
-
+  // 4. Generate all other files from the registry
   console.log("Updating README.md...");
   await updateReadme();
 
