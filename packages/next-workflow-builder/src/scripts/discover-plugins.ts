@@ -159,7 +159,8 @@ function generateIndexFile(plugins: string[]): void {
 
 ${ imports || "// No plugins discovered" }
 
-// Register codegen templates into the plugin registry
+// Register auto-generated data into the plugin registry
+import "../lib/output-display-configs";
 import "../lib/codegen-registry";
 ${ clientImports ? `\n// Client-only registrations (managed connections, etc.)\n${ clientImports }` : "" }
 
@@ -851,6 +852,8 @@ async function generateOutputDisplayConfigs(): Promise<void> {
  * Generated configs: ${ outputConfigs.length }
  */
 
+import { registerOutputDisplayConfigs } from "next-workflow-builder/plugins";
+
 export type OutputDisplayConfig = {
   type: "image" | "video" | "url";
   field: string;
@@ -864,12 +867,8 @@ export const OUTPUT_DISPLAY_CONFIGS: Record<string, OutputDisplayConfig> = {
 ${ outputConfigEntries }
 };
 
-/**
- * Get the output display config for an action type
- */
-export function getOutputDisplayConfig(actionType: string): OutputDisplayConfig | undefined {
-  return OUTPUT_DISPLAY_CONFIGS[actionType];
-}
+// Register configs into the plugin registry so the package can access them
+registerOutputDisplayConfigs(OUTPUT_DISPLAY_CONFIGS);
 `;
 
   writeFileSync(OUTPUT_CONFIGS_FILE, content, "utf-8");

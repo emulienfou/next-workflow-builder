@@ -250,6 +250,36 @@ export function getCodegenTemplate(actionId: string): string | undefined {
 }
 
 /**
+ * Output Display Config (serializable subset for built-in types only)
+ */
+export type SerializableOutputDisplayConfig = {
+  type: "image" | "video" | "url";
+  field: string;
+};
+
+/**
+ * Output Display Config Registry
+ * Auto-populated by consumer's generated lib/output-display-configs.ts
+ */
+const outputDisplayConfigRegistry = new Map<string, SerializableOutputDisplayConfig>();
+
+/**
+ * Register output display configs (called from consumer's auto-generated output-display-configs.ts)
+ */
+export function registerOutputDisplayConfigs(configs: Record<string, SerializableOutputDisplayConfig>) {
+  for (const [actionId, config] of Object.entries(configs)) {
+    outputDisplayConfigRegistry.set(actionId, config);
+  }
+}
+
+/**
+ * Get the output display config for an action
+ */
+export function getOutputDisplayConfig(actionId: string): SerializableOutputDisplayConfig | undefined {
+  return outputDisplayConfigRegistry.get(actionId);
+}
+
+/**
  * Compute full action ID from integration type and action slug
  */
 export function computeActionId(

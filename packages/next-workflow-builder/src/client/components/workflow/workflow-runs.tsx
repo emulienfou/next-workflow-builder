@@ -17,9 +17,9 @@ import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../../../lib/api-client";
 import {
-  OUTPUT_DISPLAY_CONFIGS,
-  type OutputDisplayConfig,
-} from "../../../lib/output-display-configs";
+  getOutputDisplayConfig,
+  type SerializableOutputDisplayConfig,
+} from "../../../plugins/registry.js";
 import { cn } from "../../../lib/utils";
 import { getRelativeTime } from "../../../lib/utils/time";
 import {
@@ -62,8 +62,8 @@ type WorkflowRunsProps = {
 };
 
 // Helper to get the output display config for a node type
-function getOutputConfig(nodeType: string): OutputDisplayConfig | undefined {
-  return OUTPUT_DISPLAY_CONFIGS[nodeType];
+function getOutputConfig(nodeType: string): SerializableOutputDisplayConfig | undefined {
+  return getOutputDisplayConfig(nodeType);
 }
 
 // Helper to extract the displayable value from output based on config
