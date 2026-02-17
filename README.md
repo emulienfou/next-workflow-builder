@@ -1,186 +1,55 @@
 # next-workflow-builder
 
-A Next.js plugin for visual workflow building with drag-and-drop, code generation, and AI-powered automation.
+A Next.js plugin for visual workflow building with drag-and-drop, code
+generation, and AI-powered automation.
 
-Built with Next.js 16, React 19, Drizzle ORM, Better Auth, and React Flow.
+## Documentation
 
-## Features
+https://next-workflow-builder.vercel.app
 
-- Visual drag-and-drop workflow editor
-- Node-based workflow canvas with triggers, actions, and conditions
-- AI-powered workflow generation
-- Workflow execution with real-time status tracking
-- Code generation from visual workflows
-- Authentication via Better Auth
-- Integration plugin system (Slack, GitHub, Linear, Stripe, Resend, and more)
-- Dark/light/system theme support
+## Development
 
-## Quick Start
+### Installation
 
-### 1. Install
+The next-workflow-builder repository uses
+[PNPM Workspaces](https://pnpm.io/workspaces) and
+[Turborepo](https://github.com/vercel/turborepo).
+
+1. Run `corepack enable` to enable Corepack.
+
+   > If the command above fails, run `npm install -g corepack@latest` to install
+   > the latest version of
+   > [Corepack](https://github.com/nodejs/corepack?tab=readme-ov-file#manual-installs).
+
+2. Run `pnpm install` to install the project's dependencies.
+
+### Build `next-workflow-builder`
 
 ```bash
-npm install next-workflow-builder
-# or
-pnpm add next-workflow-builder
+pnpm --filter next-workflow-builder build
 ```
 
-### 2. Configure Next.js
+Watch mode: `pnpm --filter next-workflow-builder dev`
 
-```ts
-// next.config.ts
-import workflowBuilder from "next-workflow-builder";
+### Build the docs
 
-// Set up WorkflowBuilder with its configuration
-const withWorkflowBuilder = workflowBuilder({
-  // ... Add WorkflowBuilder specific options here
-});
-
-// Export the final Next.js config with workflowBuilder included
-const nextConfig = withWorkflowBuilder({
-  // ... Add regular Next.js options here
-});
-
-export default nextConfig;
+```bash
+pnpm --filter docs build
 ```
 
-### 3. Create the API Route
+### Development
 
-Create a catch-all API route to handle all workflow API requests:
+You can debug packages together with a consumer app locally. For instance, to
+start the example app locally, run
 
-```ts
-// src/app/api/[...slug]/route.ts
-import { createWorkflowApiHandler } from "next-workflow-builder";
-
-// Create the handler once — database URL is read from NEXT_WORKFLOW_BUILDER_DATABASE_URL env var
-const handler = createWorkflowApiHandler({});
-
-// Export the methods you strictly need (OPTIONS is usually auto-handled)
-export { handler as GET, handler as POST, handler as PUT, handler as DELETE, handler as PATCH };
+```bash
+pnpm --filter example dev
 ```
 
-### 4. Add the Layout Provider
+Any change to `example/` will be re-rendered instantly.
 
-Wrap your app with `LayoutProvider` — it provides theme, state management, auth, and the persistent workflow canvas:
-
-```tsx
-// src/app/layout.tsx
-import { LayoutProvider } from "next-workflow-builder/components";
-import "next-workflow-builder/styles/globals.css";
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-    <body>
-      <LayoutProvider>{ children }</LayoutProvider>
-    </body>
-    </html>
-  );
-}
-```
-
-### 5. Add the Workflow Pages
-
-Use the catch-all `WorkflowPage` component to handle all workflow routes with a single file:
-
-```tsx
-// src/app/[[...slug]]/page.tsx
-export { WorkflowPage as default } from "next-workflow-builder/components";
-```
-
-This handles three routes:
-
-| Path              | Behavior                                          |
-|-------------------|---------------------------------------------------|
-| `/`               | New workflow homepage with placeholder canvas     |
-| `/workflows`      | Redirects to the most recently updated workflow   |
-| `/workflows/[id]` | Opens the workflow editor for a specific workflow |
-
-### 6. Environment Variables
-
-```env
-NEXT_WORKFLOW_BUILDER_DATABASE_URL=postgres://localhost:5432/workflow
-BETTER_AUTH_URL=http://localhost:3000
-```
-
-## Plugin Configuration
-
-```ts
-workflowBuilder({
-  theme: "dark",           // 'light' | 'dark' | 'system' (default: 'system')
-  apiRoute: "/api/workflow", // API route base path (default: '/api/workflow')
-  dbImportPath: "@/lib/db",  // Import path for db (default: '@/lib/db')
-  authImportPath: "@/lib/auth", // Import path for auth (default: '@/lib/auth')
-  ai: {                     // AI generation config
-    provider: "openai",     // 'openai' | 'anthropic'
-    model: "gpt-4",
-  },
-  plugins: [],              // Enabled integration plugins
-});
-// Database URL is read from the NEXT_WORKFLOW_BUILDER_DATABASE_URL env var
-```
-
-## Exports
-
-### Server (`next-workflow-builder`)
-
-```ts
-import workflowBuilder, {
-  createWorkflowApiHandler,
-  createExecutionHandler,
-  schema,
-} from "next-workflow-builder";
-```
-
-### Components (`next-workflow-builder/components`)
-
-```ts
-import {
-  LayoutProvider,
-  WorkflowPage,
-  WorkflowEditor,
-  HomePage,
-  WorkflowsRedirect,
-  PersistentCanvas,
-} from "next-workflow-builder/components";
-```
-
-### Client Utilities
-
-```ts
-import { api } from "next-workflow-builder/lib/api-client";
-import { nodesAtom, edgesAtom } from "next-workflow-builder/lib/workflow-store";
-```
-
-## Project Structure
-
-```
-.
-├── example/                    # Example Next.js app
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── layout.tsx      # Root layout with LayoutProvider
-│   │   │   ├── [[...slug]]/    # Catch-all workflow pages
-│   │   │   └── api/
-│   │   │       └── [...slug]/  # Catch-all API routes
-│   │   └── lib/
-│   │       ├── auth.ts         # Better Auth setup
-│   │       └── db/             # Drizzle ORM setup + schema
-│   └── next.config.ts
-│
-└── packages/
-    └── next-workflow-builder/  # The plugin package
-        └── src/
-            ├── client/         # React components, hooks
-            ├── server/         # API handlers, plugin config, codegen
-            ├── lib/            # Shared utilities, state, API client
-            ├── plugins/        # Integration plugins
-            └── styles/         # CSS
-```
+If you update the core package, a rebuild is required. Or you can use watch mode
+in a separate terminal.
 
 ## License
 
