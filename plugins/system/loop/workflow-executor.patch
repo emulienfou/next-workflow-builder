@@ -1,0 +1,241 @@
+--- a/lib/workflow-executor.workflow.ts
++++ b/lib/workflow-executor.workflow.ts
+@@ -248,6 +248,70 @@
+     });
+   }
+ 
++  // Special handling for Loop action - items are passed directly, iteration handled in executeNode
++  if (actionType === "Loop" || actionType === "loop/iterate") {
++    const stepImporter = getStepImporter("loop/iterate");
++    if (!stepImporter) {
++      return { success: false, error: "Loop step not found in plugin registry" };
++    }
++    const module = await stepImporter.importer();
++    const originalExpression = stepInput.items;
++
++    console.log("[Loop] Raw items input:", typeof stepInput.items, stepInput.items);
++
++    // Items should already be resolved by processTemplates
++    let items: unknown[] = [];
++    if (Array.isArray(stepInput.items)) {
++      items = stepInput.items;
++    } else if (typeof stepInput.items === "string") {
++      const trimmed = stepInput.items.trim();
++      // Try to parse if it's a JSON string (array or object with array property)
++      if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
++        try {
++          const parsed = JSON.parse(trimmed);
++          if (Array.isArray(parsed)) {
++            items = parsed;
++          } else if (parsed && typeof parsed === "object") {
++            // Check for common array properties: rows, data, items, results
++            items = parsed.rows || parsed.data || parsed.items || parsed.results || [];
++            if (!Array.isArray(items)) {
++              items = [];
++            }
++          }
++        } catch (e) {
++          console.error("[Loop] Failed to parse items JSON:", e);
++          items = [];
++        }
++      }
++    } else if (stepInput.items && typeof stepInput.items === "object") {
++      // Direct object - check for array properties
++      const obj = stepInput.items as Record<string, unknown>;
++      const possibleArray = obj.rows || obj.data || obj.items || obj.results;
++      if (Array.isArray(possibleArray)) {
++        items = possibleArray;
++      }
++    }
++
++    // Parse batch size
++    let batchSize = 1;
++    if (typeof stepInput.batchSize === "number") {
++      batchSize = stepInput.batchSize;
++    } else if (typeof stepInput.batchSize === "string") {
++      batchSize = parseInt(stepInput.batchSize, 10) || 1;
++    }
++
++    console.log("[Loop] Resolved items count:", items.length, "Batch size:", batchSize);
++
++    return await module[stepImporter.stepFunction]({
++      items,
++      batchSize,
++      currentBatchIndex: stepInput.currentBatchIndex ?? 0,
++      expression:
++        typeof originalExpression === "string" ? originalExpression : undefined,
++      _context: context,
++    });
++  }
++
+   // Check system actions first (Database Query, HTTP Request)
+   const systemAction = SYSTEM_ACTIONS[actionType];
+   if (systemAction) {
+@@ -393,10 +457,15 @@
+   // Build node and edge maps
+   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+   const edgesBySource = new Map<string, string[]>();
++  const edgesByTarget = new Map<string, string[]>();
+   for (const edge of edges) {
+     const targets = edgesBySource.get(edge.source) || [];
+     targets.push(edge.target);
+     edgesBySource.set(edge.source, targets);
++
++    const sources = edgesByTarget.get(edge.target) || [];
++    sources.push(edge.source);
++    edgesByTarget.set(edge.target, sources);
+   }
+ 
+   // Find trigger nodes
+@@ -435,7 +504,11 @@
+ 
+   // Helper to execute a single node
+   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Node execution requires type checking and error handling
+-  async function executeNode(nodeId: string, visited: Set<string> = new Set()) {
++  async function executeNode(
++    nodeId: string,
++    visited: Set<string> = new Set(),
++    loopContext?: { iteration: number }
++  ) {
+     console.log("[Workflow Executor] Executing node:", nodeId);
+ 
+     if (visited.has(nodeId)) {
+@@ -463,7 +536,7 @@
+ 
+       const nextNodes = edgesBySource.get(nodeId) || [];
+       await Promise.all(
+-        nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited))
++        nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext))
+       );
+       return;
+     }
+@@ -560,7 +633,26 @@
+           nodeId: node.id,
+           nodeName: getNodeName(node),
+           nodeType: actionType,
++          loopIteration: loopContext?.iteration,
+         };
++
++        // Merge output data from previous (source) nodes into the step input
++        // so that plugin steps can access previous step results directly
++        const sourceNodeIds = edgesByTarget.get(nodeId) || [];
++        for (const sourceId of sourceNodeIds) {
++          const sanitizedSourceId = sourceId.replace(/[^a-zA-Z0-9]/g, "_");
++          const sourceOutput = outputs[sanitizedSourceId];
++          if (sourceOutput?.data && typeof sourceOutput.data === "object") {
++            for (const [key, value] of Object.entries(
++              sourceOutput.data as Record<string, unknown>
++            )) {
++              // Don't overwrite explicit config values
++              if (!(key in processedConfig)) {
++                processedConfig[key] = value;
++              }
++            }
++          }
++        }
+ 
+         // Execute the action step with stepHandler (logging is handled inside)
+         // IMPORTANT: We pass integrationId via config, not actual credentials
+@@ -636,6 +728,12 @@
+           node.data.type === "action" &&
+           node.data.config?.actionType === "Condition";
+ 
++        // Check if this is a loop node
++        const loopActionType = node.data.config?.actionType;
++        const isLoopNode =
++          node.data.type === "action" &&
++          (loopActionType === "Loop" || loopActionType === "loop/iterate");
++
+         if (isConditionNode) {
+           // For condition nodes, only execute next nodes if condition is true
+           const conditionResult = (result.data as { condition?: boolean })
+@@ -652,26 +750,84 @@
+               nextNodes.length,
+               "next nodes in parallel"
+             );
+-            // Execute all next nodes in parallel
++            // Execute all next nodes in parallel (preserve loop context if inside a loop)
+             await Promise.all(
+-              nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited))
++              nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext))
+             );
+           } else {
+             console.log(
+               "[Workflow Executor] Condition is false, skipping next nodes"
+             );
+           }
++        } else if (isLoopNode) {
++          // For loop nodes, execute next nodes for each batch
++          const loopResult = result.data as {
++            items?: unknown[];
++            totalItems?: number;
++            totalBatches?: number;
++            batchSize?: number;
++          };
++
++          const items = loopResult?.items || [];
++          const batchSize = loopResult?.batchSize || 1;
++          const totalBatches = loopResult?.totalBatches || Math.ceil(items.length / batchSize);
++          const nextNodes = edgesBySource.get(nodeId) || [];
++
++          console.log(
++            "[Workflow Executor] Loop node:",
++            "items:", items.length,
++            "batches:", totalBatches,
++            "nextNodes:", nextNodes.length
++          );
++
++          // Execute downstream nodes for each batch sequentially
++          for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
++            const startIndex = batchIndex * batchSize;
++            const endIndex = Math.min(startIndex + batchSize, items.length);
++            const currentBatch = items.slice(startIndex, endIndex);
++            const currentItem = currentBatch[0];
++
++            console.log(
++              `[Workflow Executor] Loop batch ${batchIndex + 1}/${totalBatches} (items ${startIndex + 1}-${endIndex})`
++            );
++
++            // Update the loop node output with current batch context
++            const loopSanitizedId = nodeId.replace(/[^a-zA-Z0-9]/g, "_");
++            outputs[loopSanitizedId] = {
++              label: node.data.label || nodeId,
++              data: {
++                ...loopResult,
++                currentBatchIndex: batchIndex,
++                currentBatch,
++                currentItem,
++                currentIndex: startIndex,
++                hasMore: batchIndex < totalBatches - 1,
++              },
++            };
++
++            // Execute all next nodes for this batch
++            // Use a fresh visited set containing ONLY the loop node to allow re-execution
++            // of downstream nodes on each iteration
++            // Pass loop context so steps can use it (e.g., for unique idempotency keys)
++            await Promise.all(
++              nextNodes.map((nextNodeId) =>
++                executeNode(nextNodeId, new Set([nodeId]), { iteration: batchIndex })
++              )
++            );
++          }
++
++          console.log("[Workflow Executor] Loop completed all iterations");
+         } else {
+-          // For non-condition nodes, execute all next nodes in parallel
++          // For non-condition/non-loop nodes, execute all next nodes in parallel
+           const nextNodes = edgesBySource.get(nodeId) || [];
+           console.log(
+             "[Workflow Executor] Executing",
+             nextNodes.length,
+             "next nodes in parallel"
+           );
+-          // Execute all next nodes in parallel
++          // Execute all next nodes in parallel (preserve loop context if inside a loop)
+           await Promise.all(
+-            nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited))
++            nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext))
+           );
+         }
+       }

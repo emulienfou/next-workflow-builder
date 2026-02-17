@@ -1,0 +1,130 @@
+diff --git a/workflow-builder/lib/workflow-executor.workflow.ts b/workflow-builder/lib/workflow-executor.workflow.ts
+index 075494c78..9bbe7746a 100644
+--- a/workflow-builder/lib/workflow-executor.workflow.ts
++++ b/workflow-builder/lib/workflow-executor.workflow.ts
+@@ -312,6 +312,56 @@ async function executeActionStep(input: {
+     });
+   }
+ 
++  // Special handling for Switch action - rules/expression routing handled in executeNode
++  if (actionType === "Switch" || actionType === "switch/route") {
++    const stepImporter = getStepImporter("switch/route");
++    if (!stepImporter) {
++      return { success: false, error: "Switch step not found in plugin registry" };
++    }
++    const module = await stepImporter.importer();
++    const mode = (stepInput.mode as string) || "rules";
++
++    // Parse rules from JSON string if needed
++    let rules: unknown[] = [];
++    if (typeof stepInput.rules === "string") {
++      const trimmed = (stepInput.rules as string).trim();
++      if (trimmed.startsWith("[")) {
++        try {
++          rules = JSON.parse(trimmed);
++        } catch (e) {
++          console.error("[Switch] Failed to parse rules JSON:", e);
++        }
++      }
++    } else if (Array.isArray(stepInput.rules)) {
++      rules = stepInput.rules;
++    }
++
++    // Parse outputExpression to a number for expression mode
++    let outputIndex: number | undefined;
++    if (mode === "expression") {
++      const raw = stepInput.outputExpression;
++      if (typeof raw === "number") {
++        outputIndex = raw;
++      } else if (typeof raw === "string") {
++        outputIndex = parseInt(raw, 10);
++        if (Number.isNaN(outputIndex)) {
++          outputIndex = -1;
++        }
++      }
++    }
++
++    console.log("[Switch] Mode:", mode, "Rules:", rules.length, "OutputIndex:", outputIndex);
++
++    return await module[stepImporter.stepFunction]({
++      mode,
++      value: stepInput.value,
++      rules,
++      outputIndex,
++      fallbackOutput: stepInput.fallbackOutput ?? "none",
++      _context: context,
++    });
++  }
++
+   // Check system actions first (Database Query, HTTP Request)
+   const systemAction = SYSTEM_ACTIONS[actionType];
+   if (systemAction) {
+@@ -734,6 +784,11 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
+           node.data.type === "action" &&
+           (loopActionType === "Loop" || loopActionType === "loop/iterate");
+ 
++        // Check if this is a switch node
++        const isSwitchNode =
++          node.data.type === "action" &&
++          (loopActionType === "Switch" || loopActionType === "switch/route");
++
+         if (isConditionNode) {
+           // For condition nodes, only execute next nodes if condition is true
+           const conditionResult = (result.data as { condition?: boolean })
+@@ -817,6 +872,56 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
+           }
+ 
+           console.log("[Workflow Executor] Loop completed all iterations");
++        } else if (isSwitchNode) {
++          // For switch nodes, route to specific downstream nodes based on matched output
++          const switchResult = result.data as {
++            matchedOutput?: number;
++            fallbackOutput?: string;
++          };
++          const matchedOutput = switchResult?.matchedOutput ?? -1;
++          const fallbackOutput = node.data.config?.fallbackOutput as string || "none";
++
++          console.log(
++            "[Workflow Executor] Switch node: matchedOutput:", matchedOutput,
++            "fallbackOutput:", fallbackOutput
++          );
++
++          // Filter edges from this node based on sourceHandle
++          const switchEdges = edges.filter((edge) => edge.source === nodeId);
++          const matchedTargets: string[] = [];
++
++          for (const edge of switchEdges) {
++            const handle = edge.sourceHandle;
++
++            if (!handle) {
++              // No sourceHandle: always execute (backward compat)
++              matchedTargets.push(edge.target);
++            } else if (handle === "fallback") {
++              // Fallback handle: execute only when no rule matched and fallback is enabled
++              if (matchedOutput === -1 && fallbackOutput === "fallback") {
++                matchedTargets.push(edge.target);
++              }
++            } else if (handle.startsWith("output_")) {
++              // Numbered output handle: execute when matched
++              const outputIndex = parseInt(handle.replace("output_", ""), 10);
++              if (outputIndex === matchedOutput) {
++                matchedTargets.push(edge.target);
++              }
++            }
++          }
++
++          console.log(
++            "[Workflow Executor] Switch routing to",
++            matchedTargets.length,
++            "of",
++            switchEdges.length,
++            "downstream nodes"
++          );
++
++          // Execute matched downstream nodes (preserve loop context if inside a loop)
++          await Promise.all(
++            matchedTargets.map((targetId) => executeNode(targetId, visited, loopContext))
++          );
+         } else {
+           // For non-condition/non-loop nodes, execute all next nodes in parallel
+           const nextNodes = edgesBySource.get(nodeId) || [];

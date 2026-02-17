@@ -1,5 +1,5 @@
 packages:
   - example
   - packages/*
-  - plugins/*
+  - plugins/**/*
   - docs
