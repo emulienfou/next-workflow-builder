@@ -1,0 +1,12 @@
+{
+  "name": "@next-workflow-builder/github",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub plugin for Workflow Builder",
+  "license": "MIT",
+  "main": "index.ts",
+  "dependencies": {
+    "next-workflow-builder": "workspace:*",
+    "server-only": "^0.0.1"
+  }
+}

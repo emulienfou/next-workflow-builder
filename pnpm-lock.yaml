@@ -114,9 +114,30 @@ importers:
 
   example:
     dependencies:
+      '@next-workflow-builder/ai-gateway':
+        specifier: workspace:*
+        version: link:../plugins/ai/ai-gateway
+      '@next-workflow-builder/clerk':
+        specifier: workspace:*
+        version: link:../plugins/development/clerk
+      '@next-workflow-builder/fal':
+        specifier: workspace:*
+        version: link:../plugins/ai/fal
+      '@next-workflow-builder/firecrawl':
+        specifier: workspace:*
+        version: link:../plugins/ai/firecrawl
+      '@next-workflow-builder/github':
+        specifier: workspace:*
+        version: link:../plugins/development/github
       '@next-workflow-builder/loop':
         specifier: workspace:*
         version: link:../plugins/system/loop
+      '@next-workflow-builder/slack':
+        specifier: workspace:*
+        version: link:../plugins/slack
+      '@next-workflow-builder/switch':
+        specifier: workspace:*
+        version: link:../plugins/system/switch
       ai:
         specifier: ^5.0.0
         version: 5.0.133(zod@3.25.76)
@@ -483,6 +504,63 @@ importers:
       ultracite:
         specifier: 6.3.0
         version: 6.3.0(typescript@5.9.3)
+
+  plugins/ai/ai-gateway:
+    dependencies:
+      ai:
+        specifier: ^5.0.0
+        version: 5.0.133(zod@4.3.6)
+      next-workflow-builder:
+        specifier: workspace:*
+        version: link:../../../packages/next-workflow-builder
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+
+  plugins/ai/fal:
+    dependencies:
+      next-workflow-builder:
+        specifier: workspace:*
+        version: link:../../../packages/next-workflow-builder
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+
+  plugins/ai/firecrawl:
+    dependencies:
+      next-workflow-builder:
+        specifier: workspace:*
+        version: link:../../../packages/next-workflow-builder
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+
+  plugins/development/clerk:
+    dependencies:
+      next-workflow-builder:
+        specifier: workspace:*
+        version: link:../../../packages/next-workflow-builder
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+
+  plugins/development/github:
+    dependencies:
+      next-workflow-builder:
+        specifier: workspace:*
+        version: link:../../../packages/next-workflow-builder
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+
+  plugins/slack:
+    dependencies:
+      next-workflow-builder:
+        specifier: workspace:*
+        version: link:../../packages/next-workflow-builder
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
 
   plugins/system/loop:
     dependencies:

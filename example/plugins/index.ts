@@ -14,23 +14,21 @@
 "use client";
 
 // Local plugins (side-effect imports trigger registration)
-import "./ai-gateway";
 import "./blob";
-import "./clerk";
-import "./fal";
-import "./firecrawl";
-import "./github";
-import "./slack";
 
 // npm-installed system plugins
 import "@next-workflow-builder/loop";
+import "@next-workflow-builder/switch";
+import "@next-workflow-builder/fal";
+import "@next-workflow-builder/firecrawl";
+import "@next-workflow-builder/ai-gateway";
+import "@next-workflow-builder/slack";
+import "@next-workflow-builder/clerk";
+import "@next-workflow-builder/github";
 
 // Register auto-generated data into the plugin registry
 import "../lib/output-display-configs";
 import "../lib/codegen-registry";
-
-// Client-only registrations (managed connections, etc.)
-import "./ai-gateway/client";
 
 // Re-export LayoutProvider with plugins pre-registered via side-effect imports above
 export { LayoutProvider } from "next-workflow-builder/components";
