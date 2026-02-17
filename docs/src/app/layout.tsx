@@ -1,3 +1,4 @@
+import GAProvider from "@/components/ga-provider";
 import { appConfig } from "@/config/app";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -5,6 +6,7 @@ import { Layout } from "nextra-theme-docs";
 import { Banner } from "nextra/components";
 import { getPageMap } from "nextra/page-map";
 import "nextra-theme-docs/style.css";
+import * as React from "react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,16 +37,18 @@ const RootLayout = async (props: LayoutProps<"/">) => {
     <body
       className={ `${ geistSans.variable } ${ geistMono.variable } antialiased` }
     >
-      <Layout
-        // banner={ banner }
-        navbar={ props.header }
-        pageMap={ pageMap }
-        docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
-        footer={ props.footer }
-        // ... Your additional layout options
-      >
-        { props.children }
-      </Layout>
+      <React.Suspense>
+        <Layout
+          // banner={ banner }
+          navbar={ props.header }
+          pageMap={ pageMap }
+          docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
+          footer={ props.footer }
+          // ... Your additional layout options
+        >
+          <GAProvider>{ props.children }</GAProvider>
+        </Layout>
+      </React.Suspense>
     </body>
     </html>
   );

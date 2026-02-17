@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import nextra from "nextra";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
   images: {
     remotePatterns: [
       {

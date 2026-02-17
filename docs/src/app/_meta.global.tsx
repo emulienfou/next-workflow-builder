@@ -56,6 +56,10 @@ const meta = {
       },
     },
   },
+  marketplace: {
+    type: "page",
+    title: "Marketplace",
+  },
 };
 
 export default meta;
