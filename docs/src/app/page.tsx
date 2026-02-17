@@ -1,65 +1,309 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { WorkflowIcon } from "@/components/workflow-icon";
+import {
+  ArrowRightIcon,
+  BlocksIcon,
+  BrainCircuitIcon,
+  CodeIcon,
+  GripIcon,
+  PlayIcon,
+  PlugIcon,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+
+function Hero() {
+  return (
+    <section className="flex flex-col items-center gap-8 px-4 pt-24 pb-16 text-center md:pt-32 md:pb-24">
+      <Badge variant="outline" className="gap-2 px-3 py-1 text-sm font-normal">
+        <WorkflowIcon className="size-3.5" />
+        Built for Next.js 16
+      </Badge>
+
+      <h1 className="max-w-3xl text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
+        Visual Workflow Builder for Next.js
+      </h1>
+
+      <p className="max-w-2xl text-lg text-muted-foreground md:text-xl">
+        A plugin that adds drag-and-drop workflow editing, code generation, AI-powered automation, and an extensible
+        integration system to any Next.js application.
+      </p>
+
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
+        <Button size="lg" asChild className="h-11 rounded-full px-6 text-base">
+          <Link href="/docs/getting-started">
+            Get Started
+            <ArrowRightIcon className="ml-1 size-4" />
+          </Link>
+        </Button>
+        <div
+          className="flex h-11 items-center gap-3 rounded-full border border-border/60 bg-muted/40 px-5 font-mono text-sm">
+          <span className="text-muted-foreground">$</span>
+          <span>npm i next-workflow-builder</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Screenshot() {
+  return (
+    <section className="px-4 pb-16 md:pb-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-muted/20 shadow-2xl">
+          <Image
+            src="https://raw.githubusercontent.com/vercel-labs/workflow-builder-template/main/screenshot.png"
+            alt="Workflow Builder screenshot showing the visual drag-and-drop editor"
+            width={1920}
+            height={1080}
+            className="w-full"
+            priority
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Features() {
+  const features = [
+    {
+      icon: GripIcon,
+      title: "Drag-and-Drop Editor",
+      description:
+        "Build workflows visually with a node-based canvas. Connect triggers, actions, and conditions with an intuitive drag-and-drop interface powered by React Flow.",
+    },
+    {
+      icon: PlugIcon,
+      title: "Plugin System",
+      description:
+        "Extend with any third-party service. Each plugin defines credentials, actions, step handlers, and custom routes. Auto-discovered and type-safe.",
+    },
+    {
+      icon: CodeIcon,
+      title: "Code Generation",
+      description:
+        "Export any workflow as standalone TypeScript code. Download as a ZIP or view in the built-in code editor. Ready to run outside the builder.",
+    },
+    {
+      icon: BrainCircuitIcon,
+      title: "AI-Powered Generation",
+      description:
+        "Describe a workflow in natural language and let AI generate the nodes, edges, and configuration. Supports OpenAI and Anthropic providers.",
+    },
+    {
+      icon: PlayIcon,
+      title: "Real-Time Execution",
+      description:
+        "Run workflows with live status tracking and step-by-step logs. Support for webhooks, scheduled cron triggers, and manual execution.",
+    },
+    {
+      icon: BlocksIcon,
+      title: "Drop-In Integration",
+      description:
+        "Add to any Next.js app with a config wrapper, one API route, a layout provider, and a catch-all page. Full workflow platform in under 20 lines of code.",
+    },
+  ];
+
+  return (
+    <section className="px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Everything you need to build workflows
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            A complete workflow automation platform, packaged as a single Next.js plugin.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-6 transition-colors hover:border-border"
+            >
+              <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                <feature.icon className="size-5 text-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold">{feature.title}</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Setup() {
+  const steps = [
+    {
+      step: "1",
+      title: "Configure Next.js",
+      code: `import workflowBuilder from "next-workflow-builder";
+
+const withWorkflowBuilder = workflowBuilder({});
+
+export default withWorkflowBuilder({});`,
+    },
+    {
+      step: "2",
+      title: "Create API route",
+      code: `import { createWorkflowApiHandler } from "next-workflow-builder";
+
+const handler = createWorkflowApiHandler({});
+
+export { handler as GET, handler as POST,
+  handler as PUT, handler as DELETE };`,
+    },
+    {
+      step: "3",
+      title: "Add layout + pages",
+      code: `// layout.tsx
+import { LayoutProvider } from "next-workflow-builder/components";
+import "next-workflow-builder/styles/globals.css";
+
+// [[...slug]]/page.tsx
+export { WorkflowPage as default }
+  from "next-workflow-builder/components";`,
+    },
+  ];
+
+  return (
+    <section className="px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Up and running in minutes
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Three files. That&apos;s all it takes to add a complete workflow platform to your Next.js app.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {steps.map((item) => (
+            <div key={item.step} className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex size-7 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
+                  {item.step}
+                </span>
+                <span className="font-medium">{item.title}</span>
+              </div>
+              <div className="overflow-hidden rounded-lg border border-border/60 bg-[#0a0a0a]">
+                <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-zinc-300">
+                  <code>{item.code}</code>
+                </pre>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PluginShowcase() {
+  return (
+    <section className="px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Extensible plugin system
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Each plugin is a self-contained directory with credentials, actions, step handlers, and optional routes.
+            Auto-discovered and fully typed.
+          </p>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-[#0a0a0a]">
+          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+            <span className="text-xs text-zinc-500">plugins/my-service/index.ts</span>
+          </div>
+          <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-zinc-300">
+            <code>{`import { registerIntegration } from "next-workflow-builder/plugins";
+import { MyServiceIcon } from "./icon";
+
+const myPlugin = {
+  type: "my-service",
+  label: "My Service",
+  description: "Connect to My Service",
+  icon: MyServiceIcon,
+  formFields: [
+    { id: "apiKey", label: "API Key", type: "password",
+      configKey: "apiKey", envVar: "MY_SERVICE_KEY" },
+  ],
+  actions: [
+    { slug: "do-thing", label: "Do Thing",
+      description: "Performs an action",
+      category: "My Service",
+      stepFunction: "doThingStep",
+      stepImportPath: "do-thing",
+      configFields: [
+        { key: "input", label: "Input",
+          type: "template-textarea", required: true },
+      ],
+      outputFields: [
+        { field: "result", description: "The output" },
+      ],
+    },
+  ],
+};
+
+registerIntegration(myPlugin);
+export default myPlugin;`}</code>
+          </pre>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTA() {
+  return (
+    <section className="px-4 py-16 md:py-24">
+      <div
+        className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-2xl border border-border/60 bg-card p-10 text-center md:p-16">
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+          Start building workflows today
+        </h2>
+        <p className="max-w-lg text-muted-foreground">
+          Add a visual workflow builder to your Next.js app in minutes. Open source, fully typed, and extensible with
+          plugins.
+        </p>
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
+          <Button size="lg" asChild className="h-11 rounded-full px-6 text-base">
+            <Link href="/docs/getting-started">
+              Get started
+              <ArrowRightIcon className="ml-1 size-4" />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="h-11 rounded-full px-6 text-base">
+            <Link href="/docs">
+              Read the docs
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="min-h-screen">
+      <Hero />
+      <Screenshot />
+      <Features />
+      <Setup />
+      <PluginShowcase />
+      <CTA />
     </div>
   );
 }

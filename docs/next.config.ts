@@ -2,7 +2,15 @@ import type { NextConfig } from "next";
 import nextra from "nextra";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        pathname: "/vercel-labs/workflow-builder-template/**",
+      },
+    ],
+  },
   turbopack: {
     resolveAlias: {
       // Path to your `mdx-components` file with extension
