@@ -1,6 +1,9 @@
 import { betterAuth } from "better-auth";
+import { start } from "workflow/api";
 import { getDefaultAuthOptions } from "../../lib/auth.js";
 import { getDb } from "../../lib/db/index.js";
+
+import { executeWorkflow as workflowExecutorWorkflow } from "../../lib/workflow-executor.workflow.js";
 import { errorResponse } from "./handler-utils.js";
 import coreRoutes from "./routes.js";
 import type { ParsedRoute, RouteDefinition, RouteHandler, WorkflowApiHandlerOptions } from "./types.js";
@@ -12,7 +15,10 @@ import type { ParsedRoute, RouteDefinition, RouteHandler, WorkflowApiHandlerOpti
  * @param routes - The route definitions to match against
  * @returns An object containing the route handler and allowed methods, or null if no match is found
  */
-function matchRoute(segments: string[], routes: RouteDefinition[]): { handler: RouteHandler; methods: string[] } | null {
+function matchRoute(segments: string[], routes: RouteDefinition[]): {
+  handler: RouteHandler;
+  methods: string[]
+} | null {
   for (const route of routes) {
     const patternSegments = route.path === "" ? [] : route.path.split("/").filter(Boolean);
 
@@ -79,6 +85,14 @@ export function createWorkflowApiHandler(options?: WorkflowApiHandlerOptions) {
     nextCtx?: { params: Promise<{ slug?: string[] }> },
   ) {
     try {
+      const {
+        pluginRoutes = [],
+        startExecution = start,
+        executeWorkflow = workflowExecutorWorkflow,
+        authOptions = {},
+        ...rest
+      } = options;
+
       // Extract slug from Next.js route params or fall back to URL parsing
       let segments: string[];
 
@@ -95,7 +109,7 @@ export function createWorkflowApiHandler(options?: WorkflowApiHandlerOptions) {
       }
 
       const method = req.method;
-      const allRoutes = [...coreRoutes, ...(options?.pluginRoutes ?? [])];
+      const allRoutes = [...coreRoutes, ...pluginRoutes];
       const match = matchRoute(segments, allRoutes);
 
       if (!match) {
@@ -112,9 +126,9 @@ export function createWorkflowApiHandler(options?: WorkflowApiHandlerOptions) {
       const db = getDb();
 
       // Initialize Better Auth
-      const auth = betterAuth({ ...getDefaultAuthOptions(db), ...options?.authOptions });
+      const auth = betterAuth({ ...getDefaultAuthOptions(db), ...authOptions });
 
-      return await match.handler(route, { ...options, auth, db });
+      return await match.handler(route, { startExecution, executeWorkflow, auth, db, ...rest });
     } catch (error) {
       console.error("[WorkflowAPI] Unhandled error:", error);
       return errorResponse("Internal server error", 500);

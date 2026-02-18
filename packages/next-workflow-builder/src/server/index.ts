@@ -1,5 +1,6 @@
 export { default, type WorkflowConfig } from "./plugin.js";
 export { createWorkflowApiHandler } from "./api/workflows.js";
+export { executeWorkflow } from "../lib/workflow-executor.workflow.js";
 export type { WorkflowApiHandlerOptions } from "./api/types.js";
 export type { RouteDefinition, RouteHandler, HandlerContext, ParsedRoute } from "./api/types.js";
 export { errorResponse, jsonResponse, requireSession } from "./api/handler-utils.js";

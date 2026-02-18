@@ -6,7 +6,12 @@
   "description": "A reusable Next.js plugin for visual workflow building with drag-and-drop, code generation, and AI-powered automation.",
   "main": "./dist/server/index.js",
   "types": "./dist/server/index.d.ts",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/**/*.workflow.js",
+    "./dist/**/*.step.js",
+    "./dist/lib/steps/**/*.js",
+    "./dist/styles/globals.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/server/index.d.ts",
