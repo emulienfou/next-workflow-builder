@@ -2,7 +2,7 @@ export function SlackIcon({ className }: { className?: string }) {
   return (
     <svg
       aria-label="Slack"
-      className={className}
+      className={ className }
       viewBox="0 0 2447.6 2452.5"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -28,4 +28,3 @@ export function SlackIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
