@@ -133,6 +133,7 @@ async function importPluginsFromIndex(): Promise<void> {
           npmPluginSpecifiers.set(mod.default.type, spec);
         }
       }
+      console.log(`   - ${ spec }`);
     } catch (error) {
       console.warn(`   Warning: Failed to import plugin "${ spec }":`, error);
     }
@@ -206,7 +207,7 @@ function scaffoldIndexFile(): void {
   const localPlugins = discoverLocalPluginDirs();
   const imports = localPlugins.length > 0
     ? localPlugins.map((plugin) => `import "./${ plugin }";`).join("\n")
-    : '// import "./my-plugin";';
+    : "// import \"./my-plugin\";";
 
   // Detect plugins with client.ts for client-only registrations
   const clientImports = localPlugins
