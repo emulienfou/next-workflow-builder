@@ -1,6 +1,6 @@
 "use client";
 
-import { atom, useSetAtom } from "jotai";
+import { atom, type PrimitiveAtom, useSetAtom } from "jotai";
 import type { ComponentType } from "react";
 import { useEffect } from "react";
 
@@ -85,19 +85,19 @@ export function registerManagedConnectionProvider(provider: ManagedConnectionPro
 // --- Atoms ---
 
 /** Managed connection status (populated by plugin) */
-export const managedConnectionStatusAtom = atom<ManagedConnectionStatus>(null);
+export const managedConnectionStatusAtom = atom<ManagedConnectionStatus>(null) as PrimitiveAtom<ManagedConnectionStatus>;
 
-/** Teams available for managed connection */
-export const managedConnectionTeamsAtom = atom<ManagedConnectionTeam[]>([]);
+/** Teams list */
+export const managedConnectionTeamsAtom: PrimitiveAtom<ManagedConnectionTeam[]> = atom<ManagedConnectionTeam[]>([]);
 
-/** Whether teams are currently being loaded */
-export const managedConnectionTeamsLoadingAtom = atom(false);
+/** Loading states */
+export const managedConnectionTeamsLoadingAtom: PrimitiveAtom<boolean> = atom(false);
 
 /** Whether teams have been fetched at least once */
-export const managedConnectionTeamsFetchedAtom = atom(false);
+export const managedConnectionTeamsFetchedAtom: PrimitiveAtom<boolean> = atom(false);
 
 /** The registered provider — null if no plugin provides managed connections */
-export const managedConnectionProviderAtom = atom<ManagedConnectionProvider | null>(null);
+export const managedConnectionProviderAtom = atom<ManagedConnectionProvider | null>(null) as PrimitiveAtom<ManagedConnectionProvider | null>;
 
 // --- Setup hook ---
 
