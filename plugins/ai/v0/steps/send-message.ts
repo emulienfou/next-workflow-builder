@@ -1,9 +1,7 @@
 import "server-only";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 
-import { createClient, type ChatsSendMessageResponse } from "v0-sdk";
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { type ChatsSendMessageResponse, createClient } from "v0-sdk";
 import type { V0Credentials } from "../credentials";
 
 type SendMessageResult =
@@ -17,15 +15,15 @@ export type SendMessageCoreInput = {
 
 export type SendMessageInput = StepInput &
   SendMessageCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic - portable between app and export
  */
 async function stepHandler(
   input: SendMessageCoreInput,
-  credentials: V0Credentials
+  credentials: V0Credentials,
 ): Promise<SendMessageResult> {
   const apiKey = credentials.V0_API_KEY;
 
@@ -53,7 +51,7 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: `Failed to send message: ${getErrorMessage(error)}`,
+      error: `Failed to send message: ${ getErrorMessage(error) }`,
     };
   }
 }
@@ -62,7 +60,7 @@ async function stepHandler(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function sendMessageStep(
-  input: SendMessageInput
+  input: SendMessageInput,
 ): Promise<SendMessageResult> {
   "use step";
 
@@ -72,6 +70,7 @@ export async function sendMessageStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 sendMessageStep.maxRetries = 0;
 
 export const _integrationType = "v0";

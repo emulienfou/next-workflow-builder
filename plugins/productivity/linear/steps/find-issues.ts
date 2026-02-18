@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { LinearCredentials } from "../credentials";
 
 const LINEAR_API_URL = "https://api.linear.app/graphql";
@@ -51,13 +49,13 @@ export type FindIssuesCoreInput = {
 
 export type FindIssuesInput = StepInput &
   FindIssuesCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function linearQuery<T>(
   apiKey: string,
   query: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<LinearGraphQLResponse<T>> {
   const response = await fetch(LINEAR_API_URL, {
     method: "POST",
@@ -69,7 +67,7 @@ async function linearQuery<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`Linear API error: HTTP ${response.status}`);
+    throw new Error(`Linear API error: HTTP ${ response.status }`);
   }
 
   return response.json() as Promise<LinearGraphQLResponse<T>>;
@@ -80,7 +78,7 @@ async function linearQuery<T>(
  */
 async function stepHandler(
   input: FindIssuesCoreInput,
-  credentials: LinearCredentials
+  credentials: LinearCredentials,
 ): Promise<FindIssuesResult> {
   const apiKey = credentials.LINEAR_API_KEY;
 
@@ -132,7 +130,7 @@ async function stepHandler(
           }
         }
       }`,
-      { filter: Object.keys(filter).length > 0 ? filter : undefined }
+      { filter: Object.keys(filter).length > 0 ? filter : undefined },
     );
 
     if (result.errors?.length) {
@@ -150,7 +148,7 @@ async function stepHandler(
         state: issue.state?.name || "Unknown",
         priority: issue.priority,
         assigneeId: issue.assignee?.id || undefined,
-      })
+      }),
     );
 
     return {
@@ -163,7 +161,7 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to find issues: ${getErrorMessage(error)}` },
+      error: { message: `Failed to find issues: ${ getErrorMessage(error) }` },
     };
   }
 }
@@ -172,7 +170,7 @@ async function stepHandler(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function findIssuesStep(
-  input: FindIssuesInput
+  input: FindIssuesInput,
 ): Promise<FindIssuesResult> {
   "use step";
 
@@ -182,6 +180,7 @@ export async function findIssuesStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 findIssuesStep.maxRetries = 0;
 
 export const _integrationType = "linear";

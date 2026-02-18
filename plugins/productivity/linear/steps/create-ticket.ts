@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { LinearCredentials } from "../credentials";
 
 const LINEAR_API_URL = "https://api.linear.app/graphql";
@@ -40,13 +38,13 @@ export type CreateTicketCoreInput = {
 
 export type CreateTicketInput = StepInput &
   CreateTicketCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function linearQuery<T>(
   apiKey: string,
   query: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<LinearGraphQLResponse<T>> {
   const response = await fetch(LINEAR_API_URL, {
     method: "POST",
@@ -58,7 +56,7 @@ async function linearQuery<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`Linear API error: HTTP ${response.status}`);
+    throw new Error(`Linear API error: HTTP ${ response.status }`);
   }
 
   return response.json() as Promise<LinearGraphQLResponse<T>>;
@@ -69,7 +67,7 @@ async function linearQuery<T>(
  */
 async function stepHandler(
   input: CreateTicketCoreInput,
-  credentials: LinearCredentials
+  credentials: LinearCredentials,
 ): Promise<CreateTicketResult> {
   const apiKey = credentials.LINEAR_API_KEY;
   const teamId = credentials.LINEAR_TEAM_ID;
@@ -90,7 +88,7 @@ async function stepHandler(
     if (!targetTeamId) {
       const teamsResult = await linearQuery<TeamsQueryResponse>(
         apiKey,
-        `query { teams { nodes { id name } } }`
+        `query { teams { nodes { id name } } }`,
       );
 
       if (teamsResult.errors?.length) {
@@ -126,7 +124,7 @@ async function stepHandler(
         title: input.ticketTitle,
         description: input.ticketDescription,
         teamId: targetTeamId,
-      }
+      },
     );
 
     if (createResult.errors?.length) {
@@ -155,7 +153,7 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to create ticket: ${getErrorMessage(error)}` },
+      error: { message: `Failed to create ticket: ${ getErrorMessage(error) }` },
     };
   }
 }
@@ -164,7 +162,7 @@ async function stepHandler(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function createTicketStep(
-  input: CreateTicketInput
+  input: CreateTicketInput,
 ): Promise<CreateTicketResult> {
   "use step";
 
@@ -174,6 +172,7 @@ export async function createTicketStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 createTicketStep.maxRetries = 0;
 
 export const _integrationType = "linear";

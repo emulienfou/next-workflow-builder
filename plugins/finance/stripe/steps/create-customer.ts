@@ -1,7 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
+import { fetchCredentials, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { StripeCredentials } from "../credentials";
 
 const STRIPE_API_URL = "https://api.stripe.com/v1";
@@ -36,12 +35,12 @@ export type CreateCustomerCoreInput = {
 
 export type CreateCustomerInput = StepInput &
   CreateCustomerCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function stepHandler(
   input: CreateCustomerCoreInput,
-  credentials: StripeCredentials
+  credentials: StripeCredentials,
 ): Promise<CreateCustomerResult> {
   const apiKey = credentials.STRIPE_SECRET_KEY;
 
@@ -73,7 +72,7 @@ async function stepHandler(
           string
         >;
         for (const [key, value] of Object.entries(metadataObj)) {
-          params.append(`metadata[${key}]`, String(value));
+          params.append(`metadata[${ key }]`, String(value));
         }
       } catch {
         return {
@@ -83,10 +82,10 @@ async function stepHandler(
       }
     }
 
-    const response = await fetch(`${STRIPE_API_URL}/customers`, {
+    const response = await fetch(`${ STRIPE_API_URL }/customers`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: params.toString(),
@@ -98,7 +97,7 @@ async function stepHandler(
         success: false,
         error:
           errorData.error?.message ||
-          `HTTP ${response.status}: Failed to create customer`,
+          `HTTP ${ response.status }: Failed to create customer`,
       };
     }
 
@@ -108,13 +107,13 @@ async function stepHandler(
     const message = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      error: `Failed to create customer: ${message}`,
+      error: `Failed to create customer: ${ message }`,
     };
   }
 }
 
 export async function createCustomerStep(
-  input: CreateCustomerInput
+  input: CreateCustomerInput,
 ): Promise<CreateCustomerResult> {
   "use step";
 
@@ -124,6 +123,7 @@ export async function createCustomerStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 createCustomerStep.maxRetries = 0;
 
 export const _integrationType = "stripe";

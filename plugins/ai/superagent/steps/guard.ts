@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { SuperagentCredentials } from "../credentials";
 
 type GuardClassification = "pass" | "block";
@@ -20,15 +18,15 @@ export type SuperagentGuardCoreInput = {
 
 export type SuperagentGuardInput = StepInput &
   SuperagentGuardCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic
  */
 async function stepHandler(
   input: SuperagentGuardCoreInput,
-  credentials: SuperagentCredentials
+  credentials: SuperagentCredentials,
 ): Promise<GuardResult> {
   const apiKey = credentials.SUPERAGENT_API_KEY;
 
@@ -41,7 +39,7 @@ async function stepHandler(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
       },
       body: JSON.stringify({
         text: input.text,
@@ -50,7 +48,7 @@ async function stepHandler(
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`Guard API error: ${error}`);
+      throw new Error(`Guard API error: ${ error }`);
     }
 
     const data = await response.json();
@@ -59,7 +57,7 @@ async function stepHandler(
 
     if (!content || typeof content !== "object") {
       throw new Error(
-        "Invalid Guard API response: missing or invalid content structure"
+        "Invalid Guard API response: missing or invalid content structure",
       );
     }
 
@@ -69,7 +67,7 @@ async function stepHandler(
       (classification !== "pass" && classification !== "block")
     ) {
       throw new Error(
-        `Invalid Guard API response: missing or invalid classification (received: ${JSON.stringify(classification)})`
+        `Invalid Guard API response: missing or invalid classification (received: ${ JSON.stringify(classification) })`,
       );
     }
 
@@ -80,7 +78,7 @@ async function stepHandler(
       reasoning: choice?.message?.reasoning,
     };
   } catch (error) {
-    throw new Error(`Failed to analyze text: ${getErrorMessage(error)}`);
+    throw new Error(`Failed to analyze text: ${ getErrorMessage(error) }`);
   }
 }
 
@@ -88,7 +86,7 @@ async function stepHandler(
  * Step entry point
  */
 export async function superagentGuardStep(
-  input: SuperagentGuardInput
+  input: SuperagentGuardInput,
 ): Promise<GuardResult> {
   "use step";
 
@@ -98,6 +96,7 @@ export async function superagentGuardStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 superagentGuardStep.maxRetries = 0;
 
 export const _integrationType = "superagent";

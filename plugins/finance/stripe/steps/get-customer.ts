@@ -1,7 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
+import { fetchCredentials, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { StripeCredentials } from "../credentials";
 
 const STRIPE_API_URL = "https://api.stripe.com/v1";
@@ -30,12 +29,12 @@ type StripeErrorResponse = {
 
 type GetCustomerResult =
   | {
-      success: true;
-      id: string;
-      email: string;
-      name: string | null;
-      created: number;
-    }
+  success: true;
+  id: string;
+  email: string;
+  name: string | null;
+  created: number;
+}
   | { success: false; error: string };
 
 export type GetCustomerCoreInput = {
@@ -45,12 +44,12 @@ export type GetCustomerCoreInput = {
 
 export type GetCustomerInput = StepInput &
   GetCustomerCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function stepHandler(
   input: GetCustomerCoreInput,
-  credentials: StripeCredentials
+  credentials: StripeCredentials,
 ): Promise<GetCustomerResult> {
   const apiKey = credentials.STRIPE_SECRET_KEY;
 
@@ -75,13 +74,13 @@ async function stepHandler(
     if (input.customerId) {
       // Direct lookup by ID
       const response = await fetch(
-        `${STRIPE_API_URL}/customers/${input.customerId}`,
+        `${ STRIPE_API_URL }/customers/${ input.customerId }`,
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${ apiKey }`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -90,7 +89,7 @@ async function stepHandler(
           success: false,
           error:
             errorData.error?.message ||
-            `HTTP ${response.status}: Failed to get customer`,
+            `HTTP ${ response.status }: Failed to get customer`,
         };
       }
 
@@ -102,13 +101,13 @@ async function stepHandler(
       params.append("limit", "1");
 
       const response = await fetch(
-        `${STRIPE_API_URL}/customers?${params.toString()}`,
+        `${ STRIPE_API_URL }/customers?${ params.toString() }`,
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${ apiKey }`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -117,7 +116,7 @@ async function stepHandler(
           success: false,
           error:
             errorData.error?.message ||
-            `HTTP ${response.status}: Failed to search customers`,
+            `HTTP ${ response.status }: Failed to search customers`,
         };
       }
 
@@ -125,7 +124,7 @@ async function stepHandler(
       if (data.data.length === 0) {
         return {
           success: false,
-          error: `No customer found with email: ${input.email}`,
+          error: `No customer found with email: ${ input.email }`,
         };
       }
       customer = data.data[0];
@@ -149,13 +148,13 @@ async function stepHandler(
     const message = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      error: `Failed to get customer: ${message}`,
+      error: `Failed to get customer: ${ message }`,
     };
   }
 }
 
 export async function getCustomerStep(
-  input: GetCustomerInput
+  input: GetCustomerInput,
 ): Promise<GetCustomerResult> {
   "use step";
 
@@ -165,6 +164,7 @@ export async function getCustomerStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 getCustomerStep.maxRetries = 0;
 
 export const _integrationType = "stripe";

@@ -4,7 +4,17 @@
   "private": true,
   "description": "Loop (iteration) system plugin for Workflow Builder",
   "license": "MIT",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc"
+  },
   "dependencies": {
-    "next-workflow-builder": "workspace:*"
+    "next-workflow-builder": "workspace:*",
+    "react": "^19.2.4",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "rimraf": "^5.0.5"
   }
 }

@@ -1,5 +1,5 @@
-import type { IntegrationPlugin } from "@/plugins/registry";
-import { registerIntegration } from "@/plugins/registry";
+import type { IntegrationPlugin } from "next-workflow-builder/plugins";
+import { registerIntegration } from "next-workflow-builder/plugins";
 import { ResendIcon } from "./icon";
 
 const resendPlugin: IntegrationPlugin = {

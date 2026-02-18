@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { PerplexityCredentials } from "../credentials";
 
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
@@ -44,15 +42,15 @@ export type PerplexitySearchCoreInput = {
 
 export type PerplexitySearchInput = StepInput &
   PerplexitySearchCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic - search the web with Perplexity AI
  */
 async function stepHandler(
   input: PerplexitySearchCoreInput,
-  credentials: PerplexityCredentials
+  credentials: PerplexityCredentials,
 ): Promise<SearchResult> {
   const apiKey = credentials.PERPLEXITY_API_KEY;
 
@@ -68,7 +66,7 @@ async function stepHandler(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
       },
       body: JSON.stringify({
         model: "sonar",
@@ -92,7 +90,7 @@ async function stepHandler(
       const errorText = await response.text();
       return {
         success: false,
-        error: { message: `HTTP ${response.status}: ${errorText}` },
+        error: { message: `HTTP ${ response.status }: ${ errorText }` },
       };
     }
 
@@ -100,7 +98,7 @@ async function stepHandler(
 
     const answer = result.choices[0]?.message?.content || "";
     const citations = (result.citations || []).map((c) =>
-      typeof c === "string" ? c : c.url
+      typeof c === "string" ? c : c.url,
     );
 
     return {
@@ -110,13 +108,13 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to search: ${getErrorMessage(error)}` },
+      error: { message: `Failed to search: ${ getErrorMessage(error) }` },
     };
   }
 }
 
 function getSearchDomains(
-  focus?: string
+  focus?: string,
 ): string[] | undefined {
   switch (focus) {
     case "academic":
@@ -147,7 +145,7 @@ function getSearchDomains(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function perplexitySearchStep(
-  input: PerplexitySearchInput
+  input: PerplexitySearchInput,
 ): Promise<SearchResult> {
   "use step";
 
@@ -157,6 +155,7 @@ export async function perplexitySearchStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 perplexitySearchStep.maxRetries = 0;
 
 export const _integrationType = "perplexity";

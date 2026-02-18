@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { SuperagentCredentials } from "../credentials";
 
 type RedactResult = {
@@ -17,15 +15,15 @@ export type SuperagentRedactCoreInput = {
 
 export type SuperagentRedactInput = StepInput &
   SuperagentRedactCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic
  */
 async function stepHandler(
   input: SuperagentRedactCoreInput,
-  credentials: SuperagentCredentials
+  credentials: SuperagentCredentials,
 ): Promise<RedactResult> {
   const apiKey = credentials.SUPERAGENT_API_KEY;
 
@@ -60,14 +58,14 @@ async function stepHandler(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
       },
       body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`Redact API error: ${error}`);
+      throw new Error(`Redact API error: ${ error }`);
     }
 
     const data = await response.json();
@@ -78,7 +76,7 @@ async function stepHandler(
       reasoning: choice?.message?.reasoning,
     };
   } catch (error) {
-    throw new Error(`Failed to redact text: ${getErrorMessage(error)}`);
+    throw new Error(`Failed to redact text: ${ getErrorMessage(error) }`);
   }
 }
 
@@ -86,7 +84,7 @@ async function stepHandler(
  * Step entry point
  */
 export async function superagentRedactStep(
-  input: SuperagentRedactInput
+  input: SuperagentRedactInput,
 ): Promise<RedactResult> {
   "use step";
 
@@ -96,6 +94,7 @@ export async function superagentRedactStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 superagentRedactStep.maxRetries = 0;
 
 export const _integrationType = "superagent";

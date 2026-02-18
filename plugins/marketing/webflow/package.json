@@ -1,8 +1,8 @@
 {
-  "name": "@next-workflow-builder/resend",
+  "name": "@next-workflow-builder/webflow",
   "version": "1.0.0",
   "private": true,
-  "description": "Resend plugin for Workflow Builder",
+  "description": "Webflow plugin for Workflow Builder",
   "license": "MIT",
   "main": "index.ts",
   "scripts": {

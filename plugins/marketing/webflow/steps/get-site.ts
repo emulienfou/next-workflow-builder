@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { WebflowCredentials } from "../credentials";
 
 const WEBFLOW_API_URL = "https://api.webflow.com/v2";
@@ -49,12 +47,12 @@ export type GetSiteCoreInput = {
 
 export type GetSiteInput = StepInput &
   GetSiteCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function stepHandler(
   input: GetSiteCoreInput,
-  credentials: WebflowCredentials
+  credentials: WebflowCredentials,
 ): Promise<GetSiteResult> {
   const apiKey = credentials.WEBFLOW_API_KEY;
 
@@ -77,21 +75,21 @@ async function stepHandler(
 
   try {
     const response = await fetch(
-      `${WEBFLOW_API_URL}/sites/${encodeURIComponent(input.siteId)}`,
+      `${ WEBFLOW_API_URL }/sites/${ encodeURIComponent(input.siteId) }`,
       {
         method: "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${ apiKey }`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = (await response.json()) as { message?: string };
       return {
         success: false,
-        error: { message: errorData.message || `HTTP ${response.status}` },
+        error: { message: errorData.message || `HTTP ${ response.status }` },
       };
     }
 
@@ -113,13 +111,13 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to get site: ${getErrorMessage(error)}` },
+      error: { message: `Failed to get site: ${ getErrorMessage(error) }` },
     };
   }
 }
 
 export async function getSiteStep(
-  input: GetSiteInput
+  input: GetSiteInput,
 ): Promise<GetSiteResult> {
   "use step";
 
@@ -129,6 +127,7 @@ export async function getSiteStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 getSiteStep.maxRetries = 0;
 
 export const _integrationType = "webflow";

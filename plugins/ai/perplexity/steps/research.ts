@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { PerplexityCredentials } from "../credentials";
 
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
@@ -44,15 +42,15 @@ export type PerplexityResearchCoreInput = {
 
 export type PerplexityResearchInput = StepInput &
   PerplexityResearchCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic - deep research with Perplexity AI Pro model
  */
 async function stepHandler(
   input: PerplexityResearchCoreInput,
-  credentials: PerplexityCredentials
+  credentials: PerplexityCredentials,
 ): Promise<ResearchResult> {
   const apiKey = credentials.PERPLEXITY_API_KEY;
 
@@ -70,18 +68,18 @@ async function stepHandler(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
       },
       body: JSON.stringify({
         model: "sonar-pro",
         messages: [
           {
             role: "system",
-            content: `You are an expert research analyst. Your task is to provide ${depthInstructions} research on the given topic. Structure your response with clear sections, include relevant data and statistics when available, and cite your sources. Focus on accuracy, comprehensiveness, and actionable insights.`,
+            content: `You are an expert research analyst. Your task is to provide ${ depthInstructions } research on the given topic. Structure your response with clear sections, include relevant data and statistics when available, and cite your sources. Focus on accuracy, comprehensiveness, and actionable insights.`,
           },
           {
             role: "user",
-            content: `Research the following topic thoroughly: ${input.topic}`,
+            content: `Research the following topic thoroughly: ${ input.topic }`,
           },
         ],
         return_citations: true,
@@ -92,7 +90,7 @@ async function stepHandler(
       const errorText = await response.text();
       return {
         success: false,
-        error: { message: `HTTP ${response.status}: ${errorText}` },
+        error: { message: `HTTP ${ response.status }: ${ errorText }` },
       };
     }
 
@@ -100,7 +98,7 @@ async function stepHandler(
 
     const report = result.choices[0]?.message?.content || "";
     const citations = (result.citations || []).map((c) =>
-      typeof c === "string" ? c : c.url
+      typeof c === "string" ? c : c.url,
     );
 
     return {
@@ -110,7 +108,7 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to research: ${getErrorMessage(error)}` },
+      error: { message: `Failed to research: ${ getErrorMessage(error) }` },
     };
   }
 }
@@ -131,7 +129,7 @@ function getDepthInstructions(depth?: string): string {
  * App entry point - fetches credentials and wraps with logging
  */
 export async function perplexityResearchStep(
-  input: PerplexityResearchInput
+  input: PerplexityResearchInput,
 ): Promise<ResearchResult> {
   "use step";
 
@@ -141,6 +139,7 @@ export async function perplexityResearchStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 perplexityResearchStep.maxRetries = 0;
 
 export const _integrationType = "perplexity";

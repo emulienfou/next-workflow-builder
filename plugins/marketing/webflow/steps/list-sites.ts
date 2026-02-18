@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { WebflowCredentials } from "../credentials";
 
 const WEBFLOW_API_URL = "https://api.webflow.com/v2";
@@ -42,12 +40,12 @@ export type ListSitesCoreInput = Record<string, never>;
 
 export type ListSitesInput = StepInput &
   ListSitesCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function stepHandler(
   _input: ListSitesCoreInput,
-  credentials: WebflowCredentials
+  credentials: WebflowCredentials,
 ): Promise<ListSitesResult> {
   const apiKey = credentials.WEBFLOW_API_KEY;
 
@@ -62,11 +60,11 @@ async function stepHandler(
   }
 
   try {
-    const response = await fetch(`${WEBFLOW_API_URL}/sites`, {
+    const response = await fetch(`${ WEBFLOW_API_URL }/sites`, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
       },
     });
 
@@ -74,7 +72,7 @@ async function stepHandler(
       const errorData = (await response.json()) as { message?: string };
       return {
         success: false,
-        error: { message: errorData.message || `HTTP ${response.status}` },
+        error: { message: errorData.message || `HTTP ${ response.status }` },
       };
     }
 
@@ -97,13 +95,13 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to list sites: ${getErrorMessage(error)}` },
+      error: { message: `Failed to list sites: ${ getErrorMessage(error) }` },
     };
   }
 }
 
 export async function listSitesStep(
-  input: ListSitesInput
+  input: ListSitesInput,
 ): Promise<ListSitesResult> {
   "use step";
 
@@ -113,6 +111,7 @@ export async function listSitesStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 listSitesStep.maxRetries = 0;
 
 export const _integrationType = "webflow";

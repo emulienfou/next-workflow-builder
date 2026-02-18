@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { WebflowCredentials } from "../credentials";
 
 const WEBFLOW_API_URL = "https://api.webflow.com/v2";
@@ -18,9 +16,9 @@ type PublishResponse = {
 
 type PublishSiteResult =
   | {
-      success: true;
-      data: { publishedDomains: string[]; publishedToSubdomain: boolean };
-    }
+  success: true;
+  data: { publishedDomains: string[]; publishedToSubdomain: boolean };
+}
   | { success: false; error: { message: string } };
 
 export type PublishSiteCoreInput = {
@@ -31,12 +29,12 @@ export type PublishSiteCoreInput = {
 
 export type PublishSiteInput = StepInput &
   PublishSiteCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function stepHandler(
   input: PublishSiteCoreInput,
-  credentials: WebflowCredentials
+  credentials: WebflowCredentials,
 ): Promise<PublishSiteResult> {
   const apiKey = credentials.WEBFLOW_API_KEY;
 
@@ -66,9 +64,9 @@ async function stepHandler(
     // Parse custom domain IDs if provided
     const customDomains = input.customDomainIds
       ? input.customDomainIds
-          .split(",")
-          .map((id) => id.trim())
-          .filter(Boolean)
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean)
       : [];
 
     if (customDomains.length > 0) {
@@ -87,23 +85,23 @@ async function stepHandler(
     }
 
     const response = await fetch(
-      `${WEBFLOW_API_URL}/sites/${encodeURIComponent(input.siteId)}/publish`,
+      `${ WEBFLOW_API_URL }/sites/${ encodeURIComponent(input.siteId) }/publish`,
       {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${ apiKey }`,
         },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = (await response.json()) as { message?: string };
       return {
         success: false,
-        error: { message: errorData.message || `HTTP ${response.status}` },
+        error: { message: errorData.message || `HTTP ${ response.status }` },
       };
     }
 
@@ -119,13 +117,13 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to publish site: ${getErrorMessage(error)}` },
+      error: { message: `Failed to publish site: ${ getErrorMessage(error) }` },
     };
   }
 }
 
 export async function publishSiteStep(
-  input: PublishSiteInput
+  input: PublishSiteInput,
 ): Promise<PublishSiteResult> {
   "use step";
 
@@ -135,6 +133,7 @@ export async function publishSiteStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 publishSiteStep.maxRetries = 0;
 
 export const _integrationType = "webflow";

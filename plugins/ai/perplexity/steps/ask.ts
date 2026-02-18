@@ -1,8 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { PerplexityCredentials } from "../credentials";
 
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
@@ -45,15 +43,15 @@ export type PerplexityAskCoreInput = {
 
 export type PerplexityAskInput = StepInput &
   PerplexityAskCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic - ask a question with Perplexity AI
  */
 async function stepHandler(
   input: PerplexityAskCoreInput,
-  credentials: PerplexityCredentials
+  credentials: PerplexityCredentials,
 ): Promise<AskResult> {
   const apiKey = credentials.PERPLEXITY_API_KEY;
 
@@ -89,7 +87,7 @@ async function stepHandler(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
       },
       body: JSON.stringify({
         model: input.model || "sonar",
@@ -102,7 +100,7 @@ async function stepHandler(
       const errorText = await response.text();
       return {
         success: false,
-        error: { message: `HTTP ${response.status}: ${errorText}` },
+        error: { message: `HTTP ${ response.status }: ${ errorText }` },
       };
     }
 
@@ -110,7 +108,7 @@ async function stepHandler(
 
     const answer = result.choices[0]?.message?.content || "";
     const citations = (result.citations || []).map((c) =>
-      typeof c === "string" ? c : c.url
+      typeof c === "string" ? c : c.url,
     );
 
     return {
@@ -120,7 +118,7 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: { message: `Failed to ask: ${getErrorMessage(error)}` },
+      error: { message: `Failed to ask: ${ getErrorMessage(error) }` },
     };
   }
 }
@@ -129,7 +127,7 @@ async function stepHandler(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function perplexityAskStep(
-  input: PerplexityAskInput
+  input: PerplexityAskInput,
 ): Promise<AskResult> {
   "use step";
 
@@ -139,6 +137,7 @@ export async function perplexityAskStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 perplexityAskStep.maxRetries = 0;
 
 export const _integrationType = "perplexity";

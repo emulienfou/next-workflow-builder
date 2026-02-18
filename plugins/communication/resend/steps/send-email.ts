@@ -1,7 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
+import { fetchCredentials, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { ResendCredentials } from "../credentials";
 
 const RESEND_API_URL = "https://api.resend.com";
@@ -35,15 +34,15 @@ export type SendEmailCoreInput = {
 
 export type SendEmailInput = StepInput &
   SendEmailCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic - portable between app and export
  */
 async function stepHandler(
   input: SendEmailCoreInput,
-  credentials: ResendCredentials
+  credentials: ResendCredentials,
 ): Promise<SendEmailResult> {
   const apiKey = credentials.RESEND_API_KEY;
   const fromEmail = credentials.RESEND_FROM_EMAIL;
@@ -72,7 +71,7 @@ async function stepHandler(
 
   try {
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${ apiKey }`,
       "Content-Type": "application/json",
     };
 
@@ -80,7 +79,7 @@ async function stepHandler(
       headers["Idempotency-Key"] = input.idempotencyKey;
     }
 
-    const response = await fetch(`${RESEND_API_URL}/emails`, {
+    const response = await fetch(`${ RESEND_API_URL }/emails`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -101,7 +100,7 @@ async function stepHandler(
         success: false,
         error: {
           message:
-            errorData.message || `HTTP ${response.status}: Failed to send email`,
+            errorData.message || `HTTP ${ response.status }: Failed to send email`,
         },
       };
     }
@@ -112,7 +111,7 @@ async function stepHandler(
     const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      error: { message: `Failed to send email: ${errorMessage}` },
+      error: { message: `Failed to send email: ${ errorMessage }` },
     };
   }
 }
@@ -121,7 +120,7 @@ async function stepHandler(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function sendEmailStep(
-  input: SendEmailInput
+  input: SendEmailInput,
 ): Promise<SendEmailResult> {
   "use step";
 
@@ -136,6 +135,7 @@ export async function sendEmailStep(
 
   return withStepLogging(input, () => stepHandler(coreInput, credentials));
 }
+
 sendEmailStep.maxRetries = 0;
 
 // Export marker for codegen auto-generation

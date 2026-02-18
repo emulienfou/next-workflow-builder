@@ -1,8 +1,8 @@
 {
-  "name": "@next-workflow-builder/resend",
+  "name": "@next-workflow-builder/v0",
   "version": "1.0.0",
   "private": true,
-  "description": "Resend plugin for Workflow Builder",
+  "description": "V0 plugin for Workflow Builder",
   "license": "MIT",
   "main": "index.ts",
   "scripts": {
@@ -12,7 +12,8 @@
   "dependencies": {
     "next-workflow-builder": "workspace:*",
     "react": "^19.2.4",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "v0-sdk": "^0.15.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",

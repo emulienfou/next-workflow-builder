@@ -1,9 +1,7 @@
 import "server-only";
+import { fetchCredentials, getErrorMessage, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 
-import { createClient, type ChatsCreateResponse } from "v0-sdk";
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
-import { getErrorMessage } from "@/lib/utils";
+import { type ChatsCreateResponse, createClient } from "v0-sdk";
 import type { V0Credentials } from "../credentials";
 
 type CreateChatResult =
@@ -17,15 +15,15 @@ export type CreateChatCoreInput = {
 
 export type CreateChatInput = StepInput &
   CreateChatCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 /**
  * Core logic - portable between app and export
  */
 async function stepHandler(
   input: CreateChatCoreInput,
-  credentials: V0Credentials
+  credentials: V0Credentials,
 ): Promise<CreateChatResult> {
   const apiKey = credentials.V0_API_KEY;
 
@@ -54,7 +52,7 @@ async function stepHandler(
   } catch (error) {
     return {
       success: false,
-      error: `Failed to create chat: ${getErrorMessage(error)}`,
+      error: `Failed to create chat: ${ getErrorMessage(error) }`,
     };
   }
 }
@@ -63,7 +61,7 @@ async function stepHandler(
  * App entry point - fetches credentials and wraps with logging
  */
 export async function createChatStep(
-  input: CreateChatInput
+  input: CreateChatInput,
 ): Promise<CreateChatResult> {
   "use step";
 
@@ -73,6 +71,7 @@ export async function createChatStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 createChatStep.maxRetries = 0;
 
 export const _integrationType = "v0";

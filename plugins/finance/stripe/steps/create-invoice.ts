@@ -1,7 +1,6 @@
 import "server-only";
 
-import { fetchCredentials } from "@/lib/credential-fetcher";
-import { type StepInput, withStepLogging } from "@/lib/steps/step-handler";
+import { fetchCredentials, type StepInput, withStepLogging } from "next-workflow-builder/plugins";
 import type { StripeCredentials } from "../credentials";
 
 const STRIPE_API_URL = "https://api.stripe.com/v1";
@@ -29,12 +28,12 @@ type LineItem = {
 
 type CreateInvoiceResult =
   | {
-      success: true;
-      id: string;
-      number: string | null;
-      hostedInvoiceUrl: string | null;
-      status: string;
-    }
+  success: true;
+  id: string;
+  number: string | null;
+  hostedInvoiceUrl: string | null;
+  status: string;
+}
   | { success: false; error: string };
 
 export type CreateInvoiceCoreInput = {
@@ -49,12 +48,12 @@ export type CreateInvoiceCoreInput = {
 
 export type CreateInvoiceInput = StepInput &
   CreateInvoiceCoreInput & {
-    integrationId?: string;
-  };
+  integrationId?: string;
+};
 
 async function stepHandler(
   input: CreateInvoiceCoreInput,
-  credentials: StripeCredentials
+  credentials: StripeCredentials,
 ): Promise<CreateInvoiceResult> {
   const apiKey = credentials.STRIPE_SECRET_KEY;
 
@@ -79,7 +78,7 @@ async function stepHandler(
     return {
       success: false,
       error:
-        'Invalid line items JSON format. Expected: [{"description": "Item", "amount": 1000, "quantity": 1}]',
+        "Invalid line items JSON format. Expected: [{\"description\": \"Item\", \"amount\": 1000, \"quantity\": 1}]",
     };
   }
 
@@ -89,15 +88,15 @@ async function stepHandler(
     invoiceParams.append("customer", input.customerId);
     invoiceParams.append(
       "collection_method",
-      input.collectionMethod || "send_invoice"
+      input.collectionMethod || "send_invoice",
     );
     invoiceParams.append(
       "days_until_due",
-      String(input.daysUntilDue || 30)
+      String(input.daysUntilDue || 30),
     );
     invoiceParams.append(
       "auto_advance",
-      input.autoAdvance === "false" ? "false" : "true"
+      input.autoAdvance === "false" ? "false" : "true",
     );
 
     if (input.description) {
@@ -110,7 +109,7 @@ async function stepHandler(
           string
         >;
         for (const [key, value] of Object.entries(metadataObj)) {
-          invoiceParams.append(`metadata[${key}]`, String(value));
+          invoiceParams.append(`metadata[${ key }]`, String(value));
         }
       } catch {
         return {
@@ -120,10 +119,10 @@ async function stepHandler(
       }
     }
 
-    const invoiceResponse = await fetch(`${STRIPE_API_URL}/invoices`, {
+    const invoiceResponse = await fetch(`${ STRIPE_API_URL }/invoices`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${ apiKey }`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: invoiceParams.toString(),
@@ -135,7 +134,7 @@ async function stepHandler(
         success: false,
         error:
           errorData.error?.message ||
-          `HTTP ${invoiceResponse.status}: Failed to create invoice`,
+          `HTTP ${ invoiceResponse.status }: Failed to create invoice`,
       };
     }
 
@@ -150,10 +149,10 @@ async function stepHandler(
       itemParams.append("unit_amount", String(item.amount));
       itemParams.append("currency", "usd");
 
-      const itemResponse = await fetch(`${STRIPE_API_URL}/invoiceitems`, {
+      const itemResponse = await fetch(`${ STRIPE_API_URL }/invoiceitems`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${ apiKey }`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: itemParams.toString(),
@@ -165,7 +164,7 @@ async function stepHandler(
           success: false,
           error:
             errorData.error?.message ||
-            `HTTP ${itemResponse.status}: Failed to add line item`,
+            `HTTP ${ itemResponse.status }: Failed to add line item`,
         };
       }
     }
@@ -174,14 +173,14 @@ async function stepHandler(
     let finalInvoice = invoice;
     if (input.autoAdvance !== "false") {
       const finalizeResponse = await fetch(
-        `${STRIPE_API_URL}/invoices/${invoice.id}/finalize`,
+        `${ STRIPE_API_URL }/invoices/${ invoice.id }/finalize`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${ apiKey }`,
             "Content-Type": "application/x-www-form-urlencoded",
           },
-        }
+        },
       );
 
       if (!finalizeResponse.ok) {
@@ -191,7 +190,7 @@ async function stepHandler(
           success: false,
           error:
             errorData.error?.message ||
-            `HTTP ${finalizeResponse.status}: Failed to finalize invoice`,
+            `HTTP ${ finalizeResponse.status }: Failed to finalize invoice`,
         };
       }
 
@@ -209,13 +208,13 @@ async function stepHandler(
     const message = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      error: `Failed to create invoice: ${message}`,
+      error: `Failed to create invoice: ${ message }`,
     };
   }
 }
 
 export async function createInvoiceStep(
-  input: CreateInvoiceInput
+  input: CreateInvoiceInput,
 ): Promise<CreateInvoiceResult> {
   "use step";
 
@@ -225,6 +224,7 @@ export async function createInvoiceStep(
 
   return withStepLogging(input, () => stepHandler(input, credentials));
 }
+
 createInvoiceStep.maxRetries = 0;
 
 export const _integrationType = "stripe";

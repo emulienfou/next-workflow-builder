@@ -1,5 +1,5 @@
-import type { IntegrationPlugin } from "@/plugins/registry";
-import { registerIntegration } from "@/plugins/registry";
+import type { IntegrationPlugin } from "next-workflow-builder/plugins";
+import { registerIntegration } from "next-workflow-builder/plugins";
 import { StripeIcon } from "./icon";
 
 const stripePlugin: IntegrationPlugin = {
@@ -82,8 +82,8 @@ const stripePlugin: IntegrationPlugin = {
               key: "metadata",
               label: "Metadata (JSON)",
               type: "template-textarea",
-              placeholder: '{"key": "value"}',
-              example: '{"plan": "enterprise", "source": "website"}',
+              placeholder: "{\"key\": \"value\"}",
+              example: "{\"plan\": \"enterprise\", \"source\": \"website\"}",
               rows: 3,
             },
           ],
@@ -153,9 +153,9 @@ const stripePlugin: IntegrationPlugin = {
           key: "lineItems",
           label: "Line Items (JSON array)",
           type: "template-textarea",
-          placeholder: '[{"description": "Item", "amount": 1000, "quantity": 1}]',
+          placeholder: "[{\"description\": \"Item\", \"amount\": 1000, \"quantity\": 1}]",
           example:
-            '[{"description": "Consulting", "amount": 15000, "quantity": 2}]',
+            "[{\"description\": \"Consulting\", \"amount\": 15000, \"quantity\": 2}]",
           rows: 4,
           required: true,
         },
@@ -194,8 +194,8 @@ const stripePlugin: IntegrationPlugin = {
               key: "metadata",
               label: "Metadata (JSON)",
               type: "template-textarea",
-              placeholder: '{"key": "value"}',
-              example: '{"project": "website-redesign"}',
+              placeholder: "{\"key\": \"value\"}",
+              example: "{\"project\": \"website-redesign\"}",
               rows: 3,
             },
           ],
