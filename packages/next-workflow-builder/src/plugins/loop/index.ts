@@ -1,5 +1,4 @@
 import type { IntegrationPlugin } from "../registry";
-import { registerIntegration } from "../registry";
 import { LoopIcon } from "./icon";
 
 const loopPlugin: IntegrationPlugin = {
@@ -54,7 +53,5 @@ const loopPlugin: IntegrationPlugin = {
     },
   ],
 };
-
-registerIntegration(loopPlugin);
 
 export default loopPlugin;

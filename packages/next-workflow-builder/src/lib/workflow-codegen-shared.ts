@@ -300,7 +300,15 @@ const SYSTEM_STEP_INFO: Record<
   },
   Condition: {
     functionName: "conditionStep",
-    importPath: "./steps/condition-step",
+    importPath: "../../plugins/condition/steps/evaluate",
+  },
+  Loop: {
+    functionName: "loopStep",
+    importPath: "../../plugins/loop/steps/iterate",
+  },
+  Switch: {
+    functionName: "switchStep",
+    importPath: "../../plugins/switch/steps/evaluate",
   },
 };
 

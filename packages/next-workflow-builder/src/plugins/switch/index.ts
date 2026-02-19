@@ -1,4 +1,4 @@
-import { type IntegrationPlugin, registerIntegration } from "../registry";
+import { type IntegrationPlugin } from "../registry";
 import { SwitchIcon } from "./icon";
 
 const switchPlugin: IntegrationPlugin = {
@@ -83,7 +83,5 @@ const switchPlugin: IntegrationPlugin = {
     },
   ],
 };
-
-registerIntegration(switchPlugin);
 
 export default switchPlugin;

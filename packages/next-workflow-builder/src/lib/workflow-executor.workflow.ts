@@ -39,7 +39,7 @@ const SYSTEM_ACTIONS: Record<string, StepImporter> = {
   },
   Condition: {
     // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
-    importer: () => import("./steps/condition") as Promise<any>,
+    importer: () => import("../plugins/condition/steps/evaluate") as Promise<any>,
     stepFunction: "conditionStep",
   },
   Loop: {

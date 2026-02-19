@@ -1,7 +1,7 @@
 /**
  * Executable step function for Condition action
  */
-import { type StepInput, withStepLogging } from "./step-handler";
+import { StepInput, withStepLogging } from "../../../lib/steps/step-handler";
 
 export type ConditionInput = StepInput & {
   condition: boolean;
@@ -21,11 +21,12 @@ function evaluateCondition(input: ConditionInput): ConditionResult {
 
 // biome-ignore lint/suspicious/useAwait: workflow "use step" requires async
 export async function conditionStep(
-  input: ConditionInput
+  input: ConditionInput,
 ): Promise<ConditionResult> {
   "use step";
   return withStepLogging(input, () =>
-    Promise.resolve(evaluateCondition(input))
+    Promise.resolve(evaluateCondition(input)),
   );
 }
+
 conditionStep.maxRetries = 0;

@@ -2,29 +2,10 @@
 
 import type { NodeProps } from "@xyflow/react";
 import { useAtomValue } from "jotai";
-import {
-  AlertTriangle,
-  Check,
-  Code,
-  Database,
-  EyeOff,
-  GitBranch,
-  XCircle,
-  Zap,
-} from "lucide-react";
+import { AlertTriangle, Check, Code, Database, EyeOff, XCircle, Zap } from "lucide-react";
 import Image from "next/image";
-import { memo, useState } from "react";
-import { getIntegrations } from "../../../../lib/db/integrations";
-import {
-  Node,
-  NodeDescription,
-  NodeTitle,
-} from "../../ai-elements/node";
-import { Dialog, DialogContent, DialogTitle } from "../../ui/dialog";
-import {
-  integrationIdsAtom,
-  integrationsLoadedAtom,
-} from "../../../../lib/integrations-store";
+import React, { memo, useState } from "react";
+import { integrationIdsAtom, integrationsLoadedAtom } from "../../../../lib/integrations-store";
 import { cn } from "../../../../lib/utils";
 import {
   executionLogsAtom,
@@ -32,12 +13,12 @@ import {
   selectedExecutionIdAtom,
   type WorkflowNodeData,
 } from "../../../../lib/workflow-store";
-import {
-  findActionById, getAllIntegrations,
-  getIntegration,
-  getSystemIntegration,
-  getSystemIntegrations,
-} from "../../../../plugins/registry.js";
+import conditionPlugin from "../../../../plugins/condition/index.js";
+import loopPlugin from "../../../../plugins/loop/index.js";
+import { findActionById, getIntegration } from "../../../../plugins/registry.js";
+import switchPlugin from "../../../../plugins/switch/index.js";
+import { Node, NodeDescription, NodeTitle } from "../../ai-elements/node";
+import { Dialog, DialogContent, DialogTitle } from "../../ui/dialog";
 
 // Helper to get display name for AI model
 const getModelDisplayName = (modelId: string): string => {
@@ -127,18 +108,22 @@ const requiresIntegration = (actionType: string): boolean => {
 
 // Helper to get provider logo for action type
 const getProviderLogo = (actionType: string) => {
-  const pluginSystem = getSystemIntegration(actionType);
-  console.log({actionType, pluginSystem, all:getAllIntegrations()});
+  // const pluginSystem = getSystemIntegration(actionType);
+  // console.log({ actionType, pluginSystem, all: getAllIntegrations() });
   // Check for system actions first (non-plugin)
   switch (actionType) {
     case "HTTP Request":
-      return <Zap className="size-12 text-amber-300" strokeWidth={1.5} />;
+      return <Zap className="size-12 text-amber-300" strokeWidth={ 1.5 }/>;
     case "Database Query":
-      return <Database className="size-12 text-blue-300" strokeWidth={1.5} />;
+      return <Database className="size-12 text-blue-300" strokeWidth={ 1.5 }/>;
     case "Execute Code":
-      return <Code className="size-12 text-green-300" strokeWidth={1.5} />;
+      return <Code className="size-12 text-green-300" strokeWidth={ 1.5 }/>;
     case "Condition":
-      return <GitBranch className="size-12 text-pink-300" strokeWidth={1.5} />;
+      return React.createElement(conditionPlugin.icon, { className: "size-12 text-pink-300" });
+    case "Loop":
+      return React.createElement(loopPlugin.icon, { className: "size-12" });
+    case "Switch":
+      return React.createElement(switchPlugin.icon, { className: "size-12" });
     default:
       // Not a system action, continue to check plugin registry
       break;
@@ -150,12 +135,12 @@ const getProviderLogo = (actionType: string) => {
     const plugin = getIntegration(action.integration);
     if (plugin?.icon) {
       const PluginIcon = plugin.icon;
-      return <PluginIcon className="size-12" />;
+      return <PluginIcon className="size-12"/>;
     }
   }
 
   // Fallback for unknown actions
-  return <Zap className="size-12 text-amber-300" strokeWidth={1.5} />;
+  return <Zap className="size-12 text-amber-300" strokeWidth={ 1.5 }/>;
 };
 
 // Status badge component
@@ -171,18 +156,18 @@ const StatusBadge = ({
 
   return (
     <div
-      className={cn(
+      className={ cn(
         "absolute top-2 right-2 rounded-full p-1",
         status === "success" && "bg-green-500/50",
-        status === "error" && "bg-red-500/50"
-      )}
+        status === "error" && "bg-red-500/50",
+      ) }
     >
-      {status === "success" && (
-        <Check className="size-3.5 text-white" strokeWidth={2.5} />
-      )}
-      {status === "error" && (
-        <XCircle className="size-3.5 text-white" strokeWidth={2.5} />
-      )}
+      { status === "success" && (
+        <Check className="size-3.5 text-white" strokeWidth={ 2.5 }/>
+      ) }
+      { status === "error" && (
+        <XCircle className="size-3.5 text-white" strokeWidth={ 2.5 }/>
+      ) }
     </div>
   );
 };
@@ -194,8 +179,9 @@ const ModelBadge = ({ model }: { model: string }) => {
   }
 
   return (
-    <div className="rounded-full border border-muted-foreground/50 px-2 py-0.5 font-medium text-[10px] text-muted-foreground">
-      {getModelDisplayName(model)}
+    <div
+      className="rounded-full border border-muted-foreground/50 px-2 py-0.5 font-medium text-[10px] text-muted-foreground">
+      { getModelDisplayName(model) }
     </div>
   );
 };
@@ -208,10 +194,10 @@ function GeneratedImageThumbnail({ base64 }: { base64: string }) {
     <>
       <button
         className="relative size-12 cursor-zoom-in overflow-hidden rounded-lg transition-transform hover:scale-105"
-        onClick={(e) => {
+        onClick={ (e) => {
           e.stopPropagation();
           setDialogOpen(true);
-        }}
+        } }
         type="button"
       >
         <Image
@@ -219,13 +205,13 @@ function GeneratedImageThumbnail({ base64 }: { base64: string }) {
           className="object-cover"
           fill
           sizes="48px"
-          src={`data:image/png;base64,${base64}`}
+          src={ `data:image/png;base64,${ base64 }` }
           unoptimized
         />
       </button>
 
-      <Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
-        <DialogContent className="max-w-3xl p-2" showCloseButton={false}>
+      <Dialog onOpenChange={ setDialogOpen } open={ dialogOpen }>
+        <DialogContent className="max-w-3xl p-2" showCloseButton={ false }>
           <DialogTitle className="sr-only">Generated Image</DialogTitle>
           <div className="relative aspect-square w-full overflow-hidden rounded-lg">
             <Image
@@ -233,7 +219,7 @@ function GeneratedImageThumbnail({ base64 }: { base64: string }) {
               className="object-contain"
               fill
               sizes="(max-width: 768px) 100vw, 768px"
-              src={`data:image/png;base64,${base64}`}
+              src={ `data:image/png;base64,${ base64 }` }
               unoptimized
             />
           </div>
@@ -276,25 +262,25 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
     const isDisabled = data.enabled === false;
     return (
       <Node
-        className={cn(
+        className={ cn(
           "flex h-48 w-48 flex-col items-center justify-center shadow-none transition-all duration-150 ease-out",
           selected && "border-primary",
-          isDisabled && "opacity-50"
-        )}
-        data-testid={`action-node-${id}`}
-        handles={{ target: true, source: true }}
-        status={status}
+          isDisabled && "opacity-50",
+        ) }
+        data-testid={ `action-node-${ id }` }
+        handles={ { target: true, source: true } }
+        status={ status }
       >
-        {isDisabled && (
+        { isDisabled && (
           <div className="absolute top-2 left-2 rounded-full bg-gray-500/50 p-1">
-            <EyeOff className="size-3.5 text-white" />
+            <EyeOff className="size-3.5 text-white"/>
           </div>
-        )}
+        ) }
         <div className="flex flex-col items-center justify-center gap-3 p-6">
-          <Zap className="size-12 text-muted-foreground" strokeWidth={1.5} />
+          <Zap className="size-12 text-muted-foreground" strokeWidth={ 1.5 }/>
           <div className="flex flex-col items-center gap-1 text-center">
             <NodeTitle className="text-base">
-              {data.label || "Action"}
+              { data.label || "Action" }
             </NodeTitle>
             <NodeDescription className="text-xs">
               Select an action
@@ -346,49 +332,49 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
 
   return (
     <Node
-      className={cn(
+      className={ cn(
         "relative flex h-48 w-48 flex-col items-center justify-center shadow-none transition-all duration-150 ease-out",
         selected && "border-primary",
-        isDisabled && "opacity-50"
-      )}
-      data-testid={`action-node-${id}`}
-      handles={{ target: true, source: true }}
-      status={status}
+        isDisabled && "opacity-50",
+      ) }
+      data-testid={ `action-node-${ id }` }
+      handles={ { target: true, source: true } }
+      status={ status }
     >
-      {/* Disabled badge in top left */}
-      {isDisabled && (
+      {/* Disabled badge in top left */ }
+      { isDisabled && (
         <div className="absolute top-2 left-2 rounded-full bg-gray-500/50 p-1">
-          <EyeOff className="size-3.5 text-white" />
+          <EyeOff className="size-3.5 text-white"/>
         </div>
-      )}
+      ) }
 
-      {/* Integration warning badge in top left (only if not disabled) */}
-      {!isDisabled && integrationMissing && (
+      {/* Integration warning badge in top left (only if not disabled) */ }
+      { !isDisabled && integrationMissing && (
         <div className="absolute top-2 left-2 rounded-full bg-orange-500/50 p-1">
-          <AlertTriangle className="size-3.5 text-white" />
+          <AlertTriangle className="size-3.5 text-white"/>
         </div>
-      )}
+      ) }
 
-      {/* Status indicator badge in top right */}
-      <StatusBadge status={status} />
+      {/* Status indicator badge in top right */ }
+      <StatusBadge status={ status }/>
 
       <div className="flex flex-col items-center justify-center gap-3 p-6">
-        {hasGeneratedImage ? (
+        { hasGeneratedImage ? (
           <GeneratedImageThumbnail
-            base64={(nodeLog.output as { base64: string }).base64}
+            base64={ (nodeLog.output as { base64: string }).base64 }
           />
         ) : (
           getProviderLogo(actionType)
-        )}
+        ) }
         <div className="flex flex-col items-center gap-1 text-center">
-          <NodeTitle className="text-base">{displayTitle}</NodeTitle>
-          {displayDescription && (
+          <NodeTitle className="text-base">{ displayTitle }</NodeTitle>
+          { displayDescription && (
             <NodeDescription className="text-xs">
-              {displayDescription}
+              { displayDescription }
             </NodeDescription>
-          )}
-          {/* Model badge for AI nodes */}
-          {aiModel && <ModelBadge model={aiModel} />}
+          ) }
+          {/* Model badge for AI nodes */ }
+          { aiModel && <ModelBadge model={ aiModel }/> }
         </div>
       </div>
     </Node>
