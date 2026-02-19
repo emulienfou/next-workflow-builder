@@ -15,8 +15,6 @@
     "ai": "^5.0.0",
     "jotai": "^2.0.0",
     "next": "16.1.6",
-    "@next-workflow-builder/loop": "workspace:*",
-    "@next-workflow-builder/switch": "workspace:*",
     "@next-workflow-builder/fal": "workspace:*",
     "@next-workflow-builder/firecrawl": "workspace:*",
     "@next-workflow-builder/ai-gateway": "workspace:*",
