@@ -4,8 +4,7 @@
  * Similar to n8n's SplitInBatches node
  */
 import "server-only";
-
-import { type StepInput, withStepLogging } from "next-workflow-builder/plugins";
+import { StepInput, withStepLogging } from "../../../lib/steps/step-handler";
 
 export type LoopInput = StepInput & {
   /** The array to iterate over */
@@ -71,4 +70,5 @@ export async function loopStep(input: LoopInput): Promise<LoopResult> {
   "use step";
   return withStepLogging(input, () => Promise.resolve(evaluateLoop(input)));
 }
+
 loopStep.maxRetries = 0;

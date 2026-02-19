@@ -4,8 +4,7 @@
  * Similar to n8n's Switch node
  */
 import "server-only";
-
-import { type StepInput, withStepLogging } from "next-workflow-builder/plugins";
+import { StepInput, withStepLogging } from "../../../lib/steps/step-handler";
 
 export type SwitchRule = {
   /** Which output index this rule routes to */
@@ -47,7 +46,7 @@ export type SwitchResult = {
 function applyOperator(
   value: string,
   operator: string,
-  operand: string
+  operand: string,
 ): boolean {
   switch (operator) {
     case "equals":
@@ -136,4 +135,5 @@ export async function switchStep(input: SwitchInput): Promise<SwitchResult> {
   "use step";
   return withStepLogging(input, () => Promise.resolve(evaluateSwitch(input)));
 }
+
 switchStep.maxRetries = 0;

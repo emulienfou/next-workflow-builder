@@ -1,5 +1,4 @@
-import type { IntegrationPlugin } from "next-workflow-builder/plugins";
-import { registerIntegration } from "next-workflow-builder/plugins";
+import { type IntegrationPlugin, registerIntegration } from "../registry";
 import { SwitchIcon } from "./icon";
 
 const switchPlugin: IntegrationPlugin = {
@@ -7,6 +6,7 @@ const switchPlugin: IntegrationPlugin = {
   label: "Switch",
   description: "Route data to different outputs based on rules or expressions",
   icon: SwitchIcon,
+  isBuiltIn: true,
 
   formFields: [],
 
@@ -42,7 +42,7 @@ const switchPlugin: IntegrationPlugin = {
           label: "Rules (JSON array)",
           type: "template-textarea",
           placeholder:
-            '[{"output": 0, "operator": "equals", "value": "active", "name": "Active"}, {"output": 1, "operator": "equals", "value": "inactive", "name": "Inactive"}]',
+            "[{\"output\": 0, \"operator\": \"equals\", \"value\": \"active\", \"name\": \"Active\"}, {\"output\": 1, \"operator\": \"equals\", \"value\": \"inactive\", \"name\": \"Inactive\"}]",
           rows: 5,
           showWhen: { field: "mode", equals: "rules" },
         },

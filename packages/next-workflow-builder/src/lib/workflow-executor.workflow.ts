@@ -44,7 +44,7 @@ const SYSTEM_ACTIONS: Record<string, StepImporter> = {
   },
   Loop: {
     // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
-    importer: () => import("./steps/loop") as Promise<any>,
+    importer: () => import("../plugins/loop/steps/iterate") as Promise<any>,
     stepFunction: "loopStep",
   },
   Switch: {

@@ -3,7 +3,7 @@ import { registerIntegration } from "../registry";
 import { LoopIcon } from "./icon";
 
 const loopPlugin: IntegrationPlugin = {
-  type: "Loop",
+  type: "loop",
   label: "Loop",
   description: "Iterate over arrays and process items in batches",
   icon: LoopIcon,
