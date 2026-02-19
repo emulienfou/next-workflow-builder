@@ -17,8 +17,6 @@
 import "./blob";
 
 // npm-installed system plugins
-import "@next-workflow-builder/loop";
-import "@next-workflow-builder/switch";
 import "@next-workflow-builder/fal";
 import "@next-workflow-builder/firecrawl";
 import "@next-workflow-builder/ai-gateway";

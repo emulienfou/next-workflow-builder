@@ -165,6 +165,12 @@ export type IntegrationPlugin = {
   label: string;
   description: string;
 
+  /**
+   * Whether this is a built-in system plugin included with the package.
+   * Used by discover-plugins to generate correct import paths.
+   */
+  isBuiltIn?: boolean;
+
   // Icon component (should be exported from plugins/[name]/icon.tsx)
   icon: React.ComponentType<{ className?: string }>;
 
@@ -186,7 +192,7 @@ export type IntegrationPlugin = {
     // This allows the test module to be loaded only on the server when needed
     getTestFunction: () => Promise<
       (
-        credentials: Record<string, string>
+        credentials: Record<string, string>,
       ) => Promise<{ success: boolean; error?: string }>
     >;
   };
@@ -284,9 +290,9 @@ export function getOutputDisplayConfig(actionId: string): SerializableOutputDisp
  */
 export function computeActionId(
   integrationType: IntegrationType,
-  actionSlug: string
+  actionSlug: string,
 ): string {
-  return `${integrationType}/${actionSlug}`;
+  return `${ integrationType }/${ actionSlug }`;
 }
 
 /**
@@ -317,7 +323,7 @@ export function registerIntegration(plugin: IntegrationPlugin) {
  * Get an integration plugin
  */
 export function getIntegration(
-  type: IntegrationType
+  type: IntegrationType,
 ): IntegrationPlugin | undefined {
   return integrationRegistry.get(type);
 }
@@ -334,6 +340,24 @@ export function getAllIntegrations(): IntegrationPlugin[] {
  */
 export function getIntegrationTypes(): IntegrationType[] {
   return Array.from(integrationRegistry.keys());
+}
+
+/**
+ * Get a system integration plugin
+ */
+export function getSystemIntegration(
+  type: IntegrationType,
+): IntegrationPlugin | undefined {
+  const integration = integrationRegistry.get(type);
+  if (integration?.isBuiltIn) return integration;
+  return undefined;
+}
+
+/**
+ * Get all system integrations
+ */
+export function getSystemIntegrations(): IntegrationPlugin[] {
+  return getAllIntegrations().filter((i) => i.isBuiltIn);
 }
 
 /**
@@ -382,7 +406,7 @@ export function getActionsByCategory(): Record<string, ActionWithFullId[]> {
  * Also supports legacy IDs (e.g., "Send Email") for backward compatibility
  */
 export function findActionById(
-  actionId: string | undefined | null
+  actionId: string | undefined | null,
 ): ActionWithFullId | undefined {
   if (!actionId) {
     return undefined;
@@ -453,7 +477,7 @@ export function getIntegrationDescriptions(): Record<IntegrationType, string> {
  * Plugins with no formFields (e.g. facebook-event-scraper) don't need a connection.
  */
 export function integrationRequiresCredentials(
-  type: IntegrationType
+  type: IntegrationType,
 ): boolean {
   const plugin = integrationRegistry.get(type);
   return !!plugin && plugin.formFields.length > 0;
@@ -485,7 +509,7 @@ export function getAllDependencies(): Record<string, string> {
  * Get NPM dependencies for specific action IDs
  */
 export function getDependenciesForActions(
-  actionIds: string[]
+  actionIds: string[],
 ): Record<string, string> {
   const deps: Record<string, string> = {};
   const integrations = new Set<IntegrationType>();
@@ -513,7 +537,7 @@ export function getDependenciesForActions(
  * Get environment variables for a single plugin (from formFields)
  */
 export function getPluginEnvVars(
-  plugin: IntegrationPlugin
+  plugin: IntegrationPlugin,
 ): Array<{ name: string; description: string }> {
   const envVars: Array<{ name: string; description: string }> = [];
 
@@ -548,7 +572,7 @@ export function getAllEnvVars(): Array<{ name: string; description: string }> {
  */
 export function getCredentialMapping(
   plugin: IntegrationPlugin,
-  config: Record<string, unknown>
+  config: Record<string, unknown>,
 ): Record<string, string> {
   const creds: Record<string, string> = {};
 
@@ -565,7 +589,7 @@ export function getCredentialMapping(
  * Type guard to check if a field is a group
  */
 export function isFieldGroup(
-  field: ActionConfigField
+  field: ActionConfigField,
 ): field is ActionConfigFieldGroup {
   return field.type === "group";
 }
@@ -575,7 +599,7 @@ export function isFieldGroup(
  * Useful for validation and AI prompt generation
  */
 export function flattenConfigFields(
-  fields: ActionConfigField[]
+  fields: ActionConfigField[],
 ): ActionConfigFieldBase[] {
   const result: ActionConfigFieldBase[] = [];
 
@@ -622,12 +646,12 @@ export function generateAIActionPrompts(): string {
         } else if (field.type === "select" && field.options?.[0]) {
           exampleConfig[field.key] = field.options[0].value;
         } else {
-          exampleConfig[field.key] = `Your ${field.label.toLowerCase()}`;
+          exampleConfig[field.key] = `Your ${ field.label.toLowerCase() }`;
         }
       }
 
       lines.push(
-        `- ${action.label} (${fullId}): ${JSON.stringify(exampleConfig)}`
+        `- ${ action.label } (${ fullId }): ${ JSON.stringify(exampleConfig) }`,
       );
     }
   }

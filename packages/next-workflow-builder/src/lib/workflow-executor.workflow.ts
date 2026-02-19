@@ -3,10 +3,7 @@
  * This executor captures step executions through the workflow SDK for better observability
  */
 
-import {
-  preValidateConditionExpression,
-  validateConditionExpression,
-} from "./condition-validator.js";
+import { preValidateConditionExpression, validateConditionExpression } from "./condition-validator.js";
 import { getPluginRegistry } from "./plugin-registry.js";
 import type { StepImporter } from "./steps/index.js";
 import type { StepContext } from "./steps/step-handler.js";
@@ -50,6 +47,11 @@ const SYSTEM_ACTIONS: Record<string, StepImporter> = {
     importer: () => import("./steps/loop") as Promise<any>,
     stepFunction: "loopStep",
   },
+  Switch: {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
+    importer: () => import("../plugins/switch/steps/evaluate") as Promise<any>,
+    stepFunction: "switchStep",
+  },
 };
 
 type ExecutionResult = {
@@ -79,7 +81,7 @@ function replaceTemplateVariable(
   rest: string,
   outputs: NodeOutputs,
   evalContext: Record<string, unknown>,
-  varCounter: { value: number }
+  varCounter: { value: number },
 ): string {
   const sanitizedNodeId = nodeId.replace(/[^a-zA-Z0-9]/g, "_");
   const output = outputs[sanitizedNodeId];
@@ -131,7 +133,7 @@ function replaceTemplateVariable(
     }
   }
 
-  const varName = `__v${varCounter.value}`;
+  const varName = `__v${ varCounter.value }`;
   varCounter.value += 1;
   evalContext[varName] = value;
   return varName;
@@ -151,7 +153,7 @@ type ConditionEvalResult = {
  */
 function evaluateConditionExpression(
   conditionExpression: unknown,
-  outputs: NodeOutputs
+  outputs: NodeOutputs,
 ): ConditionEvalResult {
   console.log("[Condition] Original expression:", conditionExpression);
 
@@ -184,12 +186,12 @@ function evaluateConditionExpression(
             rest,
             outputs,
             evalContext,
-            varCounter
+            varCounter,
           );
           // Store the resolved value with a readable key (the display text from the template)
           resolvedValues[rest] = evalContext[varName];
           return varName;
-        }
+        },
       );
 
       // Validate the transformed expression before evaluation
@@ -199,7 +201,7 @@ function evaluateConditionExpression(
         console.error("[Condition] Original expression:", conditionExpression);
         console.error(
           "[Condition] Transformed expression:",
-          transformedExpression
+          transformedExpression,
         );
         return { result: false, resolvedValues };
       }
@@ -211,7 +213,7 @@ function evaluateConditionExpression(
       // Only contains: variables (__v0, __v1), operators, literals, and whitelisted methods
       const evalFunc = new Function(
         ...varNames,
-        `return (${transformedExpression});`
+        `return (${ transformedExpression });`,
       );
       const result = evalFunc(...varValues);
       return { result: Boolean(result), resolvedValues };
@@ -344,14 +346,14 @@ async function executeActionStep(input: {
 
     return {
       success: false,
-      error: `Step function "${stepImporter.stepFunction}" not found in module for action "${actionType}". Check that the plugin exports the correct function name.`,
+      error: `Step function "${ stepImporter.stepFunction }" not found in module for action "${ actionType }". Check that the plugin exports the correct function name.`,
     };
   }
 
   // Fallback for unknown action types
   return {
     success: false,
-    error: `Unknown action type: "${actionType}". This action is not registered in the plugin system. Available system actions: ${Object.keys(SYSTEM_ACTIONS).join(", ")}.`,
+    error: `Unknown action type: "${ actionType }". This action is not registered in the plugin system. Available system actions: ${ Object.keys(SYSTEM_ACTIONS).join(", ") }.`,
   };
 }
 
@@ -360,7 +362,7 @@ async function executeActionStep(input: {
  */
 function processTemplates(
   config: Record<string, unknown>,
-  outputs: NodeOutputs
+  outputs: NodeOutputs,
 ): Record<string, unknown> {
   const processed: Record<string, unknown> = {};
 
@@ -435,7 +437,7 @@ function processTemplates(
             return JSON.stringify(current);
           }
           return String(current);
-        }
+        },
       );
 
       processed[key] = processedValue;
@@ -484,13 +486,13 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
   // Find trigger nodes
   const nodesWithIncoming = new Set(edges.map((e) => e.target));
   const triggerNodes = nodes.filter(
-    (node) => node.data.type === "trigger" && !nodesWithIncoming.has(node.id)
+    (node) => node.data.type === "trigger" && !nodesWithIncoming.has(node.id),
   );
 
   console.log(
     "[Workflow Executor] Found",
     triggerNodes.length,
-    "trigger nodes"
+    "trigger nodes",
   );
 
   // Helper to get a meaningful node name
@@ -520,7 +522,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
   async function executeNode(
     nodeId: string,
     visited: Set<string> = new Set(),
-    loopContext?: { iteration: number }
+    loopContext?: { iteration: number },
   ) {
     console.log("[Workflow Executor] Executing node:", nodeId);
 
@@ -549,7 +551,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
 
       const nextNodes = edgesBySource.get(nodeId) || [];
       await Promise.all(
-        nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext))
+        nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext)),
       );
       return;
     }
@@ -578,12 +580,12 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             triggerData = { ...triggerData, ...mockData };
             console.log(
               "[Workflow Executor] Using webhook mock request data:",
-              mockData
+              mockData,
             );
           } catch (error) {
             console.error(
               "[Workflow Executor] Failed to parse webhook mock request:",
-              error
+              error,
             );
           }
         } else if (triggerInput && Object.keys(triggerInput).length > 0) {
@@ -619,7 +621,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
         if (!actionType) {
           result = {
             success: false,
-            error: `Action node "${node.data.label || node.id}" has no action type configured`,
+            error: `Action node "${ node.data.label || node.id }" has no action type configured`,
           };
           results[nodeId] = result;
           return;
@@ -632,7 +634,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
 
         const processedConfig = processTemplates(
           configWithoutCondition,
-          outputs
+          outputs,
         );
 
         // Add back the original condition (unprocessed)
@@ -657,7 +659,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
           const sourceOutput = outputs[sanitizedSourceId];
           if (sourceOutput?.data && typeof sourceOutput.data === "object") {
             for (const [key, value] of Object.entries(
-              sourceOutput.data as Record<string, unknown>
+              sourceOutput.data as Record<string, unknown>,
             )) {
               // Don't overwrite explicit config values
               if (!(key in processedConfig)) {
@@ -700,7 +702,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             typeof errorResult.error === "string"
               ? errorResult.error
               : errorResult.error?.message ||
-                `Step "${actionType}" in node "${node.data.label || node.id}" failed without a specific error message.`;
+              `Step "${ actionType }" in node "${ node.data.label || node.id }" failed without a specific error message.`;
           result = {
             success: false,
             error: errorMessage,
@@ -715,7 +717,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
         console.log("[Workflow Executor] Unknown node type:", node.data.type);
         result = {
           success: false,
-          error: `Unknown node type "${node.data.type}" in node "${node.data.label || node.id}". Expected "trigger" or "action".`,
+          error: `Unknown node type "${ node.data.type }" in node "${ node.data.label || node.id }". Expected "trigger" or "action".`,
         };
       }
 
@@ -752,7 +754,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             ?.condition;
           console.log(
             "[Workflow Executor] Condition node result:",
-            conditionResult
+            conditionResult,
           );
 
           if (conditionResult === true) {
@@ -760,15 +762,15 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             console.log(
               "[Workflow Executor] Condition is true, executing",
               nextNodes.length,
-              "next nodes in parallel"
+              "next nodes in parallel",
             );
             // Execute all next nodes in parallel (preserve loop context if inside a loop)
             await Promise.all(
-              nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext))
+              nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext)),
             );
           } else {
             console.log(
-              "[Workflow Executor] Condition is false, skipping next nodes"
+              "[Workflow Executor] Condition is false, skipping next nodes",
             );
           }
         } else if (isLoopNode) {
@@ -789,7 +791,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             "[Workflow Executor] Loop node:",
             "items:", items.length,
             "batches:", totalBatches,
-            "nextNodes:", nextNodes.length
+            "nextNodes:", nextNodes.length,
           );
 
           // Execute downstream nodes for each batch sequentially
@@ -800,7 +802,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             const currentItem = currentBatch[0];
 
             console.log(
-              `[Workflow Executor] Loop batch ${batchIndex + 1}/${totalBatches} (items ${startIndex + 1}-${endIndex})`
+              `[Workflow Executor] Loop batch ${ batchIndex + 1 }/${ totalBatches } (items ${ startIndex + 1 }-${ endIndex })`,
             );
 
             // Update the loop node output with current batch context
@@ -823,8 +825,8 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             // Pass loop context so steps can use it (e.g., for unique idempotency keys)
             await Promise.all(
               nextNodes.map((nextNodeId) =>
-                executeNode(nextNodeId, new Set([nodeId]), { iteration: batchIndex })
-              )
+                executeNode(nextNodeId, new Set([nodeId]), { iteration: batchIndex }),
+              ),
             );
           }
 
@@ -835,11 +837,11 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
           console.log(
             "[Workflow Executor] Executing",
             nextNodes.length,
-            "next nodes in parallel"
+            "next nodes in parallel",
           );
           // Execute all next nodes in parallel (preserve loop context if inside a loop)
           await Promise.all(
-            nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext))
+            nextNodes.map((nextNodeId) => executeNode(nextNodeId, visited, loopContext)),
           );
         }
       }
@@ -889,7 +891,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
       } catch (error) {
         console.error(
           "[Workflow Executor] Failed to update execution record:",
-          error
+          error,
         );
       }
     }
@@ -902,7 +904,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
   } catch (error) {
     console.error(
       "[Workflow Executor] Fatal error during workflow execution:",
-      error
+      error,
     );
 
     const errorMessage = await getErrorMessageAsync(error);

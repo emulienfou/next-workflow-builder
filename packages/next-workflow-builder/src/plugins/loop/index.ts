@@ -1,12 +1,13 @@
-import type { IntegrationPlugin } from "next-workflow-builder/plugins";
-import { registerIntegration } from "next-workflow-builder/plugins";
+import type { IntegrationPlugin } from "../registry";
+import { registerIntegration } from "../registry";
 import { LoopIcon } from "./icon";
 
 const loopPlugin: IntegrationPlugin = {
-  type: "loop",
+  type: "Loop",
   label: "Loop",
   description: "Iterate over arrays and process items in batches",
   icon: LoopIcon,
+  isBuiltIn: true,
 
   formFields: [],
 

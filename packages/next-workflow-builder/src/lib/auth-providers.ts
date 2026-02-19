@@ -45,7 +45,6 @@ export function getEnabledAuthProviders(): EnabledProviders {
  */
 export function getEnabledProvidersList(): AuthProvider[] {
   const providers = getEnabledAuthProviders();
-  console.log({ providers });
   return Object.entries(providers)
     .filter(([, enabled]) => enabled)
     .map(([name]) => name as AuthProvider);

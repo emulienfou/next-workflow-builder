@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { memo, useState } from "react";
+import { getIntegrations } from "../../../../lib/db/integrations";
 import {
   Node,
   NodeDescription,
@@ -31,7 +32,12 @@ import {
   selectedExecutionIdAtom,
   type WorkflowNodeData,
 } from "../../../../lib/workflow-store";
-import { findActionById, getIntegration } from "../../../../plugins/registry.js";
+import {
+  findActionById, getAllIntegrations,
+  getIntegration,
+  getSystemIntegration,
+  getSystemIntegrations,
+} from "../../../../plugins/registry.js";
 
 // Helper to get display name for AI model
 const getModelDisplayName = (modelId: string): string => {
@@ -121,6 +127,8 @@ const requiresIntegration = (actionType: string): boolean => {
 
 // Helper to get provider logo for action type
 const getProviderLogo = (actionType: string) => {
+  const pluginSystem = getSystemIntegration(actionType);
+  console.log({actionType, pluginSystem, all:getAllIntegrations()});
   // Check for system actions first (non-plugin)
   switch (actionType) {
     case "HTTP Request":

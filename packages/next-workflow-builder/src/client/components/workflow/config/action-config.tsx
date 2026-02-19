@@ -42,6 +42,7 @@ import {
 } from "../../../../plugins/registry.js";
 import { ActionConfigRenderer } from "./action-config-renderer";
 import { SchemaBuilder, type SchemaField } from "./schema-builder";
+import { SYSTEM_ACTIONS } from "./system-action";
 
 type ActionConfigProps = {
   config: Record<string, unknown>;
@@ -263,13 +264,6 @@ function SystemActionFields({
       return null;
   }
 }
-
-// System actions that don't have plugins
-const SYSTEM_ACTIONS: Array<{ id: string; label: string }> = [
-  { id: "HTTP Request", label: "HTTP Request" },
-  { id: "Database Query", label: "Database Query" },
-  { id: "Condition", label: "Condition" },
-];
 
 const SYSTEM_ACTION_IDS = SYSTEM_ACTIONS.map((a) => a.id);
 

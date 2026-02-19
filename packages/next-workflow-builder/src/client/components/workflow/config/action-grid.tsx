@@ -1,65 +1,16 @@
 "use client";
 
-import {
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Grid3X3,
-  List,
-  MoreHorizontal,
-  Search,
-  Settings,
-  Zap,
-} from "lucide-react";
+import { ChevronRight, Eye, EyeOff, Grid3X3, List, MoreHorizontal, Search, Settings, Zap } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "../../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { Input } from "../../ui/input";
-import { IntegrationIcon } from "../../ui/integration-icon";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../ui/tooltip";
-import { useIsTouch } from "../../../hooks/use-touch";
 import { cn } from "../../../../lib/utils";
 import { getAllActions } from "../../../../plugins/registry.js";
-
-type ActionType = {
-  id: string;
-  label: string;
-  description: string;
-  category: string;
-  integration?: string;
-};
-
-// System actions that don't have plugins
-const SYSTEM_ACTIONS: ActionType[] = [
-  {
-    id: "HTTP Request",
-    label: "HTTP Request",
-    description: "Make an HTTP request to any API",
-    category: "System",
-  },
-  {
-    id: "Database Query",
-    label: "Database Query",
-    description: "Query your database",
-    category: "System",
-  },
-  {
-    id: "Condition",
-    label: "Condition",
-    description: "Branch based on a condition",
-    category: "System",
-  },
-];
+import { useIsTouch } from "../../../hooks/use-touch";
+import { Button } from "../../ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../ui/dropdown-menu";
+import { Input } from "../../ui/input";
+import { IntegrationIcon } from "../../ui/integration-icon";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/tooltip";
+import { ActionType, SYSTEM_ACTIONS } from "./system-action";
 
 // Combine System actions with plugin actions
 function useAllActions(): ActionType[] {
@@ -96,15 +47,15 @@ function GroupIcon({
     return (
       <IntegrationIcon
         className="size-4"
-        integration={firstAction.integration}
+        integration={ firstAction.integration }
       />
     );
   }
   // For System category
   if (group.category === "System") {
-    return <Settings className="size-4" />;
+    return <Settings className="size-4"/>;
   }
-  return <Zap className="size-4" />;
+  return <Zap className="size-4"/>;
 }
 
 function ActionIcon({
@@ -116,13 +67,13 @@ function ActionIcon({
 }) {
   if (action.integration) {
     return (
-      <IntegrationIcon className={className} integration={action.integration} />
+      <IntegrationIcon className={ className } integration={ action.integration }/>
     );
   }
   if (action.category === "System") {
-    return <Settings className={cn(className, "text-muted-foreground")} />;
+    return <Settings className={ cn(className, "text-muted-foreground") }/>;
   }
-  return <Zap className={cn(className, "text-muted-foreground")} />;
+  return <Zap className={ cn(className, "text-muted-foreground") }/>;
 }
 
 // Local storage keys
@@ -158,10 +109,10 @@ export function ActionGrid({
 }: ActionGridProps) {
   const [filter, setFilter] = useState("");
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(
-    getInitialHiddenGroups
+    getInitialHiddenGroups,
   );
   const [showHidden, setShowHidden] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
@@ -255,16 +206,16 @@ export function ActionGrid({
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex shrink-0 gap-2">
         <div className="relative flex-1">
-          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"/>
           <Input
             className="pl-9"
             data-testid="action-search-input"
-            disabled={disabled}
+            disabled={ disabled }
             id="action-filter"
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={ (e) => setFilter(e.target.value) }
             placeholder="Search actions..."
-            ref={inputRef}
-            value={filter}
+            ref={ inputRef }
+            value={ filter }
           />
         </div>
         <TooltipProvider>
@@ -272,125 +223,125 @@ export function ActionGrid({
             <TooltipTrigger asChild>
               <Button
                 className="shrink-0"
-                onClick={toggleViewMode}
+                onClick={ toggleViewMode }
                 size="icon"
                 variant="ghost"
               >
-                {viewMode === "list" ? (
-                  <Grid3X3 className="size-4" />
+                { viewMode === "list" ? (
+                  <Grid3X3 className="size-4"/>
                 ) : (
-                  <List className="size-4" />
-                )}
+                  <List className="size-4"/>
+                ) }
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {viewMode === "list" ? "Grid view" : "List view"}
+              { viewMode === "list" ? "Grid view" : "List view" }
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        {hiddenCount > 0 && (
+        { hiddenCount > 0 && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  className={cn("shrink-0", showHidden && "bg-muted")}
-                  onClick={() => setShowHidden(!showHidden)}
+                  className={ cn("shrink-0", showHidden && "bg-muted") }
+                  onClick={ () => setShowHidden(!showHidden) }
                   size="icon"
                   variant="ghost"
                 >
-                  {showHidden ? (
-                    <Eye className="size-4" />
+                  { showHidden ? (
+                    <Eye className="size-4"/>
                   ) : (
-                    <EyeOff className="size-4" />
-                  )}
+                    <EyeOff className="size-4"/>
+                  ) }
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {showHidden
+                { showHidden
                   ? "Hide hidden groups"
-                  : `Show ${hiddenCount} hidden group${hiddenCount > 1 ? "s" : ""}`}
+                  : `Show ${ hiddenCount } hidden group${ hiddenCount > 1 ? "s" : "" }` }
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        )}
+        ) }
       </div>
 
       <div
         className="min-h-0 flex-1 overflow-y-auto pb-4"
         data-testid="action-grid"
       >
-        {filteredActions.length === 0 && (
+        { filteredActions.length === 0 && (
           <p className="py-4 text-center text-muted-foreground text-sm">
             No actions found
           </p>
-        )}
-        {filteredActions.length > 0 && visibleGroups.length === 0 && (
+        ) }
+        { filteredActions.length > 0 && visibleGroups.length === 0 && (
           <p className="py-4 text-center text-muted-foreground text-sm">
             All groups are hidden
           </p>
-        )}
+        ) }
 
-        {/* Grid View */}
-        {viewMode === "grid" && visibleGroups.length > 0 && (
+        {/* Grid View */ }
+        { viewMode === "grid" && visibleGroups.length > 0 && (
           <div
             className="grid gap-2 p-1"
-            style={{
+            style={ {
               gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))",
-            }}
+            } }
           >
-            {filteredActions
+            { filteredActions
               .filter(
-                (action) => showHidden || !hiddenGroups.has(action.category)
+                (action) => showHidden || !hiddenGroups.has(action.category),
               )
               .map((action) => (
                 <button
-                  className={cn(
+                  className={ cn(
                     "flex aspect-square flex-col items-center justify-center gap-1.5 rounded-lg border border-transparent p-2 text-center transition-colors hover:border-border hover:bg-muted",
-                    disabled && "pointer-events-none opacity-50"
-                  )}
-                  data-testid={`action-option-${action.id.toLowerCase().replace(/\s+/g, "-")}`}
-                  disabled={disabled}
-                  key={action.id}
-                  onClick={() => onSelectAction(action.id)}
+                    disabled && "pointer-events-none opacity-50",
+                  ) }
+                  data-testid={ `action-option-${ action.id.toLowerCase().replace(/\s+/g, "-") }` }
+                  disabled={ disabled }
+                  key={ action.id }
+                  onClick={ () => onSelectAction(action.id) }
                   type="button"
                 >
-                  <ActionIcon action={action} className="size-6" />
+                  <ActionIcon action={ action } className="size-6"/>
                   <span className="line-clamp-2 font-medium text-xs leading-tight">
-                    {action.label}
+                    { action.label }
                   </span>
                 </button>
-              ))}
+              )) }
           </div>
-        )}
+        ) }
 
-        {/* List View */}
-        {viewMode === "list" &&
+        {/* List View */ }
+        { viewMode === "list" &&
           visibleGroups.length > 0 &&
           visibleGroups.map((group, groupIndex) => {
             const isCollapsed = collapsedGroups.has(group.category);
             const isHidden = hiddenGroups.has(group.category);
             return (
-              <div key={group.category}>
-                {groupIndex > 0 && <div className="my-2 h-px bg-border" />}
+              <div key={ group.category }>
+                { groupIndex > 0 && <div className="my-2 h-px bg-border"/> }
                 <div
-                  className={cn(
+                  className={ cn(
                     "sticky top-0 z-10 mb-1 flex items-center gap-2 bg-background px-3 py-2 font-medium text-muted-foreground text-xs uppercase tracking-wider",
-                    isHidden && "opacity-50"
-                  )}
+                    isHidden && "opacity-50",
+                  ) }
                 >
                   <button
                     className="flex flex-1 items-center gap-2 text-left hover:text-foreground"
-                    onClick={() => toggleGroup(group.category)}
+                    onClick={ () => toggleGroup(group.category) }
                     type="button"
                   >
                     <ChevronRight
-                      className={cn(
+                      className={ cn(
                         "size-3.5 transition-transform",
-                        !isCollapsed && "rotate-90"
-                      )}
+                        !isCollapsed && "rotate-90",
+                      ) }
                     />
-                    <GroupIcon group={group} />
-                    {group.category}
+                    <GroupIcon group={ group }/>
+                    { group.category }
                   </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -398,55 +349,55 @@ export function ActionGrid({
                         className="rounded p-0.5 hover:bg-muted hover:text-foreground"
                         type="button"
                       >
-                        <MoreHorizontal className="size-4" />
+                        <MoreHorizontal className="size-4"/>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => toggleHideGroup(group.category)}
+                        onClick={ () => toggleHideGroup(group.category) }
                       >
-                        {isHidden ? (
+                        { isHidden ? (
                           <>
-                            <Eye className="mr-2 size-4" />
+                            <Eye className="mr-2 size-4"/>
                             Show group
                           </>
                         ) : (
                           <>
-                            <EyeOff className="mr-2 size-4" />
+                            <EyeOff className="mr-2 size-4"/>
                             Hide group
                           </>
-                        )}
+                        ) }
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                {!isCollapsed &&
+                { !isCollapsed &&
                   group.actions.map((action) => (
                     <button
-                      className={cn(
+                      className={ cn(
                         "flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted",
-                        disabled && "pointer-events-none opacity-50"
-                      )}
-                      data-testid={`action-option-${action.id.toLowerCase().replace(/\s+/g, "-")}`}
-                      disabled={disabled}
-                      key={action.id}
-                      onClick={() => onSelectAction(action.id)}
+                        disabled && "pointer-events-none opacity-50",
+                      ) }
+                      data-testid={ `action-option-${ action.id.toLowerCase().replace(/\s+/g, "-") }` }
+                      disabled={ disabled }
+                      key={ action.id }
+                      onClick={ () => onSelectAction(action.id) }
                       type="button"
                     >
                       <span className="min-w-0 flex-1 truncate">
-                        <span className="font-medium">{action.label}</span>
-                        {action.description && (
+                        <span className="font-medium">{ action.label }</span>
+                        { action.description && (
                           <span className="text-muted-foreground text-xs">
-                            {" "}
-                            - {action.description}
+                            { " " }
+                            - { action.description }
                           </span>
-                        )}
+                        ) }
                       </span>
                     </button>
-                  ))}
+                  )) }
               </div>
             );
-          })}
+          }) }
       </div>
     </div>
   );
