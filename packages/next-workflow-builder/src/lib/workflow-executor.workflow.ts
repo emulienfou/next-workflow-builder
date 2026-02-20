@@ -164,7 +164,7 @@ function evaluateConditionExpression(
   if (typeof conditionExpression === "string") {
     // Pre-validate the expression before any processing
     const preValidation = preValidateConditionExpression(conditionExpression);
-    if (!preValidation.valid) {
+    if (preValidation.valid === false) {
       console.error("[Condition] Pre-validation failed:", preValidation.error);
       console.error("[Condition] Expression was:", conditionExpression);
       return { result: false, resolvedValues: {} };
@@ -196,7 +196,7 @@ function evaluateConditionExpression(
 
       // Validate the transformed expression before evaluation
       const validation = validateConditionExpression(transformedExpression);
-      if (!validation.valid) {
+      if (validation.valid === false) {
         console.error("[Condition] Validation failed:", validation.error);
         console.error("[Condition] Original expression:", conditionExpression);
         console.error(
