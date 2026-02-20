@@ -7,8 +7,8 @@
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { fetchCredentials } from "../credential-fetcher";
-import { type StepInput, withStepLogging } from "./step-handler";
+import { fetchCredentials } from "../../../lib/credential-fetcher";
+import { type StepInput, withStepLogging } from "../../../lib/steps/step-handler";
 
 type DatabaseQueryResult =
   | { success: true; rows: unknown; count: number }
@@ -40,7 +40,7 @@ function createDatabaseClient(databaseUrl: string): postgres.Sql {
 
 async function executeQuery(
   client: postgres.Sql,
-  queryString: string
+  queryString: string,
 ): Promise<unknown> {
   const db = drizzle(client);
   return await db.execute(sql.raw(queryString));
@@ -63,7 +63,7 @@ function getDatabaseErrorMessage(error: unknown): string {
     return "Authentication failed. Please check your database credentials.";
   }
   if (errorMessage.includes("does not exist")) {
-    return `Database error: ${errorMessage}`;
+    return `Database error: ${ errorMessage }`;
   }
 
   return errorMessage;
@@ -82,8 +82,8 @@ async function cleanupClient(client: postgres.Sql | null): Promise<void> {
 /**
  * Database query logic
  */
-async function databaseQuery(
-  input: DatabaseQueryInput
+async function query(
+  input: DatabaseQueryInput,
 ): Promise<DatabaseQueryResult> {
   const validationError = validateInput(input);
   if (validationError) {
@@ -121,7 +121,7 @@ async function databaseQuery(
     await cleanupClient(client);
     return {
       success: false,
-      error: `Database query failed: ${getDatabaseErrorMessage(error)}`,
+      error: `Database query failed: ${ getDatabaseErrorMessage(error) }`,
     };
   }
 }
@@ -132,9 +132,10 @@ async function databaseQuery(
  */
 // biome-ignore lint/suspicious/useAwait: workflow "use step" requires async
 export async function databaseQueryStep(
-  input: DatabaseQueryInput
+  input: DatabaseQueryInput,
 ): Promise<DatabaseQueryResult> {
   "use step";
-  return withStepLogging(input, () => databaseQuery(input));
+  return withStepLogging(input, () => query(input));
 }
+
 databaseQueryStep.maxRetries = 0;

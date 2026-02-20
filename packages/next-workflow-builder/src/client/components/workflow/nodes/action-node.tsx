@@ -2,7 +2,7 @@
 
 import type { NodeProps } from "@xyflow/react";
 import { useAtomValue } from "jotai";
-import { AlertTriangle, Check, Code, Database, EyeOff, XCircle, Zap } from "lucide-react";
+import { AlertTriangle, Check, Code, EyeOff, XCircle, Zap } from "lucide-react";
 import Image from "next/image";
 import React, { memo, useState } from "react";
 import { integrationIdsAtom, integrationsLoadedAtom } from "../../../../lib/integrations-store";
@@ -14,6 +14,7 @@ import {
   type WorkflowNodeData,
 } from "../../../../lib/workflow-store";
 import conditionPlugin from "../../../../plugins/condition/index.js";
+import databasePlugin from "../../../../plugins/database/index.js";
 import loopPlugin from "../../../../plugins/loop/index.js";
 import { findActionById, getIntegration } from "../../../../plugins/registry.js";
 import switchPlugin from "../../../../plugins/switch/index.js";
@@ -115,13 +116,13 @@ const getProviderLogo = (actionType: string) => {
     case "HTTP Request":
       return <Zap className="size-12 text-amber-300" strokeWidth={ 1.5 }/>;
     case "Database Query":
-      return <Database className="size-12 text-blue-300" strokeWidth={ 1.5 }/>;
+      return React.createElement(databasePlugin.icon, { className: "size-12 text-blue-300" });
     case "Execute Code":
       return <Code className="size-12 text-green-300" strokeWidth={ 1.5 }/>;
     case "Condition":
       return React.createElement(conditionPlugin.icon, { className: "size-12 text-pink-300" });
     case "Loop":
-      return React.createElement(loopPlugin.icon, { className: "size-12" });
+      return React.createElement(loopPlugin.icon, { className: "size-12 text-cyan-300" });
     case "Switch":
       return React.createElement(switchPlugin.icon, { className: "size-12" });
     default:

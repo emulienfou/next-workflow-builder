@@ -3,6 +3,18 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { HelpCircle, Plus, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { integrationsAtom, integrationsVersionAtom } from "../../../../lib/integrations-store";
+import { managedConnectionProviderAtom, managedConnectionStatusAtom } from "../../../../lib/managed-connection";
+import type { IntegrationType } from "../../../../lib/types/integration";
+import { ConditionFields } from "../../../../plugins/condition/components/condition-fields";
+import { DatabaseQueryFields } from "../../../../plugins/database/components/database-query-fields";
+import { LoopFields } from "../../../../plugins/loop/components/loop-fields";
+import {
+  findActionById,
+  getActionsByCategory,
+  getAllIntegrations,
+  integrationRequiresCredentials,
+} from "../../../../plugins/registry.js";
 import { ConfigureConnectionOverlay } from "../../overlays/add-connection-overlay";
 import { useOverlay } from "../../overlays/overlay-provider";
 import { Button } from "../../ui/button";
@@ -10,38 +22,10 @@ import { CodeEditor } from "../../ui/code-editor";
 import { IntegrationIcon } from "../../ui/integration-icon";
 import { IntegrationSelector } from "../../ui/integration-selector";
 import { Label } from "../../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "../../ui/select";
 import { TemplateBadgeInput } from "../../ui/template-badge-input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../ui/tooltip";
-import {
-  managedConnectionProviderAtom,
-  managedConnectionStatusAtom,
-} from "../../../../lib/managed-connection";
-import {
-  integrationsAtom,
-  integrationsVersionAtom,
-} from "../../../../lib/integrations-store";
-import type { IntegrationType } from "../../../../lib/types/integration";
-import {
-  findActionById,
-  getActionsByCategory,
-  getAllIntegrations,
-  integrationRequiresCredentials,
-} from "../../../../plugins/registry.js";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/tooltip";
 import { ActionConfigRenderer } from "./action-config-renderer";
-import { SchemaBuilder, type SchemaField } from "./schema-builder";
 import { SYSTEM_ACTIONS } from "./system-action";
 
 type ActionConfigProps = {
@@ -50,59 +34,6 @@ type ActionConfigProps = {
   disabled: boolean;
   isOwner?: boolean;
 };
-
-// Database Query fields component
-function DatabaseQueryFields({
-  config,
-  onUpdateConfig,
-  disabled,
-}: {
-  config: Record<string, unknown>;
-  onUpdateConfig: (key: string, value: string) => void;
-  disabled: boolean;
-}) {
-  return (
-    <>
-      <div className="space-y-2">
-        <Label htmlFor="dbQuery">SQL Query</Label>
-        <div className="overflow-hidden rounded-md border">
-          <CodeEditor
-            defaultLanguage="sql"
-            height="150px"
-            onChange={(value) => onUpdateConfig("dbQuery", value || "")}
-            options={{
-              minimap: { enabled: false },
-              lineNumbers: "on",
-              scrollBeyondLastLine: false,
-              fontSize: 12,
-              readOnly: disabled,
-              wordWrap: "off",
-            }}
-            value={(config?.dbQuery as string) || ""}
-          />
-        </div>
-        <p className="text-muted-foreground text-xs">
-          The DATABASE_URL from your project integrations will be used to
-          execute this query.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label>Schema (Optional)</Label>
-        <SchemaBuilder
-          disabled={disabled}
-          onChange={(schema) =>
-            onUpdateConfig("dbSchema", JSON.stringify(schema))
-          }
-          schema={
-            config?.dbSchema
-              ? (JSON.parse(config.dbSchema as string) as SchemaField[])
-              : []
-          }
-        />
-      </div>
-    </>
-  );
-}
 
 // HTTP Request fields component
 function HttpRequestFields({
@@ -119,12 +50,12 @@ function HttpRequestFields({
       <div className="space-y-2">
         <Label htmlFor="httpMethod">HTTP Method</Label>
         <Select
-          disabled={disabled}
-          onValueChange={(value) => onUpdateConfig("httpMethod", value)}
-          value={(config?.httpMethod as string) || "POST"}
+          disabled={ disabled }
+          onValueChange={ (value) => onUpdateConfig("httpMethod", value) }
+          value={ (config?.httpMethod as string) || "POST" }
         >
           <SelectTrigger className="w-full" id="httpMethod">
-            <SelectValue placeholder="Select method" />
+            <SelectValue placeholder="Select method"/>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="GET">GET</SelectItem>
@@ -138,11 +69,11 @@ function HttpRequestFields({
       <div className="space-y-2">
         <Label htmlFor="endpoint">URL</Label>
         <TemplateBadgeInput
-          disabled={disabled}
+          disabled={ disabled }
           id="endpoint"
-          onChange={(value) => onUpdateConfig("endpoint", value)}
+          onChange={ (value) => onUpdateConfig("endpoint", value) }
           placeholder="https://api.example.com/endpoint or {{NodeName.url}}"
-          value={(config?.endpoint as string) || ""}
+          value={ (config?.endpoint as string) || "" }
         />
       </div>
       <div className="space-y-2">
@@ -151,29 +82,29 @@ function HttpRequestFields({
           <CodeEditor
             defaultLanguage="json"
             height="100px"
-            onChange={(value) => onUpdateConfig("httpHeaders", value || "{}")}
-            options={{
+            onChange={ (value) => onUpdateConfig("httpHeaders", value || "{}") }
+            options={ {
               minimap: { enabled: false },
               lineNumbers: "off",
               scrollBeyondLastLine: false,
               fontSize: 12,
               readOnly: disabled,
               wordWrap: "off",
-            }}
-            value={(config?.httpHeaders as string) || "{}"}
+            } }
+            value={ (config?.httpHeaders as string) || "{}" }
           />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="httpBody">Body (JSON)</Label>
         <div
-          className={`overflow-hidden rounded-md border ${config?.httpMethod === "GET" ? "opacity-50" : ""}`}
+          className={ `overflow-hidden rounded-md border ${ config?.httpMethod === "GET" ? "opacity-50" : "" }` }
         >
           <CodeEditor
             defaultLanguage="json"
             height="120px"
-            onChange={(value) => onUpdateConfig("httpBody", value || "{}")}
-            options={{
+            onChange={ (value) => onUpdateConfig("httpBody", value || "{}") }
+            options={ {
               minimap: { enabled: false },
               lineNumbers: "off",
               scrollBeyondLastLine: false,
@@ -181,45 +112,17 @@ function HttpRequestFields({
               readOnly: config?.httpMethod === "GET" || disabled,
               domReadOnly: config?.httpMethod === "GET" || disabled,
               wordWrap: "off",
-            }}
-            value={(config?.httpBody as string) || "{}"}
+            } }
+            value={ (config?.httpBody as string) || "{}" }
           />
         </div>
-        {config?.httpMethod === "GET" && (
+        { config?.httpMethod === "GET" && (
           <p className="text-muted-foreground text-xs">
             Body is disabled for GET requests
           </p>
-        )}
+        ) }
       </div>
     </>
-  );
-}
-
-// Condition fields component
-function ConditionFields({
-  config,
-  onUpdateConfig,
-  disabled,
-}: {
-  config: Record<string, unknown>;
-  onUpdateConfig: (key: string, value: string) => void;
-  disabled: boolean;
-}) {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor="condition">Condition Expression</Label>
-      <TemplateBadgeInput
-        disabled={disabled}
-        id="condition"
-        onChange={(value) => onUpdateConfig("condition", value)}
-        placeholder="e.g., 5 > 3, status === 200, {{PreviousNode.value}} > 100"
-        value={(config?.condition as string) || ""}
-      />
-      <p className="text-muted-foreground text-xs">
-        Enter a JavaScript expression that evaluates to true or false. You can
-        use @ to reference previous node outputs.
-      </p>
-    </div>
   );
 }
 
@@ -239,25 +142,33 @@ function SystemActionFields({
     case "HTTP Request":
       return (
         <HttpRequestFields
-          config={config}
-          disabled={disabled}
-          onUpdateConfig={onUpdateConfig}
+          config={ config }
+          disabled={ disabled }
+          onUpdateConfig={ onUpdateConfig }
         />
       );
     case "Database Query":
       return (
         <DatabaseQueryFields
-          config={config}
-          disabled={disabled}
-          onUpdateConfig={onUpdateConfig}
+          config={ config }
+          disabled={ disabled }
+          onUpdateConfig={ onUpdateConfig }
         />
       );
     case "Condition":
       return (
         <ConditionFields
-          config={config}
-          disabled={disabled}
-          onUpdateConfig={onUpdateConfig}
+          config={ config }
+          disabled={ disabled }
+          onUpdateConfig={ onUpdateConfig }
+        />
+      );
+    case "Loop":
+      return (
+        <LoopFields
+          config={ config }
+          disabled={ disabled }
+          onUpdateConfig={ onUpdateConfig }
         />
       );
     default:
@@ -441,32 +352,32 @@ export function ActionConfig({
             Service
           </Label>
           <Select
-            disabled={disabled}
-            onValueChange={handleCategoryChange}
-            value={category || undefined}
+            disabled={ disabled }
+            onValueChange={ handleCategoryChange }
+            value={ category || undefined }
           >
             <SelectTrigger className="w-full" id="actionCategory">
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder="Select category"/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="System">
                 <div className="flex items-center gap-2">
-                  <Settings className="size-4" />
+                  <Settings className="size-4"/>
                   <span>System</span>
                 </div>
               </SelectItem>
-              <SelectSeparator />
-              {integrations.map((integration) => (
-                <SelectItem key={integration.type} value={integration.label}>
+              <SelectSeparator/>
+              { integrations.map((integration) => (
+                <SelectItem key={ integration.type } value={ integration.label }>
                   <div className="flex items-center gap-2">
                     <IntegrationIcon
                       className="size-4"
-                      integration={integration.type}
+                      integration={ integration.type }
                     />
-                    <span>{integration.label}</span>
+                    <span>{ integration.label }</span>
                   </div>
                 </SelectItem>
-              ))}
+              )) }
             </SelectContent>
           </Select>
         </div>
@@ -476,26 +387,26 @@ export function ActionConfig({
             Action
           </Label>
           <Select
-            disabled={disabled || !category}
-            onValueChange={handleActionTypeChange}
-            value={normalizeActionType(actionType) || undefined}
+            disabled={ disabled || !category }
+            onValueChange={ handleActionTypeChange }
+            value={ normalizeActionType(actionType) || undefined }
           >
             <SelectTrigger className="w-full" id="actionType">
-              <SelectValue placeholder="Select action" />
+              <SelectValue placeholder="Select action"/>
             </SelectTrigger>
             <SelectContent>
-              {category &&
+              { category &&
                 categories[category]?.map((action) => (
-                  <SelectItem key={action.id} value={action.id}>
-                    {action.label}
+                  <SelectItem key={ action.id } value={ action.id }>
+                    { action.label }
                   </SelectItem>
-                ))}
+                )) }
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {integrationType && isOwner && (
+      { integrationType && isOwner && (
         <div className="space-y-2">
           <div className="ml-1 flex items-center justify-between">
             <div className="flex items-center gap-1">
@@ -503,7 +414,7 @@ export function ActionConfig({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="size-3.5 text-muted-foreground" />
+                    <HelpCircle className="size-3.5 text-muted-foreground"/>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>API key or OAuth credentials for this service</p>
@@ -511,44 +422,44 @@ export function ActionConfig({
                 </Tooltip>
               </TooltipProvider>
             </div>
-            {hasExistingConnections && (
+            { hasExistingConnections && (
               <Button
                 className="size-6"
-                disabled={disabled}
-                onClick={handleAddSecondaryConnection}
+                disabled={ disabled }
+                onClick={ handleAddSecondaryConnection }
                 size="icon"
                 variant="ghost"
               >
-                <Plus className="size-4" />
+                <Plus className="size-4"/>
               </Button>
-            )}
+            ) }
           </div>
           <IntegrationSelector
-            disabled={disabled}
-            integrationType={integrationType}
-            onChange={(id) => onUpdateConfig("integrationId", id)}
-            value={(config?.integrationId as string) || ""}
+            disabled={ disabled }
+            integrationType={ integrationType }
+            onChange={ (id) => onUpdateConfig("integrationId", id) }
+            value={ (config?.integrationId as string) || "" }
           />
         </div>
-      )}
+      ) }
 
-      {/* System actions - hardcoded config fields */}
+      {/* System actions - hardcoded config fields */ }
       <SystemActionFields
-        actionType={(config?.actionType as string) || ""}
-        config={config}
-        disabled={disabled}
-        onUpdateConfig={onUpdateConfig}
+        actionType={ (config?.actionType as string) || "" }
+        config={ config }
+        disabled={ disabled }
+        onUpdateConfig={ onUpdateConfig }
       />
 
-      {/* Plugin actions - declarative config fields */}
-      {pluginAction && !SYSTEM_ACTION_IDS.includes(actionType) && (
+      {/* Plugin actions - declarative config fields */ }
+      { pluginAction && !SYSTEM_ACTION_IDS.includes(actionType) && (
         <ActionConfigRenderer
-          config={config}
-          disabled={disabled}
-          fields={pluginAction.configFields}
-          onUpdateConfig={handlePluginUpdateConfig}
+          config={ config }
+          disabled={ disabled }
+          fields={ pluginAction.configFields }
+          onUpdateConfig={ handlePluginUpdateConfig }
         />
-      )}
+      ) }
     </>
   );
 }

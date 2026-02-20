@@ -100,11 +100,11 @@ export function buildEdgeMap(edges: WorkflowEdge[]): Map<string, string[]> {
  */
 export function findTriggerNodes(
   nodes: WorkflowNode[],
-  edges: WorkflowEdge[]
+  edges: WorkflowEdge[],
 ): WorkflowNode[] {
   const nodesWithIncoming = new Set(edges.map((e) => e.target));
   return nodes.filter(
-    (node) => node.data.type === "trigger" && !nodesWithIncoming.has(node.id)
+    (node) => node.data.type === "trigger" && !nodesWithIncoming.has(node.id),
   );
 }
 
@@ -117,9 +117,9 @@ export function buildAccessPath(fieldPath: string): string {
     .map((part: string) => {
       const arrayMatch = ARRAY_INDEX_PATTERN.exec(part);
       if (arrayMatch) {
-        return `.${arrayMatch[1]}[${arrayMatch[2]}]`;
+        return `.${ arrayMatch[1] }[${ arrayMatch[2] }]`;
       }
-      return `.${part}`;
+      return `.${ part }`;
     })
     .join("");
 }
@@ -148,7 +148,7 @@ export function toFriendlyVarName(label: string, actionType?: string): string {
     .join("");
 
   // Add "Result" suffix
-  return `${camelCase}Result`;
+  return `${ camelCase }Result`;
 }
 
 /**
@@ -218,7 +218,7 @@ export function sanitizeStepName(name: string): string {
   const sanitized = result.replace(NUMBER_START_PATTERN, "_$&");
 
   // Add "Step" suffix to avoid conflicts with imports (e.g., generateText from 'ai')
-  return `${sanitized}Step`;
+  return `${ sanitized }Step`;
 }
 
 /**
@@ -246,7 +246,7 @@ export function toTypeScriptLiteral(value: unknown): string {
   }
   if (Array.isArray(value)) {
     const items = value.map((item) => toTypeScriptLiteral(item));
-    return `[${items.join(", ")}]`;
+    return `[${ items.join(", ") }]`;
   }
   if (typeof value === "object") {
     const entries = Object.entries(value).map(([key, val]) => {
@@ -254,9 +254,9 @@ export function toTypeScriptLiteral(value: unknown): string {
       const keyStr = VALID_IDENTIFIER_PATTERN.test(key)
         ? key
         : JSON.stringify(key);
-      return `${keyStr}: ${toTypeScriptLiteral(val)}`;
+      return `${ keyStr }: ${ toTypeScriptLiteral(val) }`;
     });
-    return `{${entries.join(", ")}}`;
+    return `{${ entries.join(", ") }}`;
   }
   return String(value);
 }
@@ -274,9 +274,9 @@ export function processAiSchema(aiSchema: string | undefined): string | null {
     // Remove id field from each schema object
     const schemaWithoutIds = Array.isArray(parsedSchema)
       ? parsedSchema.map((field: Record<string, unknown>) => {
-          const { id: _id, ...rest } = field;
-          return rest;
-        })
+        const { id: _id, ...rest } = field;
+        return rest;
+      })
       : parsedSchema;
     return toTypeScriptLiteral(schemaWithoutIds);
   } catch {
@@ -292,7 +292,7 @@ const SYSTEM_STEP_INFO: Record<
 > = {
   "Database Query": {
     functionName: "databaseQueryStep",
-    importPath: "./steps/database-query-step",
+    importPath: "../../plugins/database/steps/query",
   },
   "HTTP Request": {
     functionName: "httpRequestStep",
@@ -333,7 +333,7 @@ export function getStepInfo(actionType: string): {
       functionName: action.stepFunction,
       // Convert plugin's stepImportPath to generated code import path
       // Plugin uses "send-email", generated code uses "./steps/send-email-step"
-      importPath: `./steps/${action.stepImportPath}-step`,
+      importPath: `./steps/${ action.stepImportPath }-step`,
     };
   }
 

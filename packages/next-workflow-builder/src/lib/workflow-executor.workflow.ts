@@ -29,7 +29,7 @@ export function getActionLabel(actionType: string): string | undefined {
 const SYSTEM_ACTIONS: Record<string, StepImporter> = {
   "Database Query": {
     // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
-    importer: () => import("./steps/database-query") as Promise<any>,
+    importer: () => import("../plugins/database/steps/query") as Promise<any>,
     stepFunction: "databaseQueryStep",
   },
   "HTTP Request": {

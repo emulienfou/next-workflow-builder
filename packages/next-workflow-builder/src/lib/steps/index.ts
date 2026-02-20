@@ -4,10 +4,10 @@
  * without code generation or eval()
  */
 
-import { loopStep } from "../../plugins/loop/steps/iterate.js";
-import { switchStep } from "../../plugins/switch/steps/evaluate.js";
-import { conditionStep } from "../../plugins/condition/steps/evaluate.js";
-import type { databaseQueryStep } from "./database-query";
+import type { conditionStep } from "../../plugins/condition/steps/evaluate.js";
+import type { databaseQueryStep } from "../../plugins/database/steps/query.js";
+import type { loopStep } from "../../plugins/loop/steps/iterate.js";
+import type { switchStep } from "../../plugins/switch/steps/evaluate.js";
 import type { httpRequestStep } from "./http-request";
 
 // Step function type
@@ -29,7 +29,7 @@ export const stepRegistry: Record<string, StepFunction> = {
       input as Parameters<typeof httpRequestStep>[0],
     ),
   "Database Query": async (input) =>
-    (await import("./database-query")).databaseQueryStep(
+    (await import("../../plugins/database/steps/query")).databaseQueryStep(
       input as Parameters<typeof databaseQueryStep>[0],
     ),
   Condition: async (input) =>
