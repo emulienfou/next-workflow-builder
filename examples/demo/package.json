@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "discover-plugins": "nwb discover-plugins",
+    "create-plugin": "nwb create-plugin",
+    "db:migrate:prod": "nwb migrate-prod"
   },
   "dependencies": {
     "next": "16.1.6",
