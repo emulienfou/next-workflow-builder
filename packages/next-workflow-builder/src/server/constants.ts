@@ -7,6 +7,7 @@ export const PLUGINS_DIR = join(CWD, "plugins");
 export const LIB_DIR = join(CWD, "lib");
 export const OUTPUT_FILE = join(PLUGINS_DIR, "index.ts");
 export const TYPES_FILE = join(LIB_DIR, "types", "integration.ts");
+export const GITIGNORE_FILE = join(CWD, ".gitignore");
 export const STEP_REGISTRY_FILE = join(LIB_DIR, "step-registry.ts");
 export const OUTPUT_CONFIGS_FILE = join(LIB_DIR, "output-display-configs.ts");
 export const CODEGEN_REGISTRY_FILE = join(LIB_DIR, "codegen-registry.ts");
