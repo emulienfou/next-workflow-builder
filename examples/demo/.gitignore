@@ -12,15 +12,10 @@
 
 # testing
 /coverage
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
 
 # next.js
 /.next/
 /out/
-/.swc/
 
 # production
 /build
@@ -44,17 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.env*.local
-
-tmp/
-
-# generated files
-lib/types/integration.ts
-lib/codegen-registry.ts
-lib/step-registry.ts
-lib/output-display-configs.ts
-
-dist/
-node_modules/
-.next/
-.idea/
