@@ -24,6 +24,7 @@ export default defineConfig({
     "prettier",
     /^node:/,
     "virtual:workflow-builder-plugins",
+    "virtual:workflow-builder-step-registry",
   ],
   async onSuccess() {
     // Ensure "use client" directive is present in client bundle

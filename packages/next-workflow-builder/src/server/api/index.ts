@@ -28,16 +28,13 @@ import {
   handleSaveCurrentWorkflow,
   handleWebhookWorkflow,
 } from "./workflows";
-import { ensurePluginsLoaded } from "../utils";
+import "virtual:workflow-builder-plugins";
 
 // ============================================================================
 // Main Router
 // ============================================================================
 
 async function route(request: Request): Promise<Response> {
-  // Ensure the consuming app's plugins are registered (runs once)
-  await ensurePluginsLoaded();
-
   const segments = extractPath(request);
   const method = request.method.toUpperCase();
 

@@ -6,7 +6,7 @@
 import { getErrorMessageAsync } from "../../client/lib/utils";
 import type { WorkflowEdge, WorkflowNode } from "../../client/lib/workflow-store";
 import { StepImporter } from "../types";
-import { importFromLib } from "../utils";
+
 import { preValidateConditionExpression, validateConditionExpression } from "./condition-validator";
 import type { StepContext } from "./steps/step-handler";
 import { triggerStep } from "./steps/trigger";
@@ -250,7 +250,7 @@ async function executeActionStep(input: {
     return await stepFunction(stepInput);
   }
 
-  const { getStepImporter } = await importFromLib("step-registry.ts");
+  const { getStepImporter } = await import("virtual:workflow-builder-step-registry");
   // Look up plugin action from the generated step registry
   const stepImporter = getStepImporter(actionType);
   if (stepImporter) {
@@ -406,7 +406,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
     "trigger nodes",
   );
 
-  const { getActionLabel } = await importFromLib("step-registry.ts");
+  const { getActionLabel } = await import("virtual:workflow-builder-step-registry");
 
   // Helper to get a meaningful node name
   function getNodeName(node: WorkflowNode): string {

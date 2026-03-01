@@ -8,6 +8,7 @@ import type { NextWorkflowBuilderConfig, WithNextWorkflowBuilder } from "./types
  * Resolved at build time via webpack alias and turbopack resolveAlias.
  */
 const VIRTUAL_PLUGINS_MODULE = "virtual:workflow-builder-plugins";
+const VIRTUAL_STEP_REGISTRY_MODULE = "virtual:workflow-builder-step-registry";
 
 /**
  * Next.js plugin for Workflow Builder.
@@ -40,6 +41,8 @@ const nextWorkflowBuilder = (
     // Turbopack needs a relative path (from project root), webpack needs absolute
     const consumerPluginsRelative = "./plugins/index.ts";
     const consumerPluginsAbsolute = join(process.cwd(), "plugins", "index.ts");
+    const consumerStepRegistryRelative = "./lib/step-registry.ts";
+    const consumerStepRegistryAbsolute = join(process.cwd(), "lib", "step-registry.ts");
 
     return {
       ...nextConfig,
@@ -49,6 +52,7 @@ const nextWorkflowBuilder = (
         resolveAlias: {
           ...nextConfig.turbopack?.resolveAlias,
           [VIRTUAL_PLUGINS_MODULE]: consumerPluginsRelative,
+          [VIRTUAL_STEP_REGISTRY_MODULE]: consumerStepRegistryRelative,
         },
       },
       // Webpack alias (used by `next build`)
@@ -56,6 +60,7 @@ const nextWorkflowBuilder = (
         webpackConfig.resolve = webpackConfig.resolve || {};
         webpackConfig.resolve.alias = webpackConfig.resolve.alias || {};
         (webpackConfig.resolve.alias as Record<string, string>)[VIRTUAL_PLUGINS_MODULE] = consumerPluginsAbsolute;
+        (webpackConfig.resolve.alias as Record<string, string>)[VIRTUAL_STEP_REGISTRY_MODULE] = consumerStepRegistryAbsolute;
 
         if (typeof nextConfig.webpack === "function") {
           return nextConfig.webpack(webpackConfig, options);
