@@ -22,6 +22,8 @@ import {
   handleGetExecutionLogs,
   handleGetExecutionStatus,
   handleGetWorkflow,
+  handleGetWorkflowCode,
+  handleGetWorkflowDownload,
   handleGetWorkflowExecutions,
   handleGetWorkflows,
   handlePatchWorkflow,
@@ -81,6 +83,8 @@ async function route(request: Request): Promise<Response> {
         if (method === "DELETE") return handleDeleteWorkflow(request, workflowId);
       }
 
+      if (s2 === "code" && method === "GET") return handleGetWorkflowCode(request, workflowId);
+      if (s2 === "download" && method === "GET") return handleGetWorkflowDownload(request, workflowId);
       if (s2 === "duplicate" && method === "POST") return handleDuplicateWorkflow(request, workflowId);
       if (s2 === "executions") {
         if (method === "GET") return handleGetWorkflowExecutions(request, workflowId);

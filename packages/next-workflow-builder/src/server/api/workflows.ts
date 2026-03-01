@@ -1,7 +1,11 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
+import { auth } from "../../../../../lib/auth";
+import { generateWorkflowSDKCode } from "../../client/lib/workflow-codegen-sdk";
+import { WorkflowEdge, WorkflowNode } from "../../client/lib/workflow-store";
 import { resolveUser } from "../auth/resolve-user";
+import { BOILERPLATE_PATH, CODEGEN_TEMPLATES_PATH, TEMPLATE_EXPORT_REGEX } from "../constants";
 import { db } from "../db";
 import { validateWorkflowIntegrations } from "../db/integrations";
 import { apiKeys, workflowExecutionLogs, workflowExecutions, workflows } from "../db/schema";
@@ -10,6 +14,11 @@ import {
   buildWorkflowUpdateData,
   corsHeaders,
   executeWorkflowBackground,
+  generateEnvExample,
+  generateWorkflowFiles,
+  getIntegrationDependencies,
+  readDirectoryRecursive,
+  sanitizeFileName,
   sanitizeNodesForPublicView,
   WorkflowEdgeLike,
   WorkflowNodeLike,
@@ -716,6 +725,197 @@ export async function handleWebhookWorkflow(request: Request, workflowId: string
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to execute workflow" },
       { status: 500, headers: corsHeaders },
+    );
+  }
+}
+
+export async function handleGetWorkflowCode(request: Request, workflowId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const workflow = await db.query.workflows.findFirst({
+      where: and(
+        eq(workflows.id, workflowId),
+        eq(workflows.userId, session.user.id),
+      ),
+    });
+
+    if (!workflow) {
+      return NextResponse.json(
+        { error: "Workflow not found" },
+        { status: 404 },
+      );
+    }
+
+    // Generate code
+    const code = generateWorkflowSDKCode(
+      workflow.name,
+      workflow.nodes,
+      workflow.edges,
+    );
+
+    return NextResponse.json({
+      code,
+      workflowName: workflow.name,
+    });
+  } catch (error) {
+    console.error("Failed to get workflow code:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to get workflow code",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function handleGetWorkflowDownload(request: Request, workflowId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const workflow = await db.query.workflows.findFirst({
+      where: and(
+        eq(workflows.id, workflowId),
+        eq(workflows.userId, session.user.id),
+      ),
+    });
+
+    if (!workflow) {
+      return NextResponse.json(
+        { error: "Workflow not found" },
+        { status: 404 },
+      );
+    }
+
+    // Read boilerplate files
+    const boilerplateFiles = await readDirectoryRecursive(BOILERPLATE_PATH);
+
+    // Read codegen template files and convert them to actual step files
+    const templateFiles = await readDirectoryRecursive(CODEGEN_TEMPLATES_PATH);
+
+    // Convert template exports to actual step files
+    const stepFiles: Record<string, string> = {};
+    for (const [path, content] of Object.entries(templateFiles)) {
+      // Extract the template string from the export default statement
+      const templateMatch = content.match(TEMPLATE_EXPORT_REGEX);
+      if (templateMatch) {
+        stepFiles[`lib/steps/${ path }`] = templateMatch[1];
+      }
+    }
+
+    // Generate workflow-specific files
+    const workflowFiles = generateWorkflowFiles({
+      name: workflow.name,
+      nodes: workflow.nodes as WorkflowNode[],
+      edges: workflow.edges as WorkflowEdge[],
+    });
+
+    // Merge boilerplate, step files, and workflow files
+    const allFiles = { ...boilerplateFiles, ...stepFiles, ...workflowFiles };
+
+    // Update package.json to include workflow dependencies
+    const packageJson = JSON.parse(allFiles["package.json"]);
+    packageJson.dependencies = {
+      ...packageJson.dependencies,
+      workflow: "4.0.1-beta.7",
+      ...getIntegrationDependencies(workflow.nodes as WorkflowNode[]),
+    };
+    allFiles["package.json"] = JSON.stringify(packageJson, null, 2);
+
+    // Update next.config.ts to include workflow plugin
+    allFiles["next.config.ts"] = `import { withWorkflow } from 'workflow/next';
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {};
+
+export default withWorkflow(nextConfig);
+`;
+
+    // Update tsconfig.json to include workflow plugin
+    const tsConfig = JSON.parse(allFiles["tsconfig.json"]);
+    tsConfig.compilerOptions.plugins = [{ name: "next" }, { name: "workflow" }];
+    allFiles["tsconfig.json"] = JSON.stringify(tsConfig, null, 2);
+
+    // Add a README with instructions
+    allFiles["README.md"] = `# ${ workflow.name }
+
+This is a Next.js workflow project generated from Workflow Builder.
+
+## Getting Started
+
+1. Install dependencies:
+\`\`\`bash
+pnpm install
+\`\`\`
+
+2. Set up environment variables:
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
+
+3. Run the development server:
+\`\`\`bash
+pnpm dev
+\`\`\`
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Workflow API
+
+Your workflow is available at \`/api/workflows/${ sanitizeFileName(workflow.name) }\`.
+
+Send a POST request with a JSON body to trigger the workflow:
+
+\`\`\`bash
+curl -X POST http://localhost:3000/api/workflows/${ sanitizeFileName(workflow.name) } \\
+  -H "Content-Type: application/json" \\
+  -d '{"key": "value"}'
+\`\`\`
+
+## Deployment
+
+Deploy your workflow to Vercel:
+
+\`\`\`bash
+vercel deploy
+\`\`\`
+
+For more information, visit the [Workflow documentation](https://workflow.is).
+`;
+
+    // Add .env.example file (dynamically generated from plugin registry)
+    allFiles[".env.example"] = generateEnvExample();
+
+    return NextResponse.json({
+      success: true,
+      files: allFiles,
+    });
+  } catch (error) {
+    console.error("Failed to prepare workflow download:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to prepare workflow download",
+      },
+      { status: 500 },
     );
   }
 }
