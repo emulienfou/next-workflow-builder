@@ -1,13 +1,14 @@
 "use client";
 
 import { ReactFlowProvider } from "@xyflow/react";
-import { Provider } from "jotai";
+import { Provider as JotaiProvider } from "jotai";
 import * as React from "react";
 import { useManagedConnectionSetup } from "../../lib/managed-connection";
 import { GlobalModals } from "../global-modals";
 import { OverlayProvider } from "../overlays/overlay-provider";
 import { Toaster } from "../ui/sonner";
 import { PersistentCanvas } from "../workflow/persistent-canvas";
+import { AuthProvider } from "./auth-provider";
 import { ThemeProvider } from "./theme-provider";
 
 /** Inner component that runs hooks inside the Jotai Provider context */
@@ -35,9 +36,11 @@ const LayoutProvider = (props: React.PropsWithChildren) => (
     disableTransitionOnChange
     enableSystem
   >
-    <Provider>
-      <LayoutInner>{ props.children }</LayoutInner>
-    </Provider>
+    <AuthProvider>
+      <JotaiProvider>
+        <LayoutInner>{ props.children }</LayoutInner>
+      </JotaiProvider>
+    </AuthProvider>
   </ThemeProvider>
 );
 

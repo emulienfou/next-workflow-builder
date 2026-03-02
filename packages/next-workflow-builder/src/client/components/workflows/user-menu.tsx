@@ -2,11 +2,10 @@
 
 import { Key, LogOut, Moon, Plug, Settings, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  AuthDialog,
-  isSingleProviderSignInInitiated,
-} from "../auth/dialog";
+import { api } from "../../lib/api-client";
+import { signOut, useSession } from "../../lib/auth-client";
 import { ApiKeysOverlay } from "../overlays/api-keys-overlay";
 import { IntegrationsOverlay } from "../overlays/integrations-overlay";
 import { useOverlay } from "../overlays/overlay-provider";
@@ -26,8 +25,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { api } from "../../lib/api-client";
-import { signOut, useSession } from "../../lib/auth-client";
 
 export const UserMenu = () => {
   const { data: session, isPending } = useSession();
@@ -70,13 +67,11 @@ export const UserMenu = () => {
     return "U";
   };
 
-  const signInInProgress = isSingleProviderSignInInitiated();
-
   // Don't render anything while session is loading to prevent flash
   // BUT if sign-in is in progress, keep showing the AuthDialog with loading state
-  if (isPending && !signInInProgress) {
+  if (isPending) {
     return (
-      <div className="h-9 w-9" /> // Placeholder to maintain layout
+      <div className="h-9 w-9"/> // Placeholder to maintain layout
     );
   }
 
@@ -91,15 +86,14 @@ export const UserMenu = () => {
   if (isAnonymous) {
     return (
       <div className="flex items-center gap-2">
-        <AuthDialog>
-          <Button
-            className="h-9 disabled:opacity-100 disabled:[&>*]:text-muted-foreground"
-            size="sm"
-            variant="default"
-          >
-            Sign In
-          </Button>
-        </AuthDialog>
+        <Button
+          className="h-9 disabled:opacity-100 disabled:[&>*]:text-muted-foreground"
+          size="sm"
+          variant="default"
+          asChild
+        >
+          <Link href="/auth/sign-in">Sign In</Link>
+        </Button>
       </div>
     );
   }
@@ -113,10 +107,10 @@ export const UserMenu = () => {
         >
           <Avatar className="h-9 w-9">
             <AvatarImage
-              alt={session?.user?.name || ""}
-              src={session?.user?.image || ""}
+              alt={ session?.user?.name || "" }
+              src={ session?.user?.image || "" }
             />
-            <AvatarFallback>{getUserInitials()}</AvatarFallback>
+            <AvatarFallback>{ getUserInitials() }</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -124,36 +118,36 @@ export const UserMenu = () => {
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="font-medium text-sm leading-none">
-              {session?.user?.name || "User"}
+              { session?.user?.name || "User" }
             </p>
             <p className="text-muted-foreground text-xs leading-none">
-              {session?.user?.email}
+              { session?.user?.email }
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {!isOAuthUser && (
-          <DropdownMenuItem onClick={() => openOverlay(SettingsOverlay)}>
-            <Settings className="size-4" />
+        <DropdownMenuSeparator/>
+        { !isOAuthUser && (
+          <DropdownMenuItem onClick={ () => openOverlay(SettingsOverlay) }>
+            <Settings className="size-4"/>
             <span>Settings</span>
           </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onClick={() => openOverlay(IntegrationsOverlay)}>
-          <Plug className="size-4" />
+        ) }
+        <DropdownMenuItem onClick={ () => openOverlay(IntegrationsOverlay) }>
+          <Plug className="size-4"/>
           <span>Connections</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openOverlay(ApiKeysOverlay)}>
-          <Key className="size-4" />
+        <DropdownMenuItem onClick={ () => openOverlay(ApiKeysOverlay) }>
+          <Key className="size-4"/>
           <span>API Keys</span>
         </DropdownMenuItem>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"/>
+            <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"/>
             <span>Theme</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup onValueChange={setTheme} value={theme}>
+            <DropdownMenuRadioGroup onValueChange={ setTheme } value={ theme }>
               <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="system">
@@ -162,9 +156,9 @@ export const UserMenu = () => {
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="size-4" />
+        <DropdownMenuSeparator/>
+        <DropdownMenuItem onClick={ handleLogout }>
+          <LogOut className="size-4"/>
           <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
