@@ -38,7 +38,11 @@ export default function RootLayout({
     <body
       className={ `${ geistSans.variable } ${ geistMono.variable } antialiased` }
     >
-      <Layout>{ children }</Layout>
+      <Layout
+        social={ { providers: ["vercel"] } }
+      >
+        { children }
+      </Layout>
     </body>
     </html>
   );

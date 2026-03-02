@@ -9,7 +9,6 @@ import { WorkflowsRedirect } from "./workflows-redirect";
 const WorkflowPage = () => {
   const params = useParams<{ slug?: string[] }>();
   const slug = params.slug;
-  console.log("slug", slug, params);
 
   // / → Home page (create new workflow)
   if (!slug || slug.length === 0) {
@@ -19,7 +18,7 @@ const WorkflowPage = () => {
   // /auth/[path]
   if (slug[0] === "auth" && slug.length === 2) {
     return (
-      <main className="container flex grow flex-col items-center justify-center self-center p-4 md:p-6">
+      <main className="flex items-center justify-center min-h-screen">
         <AuthView path={ slug[1] }/>
       </main>
     );
@@ -32,7 +31,7 @@ const WorkflowPage = () => {
 
   // /workflows/[workflowId] → Workflow editor
   if (slug[0] === "workflows" && slug.length === 2) {
-    return <WorkflowEditor workflowId={ slug[1] }/>;
+    return <div className="pointer-events-none relative z-10"><WorkflowEditor workflowId={ slug[1] }/></div>;
   }
 
   return null;

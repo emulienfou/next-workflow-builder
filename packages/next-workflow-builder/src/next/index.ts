@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import { join } from "node:path";
+import { z } from "zod";
 import { discoverPlugins } from "../plugins/discover";
+import { NextWorkflowBuilderConfigSchema } from "./schema";
 import type { NextWorkflowBuilderConfig, WithNextWorkflowBuilder } from "./types";
 
 /**
@@ -32,6 +34,18 @@ const VIRTUAL_STEP_REGISTRY_MODULE = "virtual:workflow-builder-step-registry";
 const nextWorkflowBuilder = (
   config: NextWorkflowBuilderConfig = {},
 ): WithNextWorkflowBuilder => {
+  const { error, data: loaderOptions } = NextWorkflowBuilderConfigSchema.safeParse(config);
+  if (error) {
+    console.error("Error validating NextWorkflowBuilderConfig");
+    throw z.prettifyError(error);
+  }
+
+  // Inject authOptions as env var so server auth code can read it at build time.
+  // Next.js inlines process.env values set during config evaluation into server bundles.
+  if (loaderOptions.authOptions) {
+    process.env.__NWB_AUTH_OPTIONS = JSON.stringify(loaderOptions.authOptions);
+  }
+
   // Discover plugins
   discoverPlugins();
 

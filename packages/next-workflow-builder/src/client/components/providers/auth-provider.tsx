@@ -1,17 +1,18 @@
 "use client";
 
-import { AuthUIProvider } from "@daveyplate/better-auth-ui";
+import { AuthUIProvider, type AuthUIProviderProps } from "@daveyplate/better-auth-ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { PropsWithChildren } from "react";
-
+import * as React from "react";
 import { authClient } from "../../lib/auth-client";
 
-const AuthProvider = (props: PropsWithChildren) => {
+const AuthProvider = (props: Omit<AuthUIProviderProps, "authClient">) => {
   const router = useRouter();
+  const { children, ...rest } = props;
 
   return (
     <AuthUIProvider
+      { ...rest }
       authClient={ authClient }
       navigate={ router.push }
       replace={ router.replace }
@@ -21,7 +22,7 @@ const AuthProvider = (props: PropsWithChildren) => {
       } }
       Link={ Link }
     >
-      { props.children }
+      { children }
     </AuthUIProvider>
   );
 };
