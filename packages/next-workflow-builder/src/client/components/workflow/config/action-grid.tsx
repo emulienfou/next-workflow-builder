@@ -80,7 +80,6 @@ function useAllActions(): ActionType[] {
       category: action.category,
       integration: action.integration,
     }));
-    console.log({mappedPluginActions});
 
     return [...SYSTEM_ACTIONS, ...mappedPluginActions];
   }, []);
