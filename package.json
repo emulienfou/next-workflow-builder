@@ -6,6 +6,8 @@
   "packageManager": "pnpm@10.12.4",
   "description": "A template for building your own AI-driven workflow automation platform",
   "scripts": {
+    "dev:demo": "pnpm --filter=demo dev",
+    "dev:docs": "pnpm --filter=docs dev",
     "build": "turbo run build --filter=./packages/\\*",
     "build:all": "turbo run build",
     "clean": "rm -rf .turbo && pnpm -r exec sh -c 'rm -rf dist .next .turbo'",
