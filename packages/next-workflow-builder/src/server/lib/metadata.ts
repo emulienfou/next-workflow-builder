@@ -19,17 +19,16 @@ import { workflows } from "../db/schema";
 export async function generateWorkflowMetadata({
   params,
 }: {
-  params: Promise<{ slug: string[] }>;
+  params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata | null> {
   const { slug } = await params;
-  const [s1, s2] = slug;
 
   // Only generate metadata for /workflows/[workflowId]
-  if (s1 !== "workflows" || !s2) {
+  if (slug?.[0] !== "workflows" || !slug?.[1]) {
     return null;
   }
 
-  const workflowId = s2;
+  const workflowId = slug[1];
 
   let title = "Workflow";
   let isPublic = false;
