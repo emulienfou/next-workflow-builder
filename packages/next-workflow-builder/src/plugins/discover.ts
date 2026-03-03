@@ -1,7 +1,6 @@
 import { createJiti } from "jiti";
-import { relative } from "knip/dist/util/path";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import ts from "typescript";
 import {
   CODEGEN_REGISTRY_FILE,
