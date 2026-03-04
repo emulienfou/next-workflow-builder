@@ -703,6 +703,12 @@ function ensureGitignore(): void {
 async function discoverPlugins() {
   console.log("Discovering plugins...");
 
+  // Ensure plugins directory exists
+  if (!existsSync(PLUGINS_DIR)) {
+    mkdirSync(PLUGINS_DIR, { recursive: true });
+    console.log("Created plugins/ directory");
+  }
+
   // Discover all plugin directories
   const entries = readdirSync(PLUGINS_DIR);
   const plugins = entries.filter((entry) => {
