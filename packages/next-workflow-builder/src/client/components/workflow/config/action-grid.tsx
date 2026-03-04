@@ -8,6 +8,7 @@ import { databaseQueryAction } from "../../../../plugins/database-query";
 import { httpRequestAction } from "../../../../plugins/http-request";
 import { loopAction } from "../../../../plugins/loop";
 import { mergeAction } from "../../../../plugins/merge";
+import { switchAction } from "../../../../plugins/switch";
 import { useIsTouch } from "../../../hooks/use-touch";
 import { cn } from "../../../lib/utils";
 import { Button } from "../../ui/button";
@@ -33,6 +34,7 @@ const SYSTEM_ACTIONS: ActionType[] = [
   databaseQueryAction,
   loopAction,
   mergeAction,
+  switchAction,
 ];
 
 // Combine System actions with plugin actions

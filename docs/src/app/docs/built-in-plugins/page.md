@@ -12,6 +12,7 @@ Unlike [marketplace plugins](/docs/plugins) which add third-party integrations, 
 | [Condition](/docs/built-in-plugins/condition) | Branch workflow execution based on a condition | Flow Control |
 | [Loop](/docs/built-in-plugins/loop) | Iterate over a list of items in batches | Flow Control |
 | [Merge](/docs/built-in-plugins/merge) | Combine data from two inputs | Data Transformation |
+| [Switch](/docs/built-in-plugins/switch) | Route workflow based on rules or values | Flow Control |
 | [Database Query](/docs/built-in-plugins/database-query) | Execute SQL queries against PostgreSQL | Data |
 
 ## How Built-in Plugins Differ from Marketplace Plugins
