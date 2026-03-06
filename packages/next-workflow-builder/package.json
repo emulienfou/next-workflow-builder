@@ -1,6 +1,6 @@
 {
   "name": "next-workflow-builder",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "type": "module",
   "description": "Next.js plugin for Workflow Builder",
   "repository": "https://github.com/emulienfou/next-workflow-builder",

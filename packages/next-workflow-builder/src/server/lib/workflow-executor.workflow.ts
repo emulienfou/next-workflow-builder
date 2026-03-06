@@ -28,6 +28,21 @@ const SYSTEM_ACTIONS: Record<string, StepImporter> = {
     importer: () => import("../../plugins/condition/condition") as Promise<any>,
     stepFunction: "conditionStep",
   },
+  Loop: {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
+    importer: () => import("../../plugins/loop/loop") as Promise<any>,
+    stepFunction: "loopStep",
+  },
+  Switch: {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
+    importer: () => import("../../plugins/switch/switch") as Promise<any>,
+    stepFunction: "switchStep",
+  },
+  Merge: {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
+    importer: () => import("../../plugins/merge/merge") as Promise<any>,
+    stepFunction: "mergeStep",
+  },
 };
 
 type ExecutionResult = {

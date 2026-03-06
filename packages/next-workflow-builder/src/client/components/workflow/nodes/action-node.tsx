@@ -67,6 +67,8 @@ const SYSTEM_ACTION_LABELS: Record<string, string> = {
   Condition: "Condition",
   "Execute Code": "System",
   Loop: "Loop",
+  Switch: "Switch",
+  Merge: "Merge",
 };
 
 // Helper to get integration name from action type
