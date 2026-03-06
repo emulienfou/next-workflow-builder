@@ -803,6 +803,14 @@ export const PanelInner = () => {
             isOwner
           ) && (
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              {/* Display node ID */}
+              <div className="space-y-2">
+                <Label className="ml-1" htmlFor="node-id">
+                  Node ID
+                </Label>
+                <Input readOnly id="node-id" value={selectedNode?.id || ""} />
+              </div>
+
               { selectedNode.data.type === "trigger" && (
                 <TriggerConfig
                   config={ selectedNode.data.config || {} }
