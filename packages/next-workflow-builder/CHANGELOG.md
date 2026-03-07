@@ -1,5 +1,11 @@
 # next-workflow-builder
 
+## 0.4.4
+
+### Bug Fixes
+
+- Fix template variable resolution for custom plugin outputs that use non-standard return fields (e.g., `{ success: true, events: [...] }`). The auto-unwrap into `.data` now only applies when the requested field doesn't exist at the top level of the step result.
+
 ## 0.4.3
 
 ### Features

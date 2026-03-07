@@ -96,7 +96,7 @@ function replaceTemplateVariable(
     let current: any = output.data;
 
     // For standardized outputs { success, data, error }, automatically look inside data
-    // unless explicitly accessing success/data/error
+    // unless explicitly accessing success/data/error or a field that exists at the top level
     const firstField = fields[0];
     if (
       current &&
@@ -105,7 +105,8 @@ function replaceTemplateVariable(
       "data" in current &&
       firstField !== "success" &&
       firstField !== "data" &&
-      firstField !== "error"
+      firstField !== "error" &&
+      !(firstField in current)
     ) {
       current = current.data;
     }
@@ -338,7 +339,7 @@ function processTemplates(
           let current: any = output.data;
 
           // For standardized outputs { success, data, error }, automatically look inside data
-          // unless explicitly accessing success/data/error
+          // unless explicitly accessing success/data/error or a field that exists at the top level
           const firstField = fields[0];
           if (
             current &&
@@ -347,7 +348,8 @@ function processTemplates(
             "data" in current &&
             firstField !== "success" &&
             firstField !== "data" &&
-            firstField !== "error"
+            firstField !== "error" &&
+            !(firstField in current)
           ) {
             current = current.data;
           }
