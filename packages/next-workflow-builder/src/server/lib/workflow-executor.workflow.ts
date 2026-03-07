@@ -406,10 +406,15 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
   // Build node and edge maps
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const edgesBySource = new Map<string, string[]>();
+  const edgesByTarget = new Map<string, string[]>();
   for (const edge of edges) {
     const targets = edgesBySource.get(edge.source) || [];
     targets.push(edge.target);
     edgesBySource.set(edge.source, targets);
+
+    const sources = edgesByTarget.get(edge.target) || [];
+    sources.push(edge.source);
+    edgesByTarget.set(edge.target, sources);
   }
 
   // Find trigger nodes
@@ -578,13 +583,35 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
           nodeType: actionType,
         };
 
+        // Merge predecessor step outputs into config so steps can access previous results directly
+        // Config values take precedence over predecessor outputs
+        const predecessorData: Record<string, unknown> = {};
+        const predecessorIds = edgesByTarget.get(nodeId) || [];
+        for (const predId of predecessorIds) {
+          const sanitizedPredId = predId.replace(/[^a-zA-Z0-9]/g, "_");
+          const predOutput = outputs[sanitizedPredId];
+          if (predOutput?.data && typeof predOutput.data === "object") {
+            // biome-ignore lint/suspicious/noExplicitAny: Dynamic output data
+            let payload: any = predOutput.data;
+            // For standardized { success, data } format, unwrap into .data
+            if ("success" in payload && "data" in payload && payload.data && typeof payload.data === "object") {
+              payload = payload.data;
+            }
+            for (const [key, value] of Object.entries(payload)) {
+              if (key !== "success" && key !== "error") {
+                predecessorData[key] = value;
+              }
+            }
+          }
+        }
+
         // Execute the action step with stepHandler (logging is handled inside)
         // IMPORTANT: We pass integrationId via config, not actual credentials
         // Steps fetch credentials internally using fetchCredentials(integrationId)
         console.log("[Workflow Executor] Calling executeActionStep");
         const stepResult = await executeActionStep({
           actionType,
-          config: processedConfig,
+          config: { ...predecessorData, ...processedConfig },
           outputs,
           context: stepContext,
         });

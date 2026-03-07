@@ -1,5 +1,11 @@
 # next-workflow-builder
 
+## 0.4.5
+
+### Bug Fixes
+
+- Fix predecessor step output data not being passed to the next step's input. Steps now automatically receive output data from their predecessor nodes merged into their input (config values take precedence). Supports both standardized (`{ success, data: { ... } }`) and custom (`{ success, events: [...] }`) return formats.
+
 ## 0.4.4
 
 ### Bug Fixes
