@@ -31,6 +31,11 @@ export const UserMenu = () => {
   const { theme, setTheme } = useTheme();
   const { open: openOverlay } = useOverlay();
   const [providerId, setProviderId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch provider info when session is available
   useEffect(() => {
@@ -69,7 +74,7 @@ export const UserMenu = () => {
 
   // Don't render anything while session is loading to prevent flash
   // BUT if sign-in is in progress, keep showing the AuthDialog with loading state
-  if (isPending) {
+  if (isPending || !mounted) {
     return (
       <div className="h-9 w-9"/> // Placeholder to maintain layout
     );
