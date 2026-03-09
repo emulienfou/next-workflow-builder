@@ -1,5 +1,21 @@
 # next-workflow-builder
 
+## 0.6.0
+
+### Features
+
+- Add opt-in MCP (Model Context Protocol) server for AI agent integration
+- Expose 10 MCP tools: list/get/create/update/delete/duplicate workflows, execute workflows, get execution status, list available actions, list integrations
+- OAuth 2.1 authentication via better-auth's built-in `mcp` plugin
+- Streamable HTTP transport at `/api/workflow-builder/mcp`
+- New `mcp` config option in `nextWorkflowBuilder()` to enable the server
+- New `anonymousAuth` config option to disable anonymous authentication (defaults to `true`)
+
+### Bug Fixes
+
+- Fix hydration mismatch in `UserMenu` when session resolves before React hydration completes
+- Fix anonymous sign-in returning 404 when social providers are configured — anonymous plugin is now enabled by default regardless of configured providers
+
 ## 0.5.0
 
 ### Features

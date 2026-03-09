@@ -1,11 +1,14 @@
 import { Auth, betterAuth, type BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous } from "better-auth/plugins";
+import { anonymous, mcp as mcpPlugin } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import {
   accounts,
   integrations,
+  oauthAccessToken,
+  oauthApplication,
+  oauthConsent,
   sessions,
   users,
   verifications,
@@ -22,6 +25,9 @@ const schema = {
   session: sessions,
   account: accounts,
   verification: verifications,
+  oauthApplication,
+  oauthAccessToken,
+  oauthConsent,
   workflows,
   workflowExecutions,
   workflowExecutionLogs,
@@ -60,9 +66,11 @@ function buildAuth() {
   const config = getAuthConfig();
 
   // Build plugins array conditionally
+  const anonymousEnabled = process.env.NWB_ANONYMOUS_AUTH !== "false";
   const plugins = [
-    // Anonymous sessions: enabled only when NO real providers configured (zero-config default)
-    ...(!config.hasRealProviders ? [
+    // Anonymous sessions: enabled by default so users can try the app before signing in.
+    // Disable with `anonymousAuth: false` in nextWorkflowBuilder() config.
+    ...(anonymousEnabled ? [
       anonymous({
         async onLinkAccount(data) {
           // When an anonymous user links to a real account, migrate their data
@@ -104,6 +112,10 @@ function buildAuth() {
           }
         },
       }),
+    ] : []),
+    // MCP OAuth plugin: enabled only when MCP server is configured
+    ...(process.env.NWB_MCP_ENABLED === "true" ? [
+      mcpPlugin({ loginPage: process.env.NWB_MCP_LOGIN_PAGE || "/sign-in" }),
     ] : []),
   ];
 

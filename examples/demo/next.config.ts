@@ -3,6 +3,7 @@ import nextWorkflowBuilder from "next-workflow-builder";
 
 const withNextWorkflowBuilder = nextWorkflowBuilder({
   // NextWorkflowBuilder-specific options
+  mcp: { enabled: true },
   authOptions: {
     socialProviders: {
       vercel: {

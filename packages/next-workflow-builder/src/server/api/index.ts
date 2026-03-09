@@ -46,9 +46,23 @@ async function route(request: Request): Promise<Response> {
 
   const [s0, s1, s2, s3] = segments;
 
+  // .well-known: OAuth discovery endpoints (passthrough to better-auth)
+  if (s0 === ".well-known") {
+    return handleAuth(request, ["auth", ...segments]);
+  }
+
   // Auth: auth/* (passthrough to better-auth)
   if (s0 === "auth") {
     return handleAuth(request, segments);
+  }
+
+  // MCP server endpoint
+  if (s0 === "mcp") {
+    if (process.env.NWB_MCP_ENABLED !== "true") {
+      return NextResponse.json({ error: "MCP server is not enabled" }, { status: 404 });
+    }
+    const { handleMcpRequest } = await import("../mcp/handler");
+    return handleMcpRequest(request);
   }
 
   // Workflows list: GET /workflows, POST /workflows/create
