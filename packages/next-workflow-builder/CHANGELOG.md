@@ -1,5 +1,13 @@
 # next-workflow-builder
 
+## 0.6.1
+
+### Improvements
+
+- Reduce published package size from 1.12 MB to ~664 KB by enabling JS minification and removing unused `style-prefixed.css`
+- Include `README.md` and `CHANGELOG.md` in published package
+- Add `keywords` to `package.json` for npm discoverability
+
 ## 0.6.0
 
 ### Features

@@ -162,7 +162,7 @@ For full documentation including configuration, authentication, database setup, 
 
 ## Changelog
 
-Full [Changelog](./CHANGELOG.md) file
+Full [Changelog](https://github.com/emulienfou/next-workflow-builder/blob/main/packages/next-workflow-builder/README.md) file
 
 ## License
 
