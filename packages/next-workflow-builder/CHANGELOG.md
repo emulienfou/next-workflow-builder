@@ -6,16 +6,18 @@
 
 - Add opt-in MCP (Model Context Protocol) server for AI agent integration
 - Expose 10 MCP tools: list/get/create/update/delete/duplicate workflows, execute workflows, get execution status, list available actions, list integrations
-- OAuth 2.1 authentication via better-auth's built-in `mcp` plugin
+- OAuth 2.1 authentication via better-auth's built-in `mcp` plugin with dynamic client registration (RFC 7591)
 - Streamable HTTP transport at `/api/workflow-builder/mcp`
 - New `mcp` config option in `nextWorkflowBuilder()` to enable the server
 - New `anonymousAuth` config option to disable anonymous authentication (defaults to `true`)
+- Auto-configure `beforeFiles` rewrites for `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource` when MCP is enabled — zero consumer setup for OAuth discovery
+- Export `oAuthDiscoveryHandler` and `oAuthResourceHandler` from `next-workflow-builder/api` for custom `.well-known` route setups
 
 ### Bug Fixes
 
-- Fix MCP OAuth discovery for Claude Desktop and other MCP clients — add Next.js rewrite from `/.well-known/oauth-authorization-server` to better-auth's endpoint so root-level OAuth metadata is discoverable per spec
-- Fix MCP OAuth login redirect pointing to `/sign-in` instead of `/auth/sign-in` where the `AuthView` component actually renders
-- Fix MCP server requiring OAuth when anonymous auth is enabled — session-authenticated requests now bypass OAuth, while unauthenticated requests still receive the proper 401 for OAuth discovery
+- Fix MCP OAuth discovery for Claude Desktop and other MCP clients — use better-auth's `oAuthDiscoveryMetadata` and `oAuthProtectedResourceMetadata` helpers with `beforeFiles` rewrites so root-level `.well-known` endpoints work with catch-all page routes
+- Fix MCP OAuth login page default from `/sign-in` to `/auth/sign-in` where the `AuthView` component renders
+- Fix MCP server requiring OAuth when anonymous auth is enabled — session-authenticated requests bypass OAuth, while unauthenticated requests receive the proper 401 for OAuth discovery
 - Fix hydration mismatch in `UserMenu` when session resolves before React hydration completes
 - Fix anonymous sign-in returning 404 when social providers are configured — anonymous plugin is now enabled by default regardless of configured providers
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { handleCreateApiKey, handleDeleteApiKey, handleGetApiKeys } from "./api-keys";
 import { handleAuth } from "./auth";
+import { oAuthDiscoveryHandler, oAuthResourceHandler } from "./well-known";
 import {
   handleCreateIntegration,
   handleDeleteIntegration,
@@ -46,8 +47,10 @@ async function route(request: Request): Promise<Response> {
 
   const [s0, s1, s2, s3] = segments;
 
-  // .well-known: OAuth discovery endpoints (passthrough to better-auth)
+  // .well-known: OAuth discovery endpoints (via better-auth helpers)
   if (s0 === ".well-known") {
+    if (s1 === "oauth-authorization-server") return oAuthDiscoveryHandler(request);
+    if (s1 === "oauth-protected-resource") return oAuthResourceHandler(request);
     return handleAuth(request, ["auth", ...segments]);
   }
 
