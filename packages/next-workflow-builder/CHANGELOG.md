@@ -8,6 +8,11 @@
 - Include `README.md` and `CHANGELOG.md` in published package
 - Add `keywords` to `package.json` for npm discoverability
 
+### Bug Fixes
+
+- Remove non-functional `beforeFiles` rewrites for `.well-known` OAuth routes — Next.js rewrites do not override optional catch-all `[[...slug]]` page routes
+- Add explicit `.well-known/oauth-authorization-server` and `.well-known/oauth-protected-resource` route files to demo app using exported handlers
+
 ## 0.6.0
 
 ### Features

@@ -20,7 +20,19 @@ const withNWB = nextWorkflowBuilder({
 export default withNWB({});
 ```
 
-When MCP is enabled, the plugin automatically configures `beforeFiles` rewrites so that `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource` are accessible at the root level. No additional route files are needed.
+## OAuth discovery routes
+
+MCP clients (e.g. Claude Desktop) expect OAuth metadata at `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource` at the root level. Add these two route files to your app:
+
+```ts
+// app/.well-known/oauth-authorization-server/route.ts
+export { oAuthDiscoveryHandler as GET } from "next-workflow-builder/api";
+```
+
+```ts
+// app/.well-known/oauth-protected-resource/route.ts
+export { oAuthResourceHandler as GET } from "next-workflow-builder/api";
+```
 
 ## Database migration
 
@@ -125,16 +137,3 @@ For local development:
 }
 ```
 
-## Custom `.well-known` routes
-
-The plugin automatically configures `beforeFiles` rewrites for the `.well-known` OAuth endpoints. If you need to set up the routes manually instead (e.g. if you have custom middleware that interferes with rewrites), the package exports route handlers:
-
-```ts
-// app/.well-known/oauth-authorization-server/route.ts
-export { oAuthDiscoveryHandler as GET } from "next-workflow-builder/api";
-```
-
-```ts
-// app/.well-known/oauth-protected-resource/route.ts
-export { oAuthResourceHandler as GET } from "next-workflow-builder/api";
-```
