@@ -18,6 +18,11 @@ const Default = () => (
     }
     // ... Your additional navbar options
   >
+    <Button size="sm" variant="outline" asChild>
+      <Link href="https://next-workflow-builder-demo.vercel.app/" target="_blank" rel="noopener noreferrer">
+        Demo
+      </Link>
+    </Button>
     <Button size="sm" asChild>
       <Link href="https://github.com/emulienfou/next-workflow-builder" target="_blank" rel="noopener noreferrer">
         <GithubIcon/>

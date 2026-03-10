@@ -7,8 +7,11 @@ import { WorkflowIcon } from "@/components/workflow-icon";
 import {
   ArrowRightIcon,
   BlocksIcon,
+  BotIcon,
   BrainCircuitIcon,
   CodeIcon,
+  ExternalLinkIcon,
+  GitBranchIcon,
   GripIcon,
   PlayIcon,
   PlugIcon,
@@ -38,6 +41,12 @@ function Hero() {
           <Link href="/docs/getting-started">
             Get Started
             <ArrowRightIcon className="ml-1 size-4" />
+          </Link>
+        </Button>
+        <Button size="lg" variant="outline" asChild className="h-11 rounded-full px-6 text-base">
+          <Link href="https://next-workflow-builder-demo.vercel.app/" target="_blank" rel="noopener noreferrer">
+            Demo
+            <ExternalLinkIcon className="ml-1 size-4" />
           </Link>
         </Button>
         <div
@@ -106,6 +115,18 @@ function Features() {
       title: "Drop-In Integration",
       description:
         "Add to any Next.js app with a config wrapper, one API route, a layout component, and a catch-all page. Full workflow platform in under 10 lines of code.",
+    },
+    {
+      icon: BotIcon,
+      title: "MCP Server",
+      description:
+        "Let AI agents manage workflows via the Model Context Protocol. OAuth 2.1 authentication, dynamic client registration, and 10 built-in tools. Works with Claude Desktop and Claude Code.",
+    },
+    {
+      icon: GitBranchIcon,
+      title: "Built-In Integrations",
+      description:
+        "Control flow out of the box with built-in Switch, Loop, Condition, and Merge nodes. Route, iterate, filter, and combine data without any plugins.",
     },
   ];
 
