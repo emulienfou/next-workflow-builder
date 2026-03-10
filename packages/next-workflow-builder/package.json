@@ -46,8 +46,28 @@
   "bin": {
     "nwb": "src/scripts/nwb.ts"
   },
+  "keywords": [
+    "nextjs",
+    "workflow",
+    "workflow-builder",
+    "react",
+    "drag-and-drop",
+    "react-flow",
+    "automation",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "plugins",
+    "better-auth",
+    "drizzle",
+    "visual-editor",
+    "low-code",
+    "no-code"
+  ],
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "NODE_ENV=production tsup",
