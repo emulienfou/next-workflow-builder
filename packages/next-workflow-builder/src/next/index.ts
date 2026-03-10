@@ -111,9 +111,13 @@ const nextWorkflowBuilder = (
       ...(mcpRewrites.length > 0 ? {
         rewrites: async () => {
           const existing = nextConfig.rewrites ? await nextConfig.rewrites() : [];
-          // Handle both array and object form of rewrites
+          // Must use beforeFiles so rewrites run before the catch-all page route
           if (Array.isArray(existing)) {
-            return [...existing, ...mcpRewrites];
+            return {
+              beforeFiles: mcpRewrites,
+              afterFiles: existing,
+              fallback: [],
+            };
           }
           return {
             ...existing,
