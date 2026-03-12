@@ -330,6 +330,7 @@ All routes are relative to the `/api` base path.
 | --- | --- | --- |
 | GET | `/workflows/executions/[executionId]/status` | Get execution status |
 | GET | `/workflows/executions/[executionId]/logs` | Get execution logs |
+| POST | `/workflows/executions/[executionId]/cancel` | Cancel a running execution |
 
 ### Integrations
 

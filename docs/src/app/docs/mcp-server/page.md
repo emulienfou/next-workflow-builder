@@ -84,6 +84,7 @@ The endpoint uses Streamable HTTP transport in stateless mode.
 | `duplicate_workflow` | Duplicate a workflow | `workflowId` |
 | `execute_workflow` | Execute a workflow | `workflowId`, `input?` |
 | `get_execution_status` | Get execution status and logs | `executionId` |
+| `cancel_execution` | Cancel a running execution | `executionId` |
 | `list_available_actions` | List all plugin actions with config fields | — |
 | `list_integrations` | List user's connected integrations | — |
 
