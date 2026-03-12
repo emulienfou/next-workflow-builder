@@ -1,5 +1,12 @@
 # next-workflow-builder
 
+## 0.6.2
+
+### Features
+
+- Ship a bundled `drizzle.config.ts` so consumers can run `drizzle-kit generate --config=node_modules/next-workflow-builder/drizzle.config.ts` without maintaining their own config
+- Publish `src/server/db/schema.ts` and its dependencies (`src/server/lib/utils/id.ts`, `src/plugins/types.ts`) so drizzle-kit can resolve the schema from the published package
+
 ## 0.6.1
 
 ### Features

@@ -24,7 +24,13 @@ When `databaseUrl` is provided, it takes priority over the `DATABASE_URL` enviro
 
 ## Drizzle configuration
 
-For local migrations and Drizzle Kit commands, create a `drizzle.config.ts` that references the package schema:
+The package ships a ready-to-use `drizzle.config.ts` — no need to create your own. All Drizzle Kit commands can reference it directly:
+
+```bash
+pnpm drizzle-kit generate --config=node_modules/next-workflow-builder/drizzle.config.ts
+```
+
+If you prefer a local config (e.g. to customize the output directory), create a `drizzle.config.ts` at your project root:
 
 ```ts
 // drizzle.config.ts
@@ -42,8 +48,6 @@ export default {
   },
 } satisfies Config;
 ```
-
-This allows you to use Drizzle Kit commands (`drizzle-kit generate`, `drizzle-kit migrate`, `drizzle-kit push`, `drizzle-kit studio`) for development.
 
 ## Schema
 
@@ -168,10 +172,44 @@ Additional tables for Better Auth (`accounts`, `verifications`) are also include
 
 ## Migrations
 
-### Development
+### Generating migrations
 
-Schema changes are applied automatically via Drizzle when the development server starts. You can also use
-Drizzle Kit commands directly:
+After installing or upgrading `next-workflow-builder`, generate migration files to capture any schema changes:
+
+```bash
+pnpm drizzle-kit generate --config=node_modules/next-workflow-builder/drizzle.config.ts
+```
+
+If there are no schema changes, drizzle-kit will report "nothing to migrate" and no files are created.
+
+### Applying migrations
+
+```bash
+pnpm drizzle-kit migrate --config=node_modules/next-workflow-builder/drizzle.config.ts
+```
+
+Or push the schema directly without migration files (useful for rapid prototyping):
+
+```bash
+pnpm drizzle-kit push --config=node_modules/next-workflow-builder/drizzle.config.ts
+```
+
+### Convenience scripts
+
+Add shorthand scripts to your `package.json` to avoid repeating the config path:
+
+```json
+{
+  "scripts": {
+    "db:generate": "drizzle-kit generate --config=node_modules/next-workflow-builder/drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=node_modules/next-workflow-builder/drizzle.config.ts",
+    "db:push": "drizzle-kit push --config=node_modules/next-workflow-builder/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=node_modules/next-workflow-builder/drizzle.config.ts"
+  }
+}
+```
+
+Then run:
 
 ```bash
 pnpm db:generate   # Generate migration files
