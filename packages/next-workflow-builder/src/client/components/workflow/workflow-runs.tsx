@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { Check, ChevronDown, ChevronRight, Clock, Copy, ExternalLink, Loader2, Play, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Clock, Copy, ExternalLink, Loader2, Play, Square, X } from "lucide-react";
 import Image from "next/image";
 import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -698,6 +698,18 @@ export function WorkflowRuns({
     return () => clearInterval(interval);
   }, [isActive, currentWorkflowId, expandedRuns, refreshExecutionLogs]);
 
+  const cancelExecution = useCallback(
+    async (executionId: string) => {
+      try {
+        await api.workflow.cancelExecution(executionId);
+        await loadExecutions(false);
+      } catch (error) {
+        console.error("Failed to cancel execution:", error);
+      }
+    },
+    [loadExecutions],
+  );
+
   const toggleRun = async (executionId: string) => {
     const newExpanded = new Set(expandedRuns);
     if (newExpanded.has(executionId)) {
@@ -742,6 +754,8 @@ export function WorkflowRuns({
         return <Check className="h-3 w-3 text-white"/>;
       case "error":
         return <X className="h-3 w-3 text-white"/>;
+      case "cancelled":
+        return <Square className="h-3 w-3 text-white"/>;
       case "running":
         return <Loader2 className="h-3 w-3 animate-spin text-white"/>;
       default:
@@ -755,6 +769,8 @@ export function WorkflowRuns({
         return "bg-green-600";
       case "error":
         return "bg-red-600";
+      case "cancelled":
+        return "bg-yellow-600";
       case "running":
         return "bg-blue-600";
       default:
@@ -854,6 +870,20 @@ export function WorkflowRuns({
                   ) }
                 </div>
               </button>
+
+              { (execution.status === "running" || execution.status === "pending") && (
+                <button
+                  className="flex shrink-0 items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  onClick={ (e) => {
+                    e.stopPropagation();
+                    cancelExecution(execution.id);
+                  } }
+                  title="Stop execution"
+                  type="button"
+                >
+                  <Square className="h-3.5 w-3.5"/>
+                </button>
+              ) }
 
               <button
                 className="flex shrink-0 items-center justify-center rounded p-1 transition-colors hover:bg-muted"

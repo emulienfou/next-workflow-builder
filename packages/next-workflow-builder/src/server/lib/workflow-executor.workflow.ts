@@ -3,9 +3,12 @@
  * This executor captures step executions through the workflow SDK for better observability
  */
 
+import { eq } from "drizzle-orm";
 import { getErrorMessageAsync } from "../../client/lib/utils";
 import type { WorkflowEdge, WorkflowNode } from "../../client/lib/workflow-store";
 import { StepImporter } from "../types";
+import { db } from "../db";
+import { workflowExecutions } from "../db/schema";
 
 import { type DataType, evaluateOperator } from "../../plugins/condition/operators";
 import type { StepContext } from "./steps/step-handler";
@@ -394,10 +397,26 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
     return node.data.type;
   }
 
+  // Helper to check if the execution has been cancelled
+  async function isCancelled(): Promise<boolean> {
+    if (!executionId) return false;
+    const execution = await db.query.workflowExecutions.findFirst({
+      where: eq(workflowExecutions.id, executionId),
+      columns: { status: true },
+    });
+    return execution?.status === "cancelled";
+  }
+
   // Helper to execute a single node
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Node execution requires type checking and error handling
   async function executeNode(nodeId: string, visited: Set<string> = new Set()) {
     console.log("[Workflow Executor] Executing node:", nodeId);
+
+    // Check for cancellation before executing each node
+    if (await isCancelled()) {
+      console.log("[Workflow Executor] Execution cancelled, stopping");
+      return;
+    }
 
     if (visited.has(nodeId)) {
       console.log("[Workflow Executor] Node already visited, skipping");
@@ -675,8 +694,8 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
       duration,
     });
 
-    // Update execution record if we have an executionId
-    if (executionId) {
+    // Update execution record if we have an executionId (skip if already cancelled)
+    if (executionId && !(await isCancelled())) {
       try {
         await triggerStep({
           triggerData: {},

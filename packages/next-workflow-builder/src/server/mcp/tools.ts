@@ -33,14 +33,16 @@ export function registerTools(server: McpServer, userId: string) {
         .offset(offset ?? 0);
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(rows.map((w) => ({
-            ...w,
-            createdAt: w.createdAt.toISOString(),
-            updatedAt: w.updatedAt.toISOString(),
-          }))),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(rows.map((w) => ({
+              ...w,
+              createdAt: w.createdAt.toISOString(),
+              updatedAt: w.updatedAt.toISOString(),
+            }))),
+          },
+        ],
       };
     },
   );
@@ -60,14 +62,16 @@ export function registerTools(server: McpServer, userId: string) {
       }
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify({
-            ...workflow,
-            createdAt: workflow.createdAt.toISOString(),
-            updatedAt: workflow.updatedAt.toISOString(),
-          }),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({
+              ...workflow,
+              createdAt: workflow.createdAt.toISOString(),
+              updatedAt: workflow.updatedAt.toISOString(),
+            }),
+          },
+        ],
       };
     },
   );
@@ -88,7 +92,14 @@ export function registerTools(server: McpServer, userId: string) {
         userId,
       );
       if (!validation.valid) {
-        return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Invalid integration references" }) }] };
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ error: "Invalid integration references" }),
+            },
+          ],
+        };
       }
 
       const workflowId = generateId();
@@ -105,14 +116,16 @@ export function registerTools(server: McpServer, userId: string) {
         .returning();
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify({
-            ...created,
-            createdAt: created.createdAt.toISOString(),
-            updatedAt: created.updatedAt.toISOString(),
-          }),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({
+              ...created,
+              createdAt: created.createdAt.toISOString(),
+              updatedAt: created.updatedAt.toISOString(),
+            }),
+          },
+        ],
       };
     },
   );
@@ -143,7 +156,14 @@ export function registerTools(server: McpServer, userId: string) {
           userId,
         );
         if (!validation.valid) {
-          return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Invalid integration references" }) }] };
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify({ error: "Invalid integration references" }),
+              },
+            ],
+          };
         }
       }
 
@@ -160,14 +180,16 @@ export function registerTools(server: McpServer, userId: string) {
         .returning();
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify({
-            ...updated,
-            createdAt: updated.createdAt.toISOString(),
-            updatedAt: updated.updatedAt.toISOString(),
-          }),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({
+              ...updated,
+              createdAt: updated.createdAt.toISOString(),
+              updatedAt: updated.updatedAt.toISOString(),
+            }),
+          },
+        ],
       };
     },
   );
@@ -235,7 +257,7 @@ export function registerTools(server: McpServer, userId: string) {
         .insert(workflows)
         .values({
           id: generateId(),
-          name: `${source.name} (Copy)`,
+          name: `${ source.name } (Copy)`,
           description: source.description,
           nodes: newNodes,
           edges: newEdges,
@@ -245,14 +267,16 @@ export function registerTools(server: McpServer, userId: string) {
         .returning();
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify({
-            ...created,
-            createdAt: created.createdAt.toISOString(),
-            updatedAt: created.updatedAt.toISOString(),
-          }),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({
+              ...created,
+              createdAt: created.createdAt.toISOString(),
+              updatedAt: created.updatedAt.toISOString(),
+            }),
+          },
+        ],
       };
     },
   );
@@ -279,7 +303,14 @@ export function registerTools(server: McpServer, userId: string) {
         userId,
       );
       if (!validation.valid) {
-        return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Invalid integration references" }) }] };
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ error: "Invalid integration references" }),
+            },
+          ],
+        };
       }
 
       const [execution] = await db
@@ -301,10 +332,12 @@ export function registerTools(server: McpServer, userId: string) {
       );
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify({ executionId: execution.id, status: "running" }),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({ executionId: execution.id, status: "running" }),
+          },
+        ],
       };
     },
   );
@@ -330,26 +363,84 @@ export function registerTools(server: McpServer, userId: string) {
       });
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify({
-            status: execution.status,
-            input: execution.input,
-            output: execution.output,
-            error: execution.error,
-            startedAt: execution.startedAt.toISOString(),
-            completedAt: execution.completedAt?.toISOString(),
-            logs: logs.map((log) => ({
-              nodeId: log.nodeId,
-              nodeName: log.nodeName,
-              nodeType: log.nodeType,
-              status: log.status,
-              input: log.input,
-              output: log.output,
-              error: log.error,
-            })),
-          }),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({
+              status: execution.status,
+              input: execution.input,
+              output: execution.output,
+              error: execution.error,
+              startedAt: execution.startedAt.toISOString(),
+              completedAt: execution.completedAt?.toISOString(),
+              logs: logs.map((log) => ({
+                nodeId: log.nodeId,
+                nodeName: log.nodeName,
+                nodeType: log.nodeType,
+                status: log.status,
+                input: log.input,
+                output: log.output,
+                error: log.error,
+              })),
+            }),
+          },
+        ],
+      };
+    },
+  );
+
+  // ── cancel_execution ─────────────────────────────────────────────────
+  server.tool(
+    "cancel_execution",
+    "Cancel a running workflow execution",
+    { executionId: z.string() },
+    async ({ executionId }) => {
+      const execution = await db.query.workflowExecutions.findFirst({
+        where: eq(workflowExecutions.id, executionId),
+        with: { workflow: true },
+      });
+
+      if (!execution || execution.workflow.userId !== userId) {
+        return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Execution not found" }) }] };
+      }
+
+      if (execution.status !== "running" && execution.status !== "pending") {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify({ error: "Execution is not running", status: execution.status }),
+            },
+          ],
+        };
+      }
+
+      await db
+        .update(workflowExecutions)
+        .set({
+          status: "cancelled",
+          completedAt: new Date(),
+          duration: String(Date.now() - new Date(execution.startedAt).getTime()),
+        })
+        .where(eq(workflowExecutions.id, executionId));
+
+      // Mark pending/running step logs as cancelled
+      const runningLogs = await db.query.workflowExecutionLogs.findMany({
+        where: and(
+          eq(workflowExecutionLogs.executionId, executionId),
+          inArray(workflowExecutionLogs.status, ["pending", "running"]),
+        ),
+      });
+
+      for (const log of runningLogs) {
+        await db
+          .update(workflowExecutionLogs)
+          .set({ status: "error", error: "Cancelled", completedAt: new Date() })
+          .where(eq(workflowExecutionLogs.id, log.id));
+      }
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify({ success: true, status: "cancelled" }) }],
       };
     },
   );
@@ -402,14 +493,16 @@ export function registerTools(server: McpServer, userId: string) {
         .where(eq(integrations.userId, userId));
 
       return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(rows.map((r) => ({
-            ...r,
-            createdAt: r.createdAt.toISOString(),
-            updatedAt: r.updatedAt.toISOString(),
-          }))),
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(rows.map((r) => ({
+              ...r,
+              createdAt: r.createdAt.toISOString(),
+              updatedAt: r.updatedAt.toISOString(),
+            }))),
+          },
+        ],
       };
     },
   );

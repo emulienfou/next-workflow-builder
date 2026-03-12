@@ -17,6 +17,7 @@ import { corsHeaders, extractPath } from "./utils";
 import {
   handleCreateWorkflow,
   handleDeleteWorkflow,
+  handleCancelExecution,
   handleDeleteWorkflowExecutions,
   handleDuplicateWorkflow,
   handleExecuteWorkflow,
@@ -89,6 +90,7 @@ async function route(request: Request): Promise<Response> {
       const executionId = s2;
       if (s3 === "status" && method === "GET") return handleGetExecutionStatus(request, executionId);
       if (s3 === "logs" && method === "GET") return handleGetExecutionLogs(request, executionId);
+      if (s3 === "cancel" && method === "POST") return handleCancelExecution(request, executionId);
     }
 
     // Workflow by ID: /workflows/[workflowId]

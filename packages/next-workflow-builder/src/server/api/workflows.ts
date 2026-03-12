@@ -587,6 +587,66 @@ export async function handleGetWorkflowExecutions(request: Request, workflowId: 
   }
 }
 
+export async function handleCancelExecution(request: Request, executionId: string): Promise<Response> {
+  try {
+    const user = await resolveUser(request);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const execution = await db.query.workflowExecutions.findFirst({
+      where: eq(workflowExecutions.id, executionId),
+      with: { workflow: true },
+    });
+
+    if (!execution) {
+      return NextResponse.json({ error: "Execution not found" }, { status: 404 });
+    }
+
+    if (execution.workflow.userId !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    if (execution.status !== "running" && execution.status !== "pending") {
+      return NextResponse.json(
+        { error: "Execution is not running", status: execution.status },
+        { status: 409 },
+      );
+    }
+
+    // Mark execution as cancelled
+    await db
+      .update(workflowExecutions)
+      .set({
+        status: "cancelled",
+        completedAt: new Date(),
+        duration: String(Date.now() - new Date(execution.startedAt).getTime()),
+      })
+      .where(eq(workflowExecutions.id, executionId));
+
+    // Mark any pending/running step logs as cancelled
+    const runningLogs = await db.query.workflowExecutionLogs.findMany({
+      where: and(
+        eq(workflowExecutionLogs.executionId, executionId),
+        inArray(workflowExecutionLogs.status, ["pending", "running"]),
+      ),
+    });
+
+    for (const log of runningLogs) {
+      await db
+        .update(workflowExecutionLogs)
+        .set({ status: "error", error: "Cancelled", completedAt: new Date() })
+        .where(eq(workflowExecutionLogs.id, log.id));
+    }
+
+    return NextResponse.json({ success: true, status: "cancelled" });
+  } catch (error) {
+    console.error("Failed to cancel execution:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to cancel execution" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function handleDeleteWorkflowExecutions(request: Request, workflowId: string): Promise<Response> {
   try {
     const user = await resolveUser(request);

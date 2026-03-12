@@ -579,6 +579,13 @@ export const workflowApi = {
       }>;
     }>(`/api/workflows/executions/${executionId}/status`),
 
+  // Cancel execution
+  cancelExecution: (executionId: string) =>
+    apiCall<{ success: boolean; status: string }>(
+      `/api/workflows/executions/${executionId}/cancel`,
+      { method: "POST" },
+    ),
+
   // Download workflow
   download: (id: string) =>
     apiCall<{
