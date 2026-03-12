@@ -1,31 +1,6 @@
 # next-workflow-builder
 
-## 0.6.2
-
-### Features
-
-- Ship a bundled `drizzle.config.ts` so consumers can run `drizzle-kit generate --config=node_modules/next-workflow-builder/drizzle.config.ts` without maintaining their own config
-- Publish `src/server/db/schema.ts` and its dependencies (`src/server/lib/utils/id.ts`, `src/plugins/types.ts`) so drizzle-kit can resolve the schema from the published package
-
-## 0.6.1
-
-### Features
-
-- Add cron endpoint (`/workflow/[workflowId]/cron`) for Vercel Cron-triggered scheduled workflow execution with `CRON_SECRET` bearer token auth
-- Generate correct `vercel.json` cron config in code export — use the new cron endpoint path and pass `workflowId` when available
-
-### Improvements
-
-- Reduce published package size from 1.12 MB to ~664 KB by enabling JS minification and removing unused `style-prefixed.css`
-- Include `README.md` and `CHANGELOG.md` in published package
-- Add `keywords` to `package.json` for npm discoverability
-
-### Bug Fixes
-
-- Remove non-functional `beforeFiles` rewrites for `.well-known` OAuth routes — Next.js rewrites do not override optional catch-all `[[...slug]]` page routes
-- Add explicit `.well-known/oauth-authorization-server` and `.well-known/oauth-protected-resource` route files to demo app using exported handlers
-
-## 0.6.0
+## 0.7.0
 
 ### Features
 
@@ -35,16 +10,28 @@
 - Streamable HTTP transport at `/api/workflow-builder/mcp`
 - New `mcp` config option in `nextWorkflowBuilder()` to enable the server
 - New `anonymousAuth` config option to disable anonymous authentication (defaults to `true`)
-- Auto-configure `beforeFiles` rewrites for `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource` when MCP is enabled — zero consumer setup for OAuth discovery
 - Export `oAuthDiscoveryHandler` and `oAuthResourceHandler` from `next-workflow-builder/api` for custom `.well-known` route setups
+- Add cron endpoint (`/workflow/[workflowId]/cron`) for Vercel Cron-triggered scheduled workflow execution with `CRON_SECRET` bearer token auth
+- Generate correct `vercel.json` cron config in code export — use the new cron endpoint path and pass `workflowId` when available
+- Ship a bundled `drizzle.config.ts` so consumers can run `drizzle-kit generate --config=node_modules/next-workflow-builder/drizzle.config.ts` without maintaining their own config
+- Publish `src/server/db/schema.ts` and its dependencies (`src/server/lib/utils/id.ts`, `src/plugins/types.ts`) so drizzle-kit can resolve the schema from the published package
+
+### Improvements
+
+- Reduce published package size from 1.12 MB to ~664 KB by enabling JS minification and removing unused `style-prefixed.css`
+- Include `README.md` and `CHANGELOG.md` in published package
+- Add `keywords` to `package.json` for npm discoverability
 
 ### Bug Fixes
 
-- Fix MCP OAuth discovery for Claude Desktop and other MCP clients — use better-auth's `oAuthDiscoveryMetadata` and `oAuthProtectedResourceMetadata` helpers with `beforeFiles` rewrites so root-level `.well-known` endpoints work with catch-all page routes
+- Fix MCP OAuth discovery for Claude Desktop and other MCP clients — use better-auth's `oAuthDiscoveryMetadata` and `oAuthProtectedResourceMetadata` helpers so root-level `.well-known` endpoints work with catch-all page routes
 - Fix MCP OAuth login page default from `/sign-in` to `/auth/sign-in` where the `AuthView` component renders
 - Fix MCP server requiring OAuth when anonymous auth is enabled — session-authenticated requests bypass OAuth, while unauthenticated requests receive the proper 401 for OAuth discovery
 - Fix hydration mismatch in `UserMenu` when session resolves before React hydration completes
 - Fix anonymous sign-in returning 404 when social providers are configured — anonymous plugin is now enabled by default regardless of configured providers
+- Remove non-functional `beforeFiles` rewrites for `.well-known` OAuth routes — Next.js rewrites do not override optional catch-all `[[...slug]]` page routes
+- Add explicit `.well-known` route files to demo app using exported handlers
+- Fix `drizzle.config.ts` failing in consumer apps — remove TypeScript-specific syntax (`satisfies`, `import type`) and `dotenv` dependency that may not be installed
 
 ## 0.5.0
 
