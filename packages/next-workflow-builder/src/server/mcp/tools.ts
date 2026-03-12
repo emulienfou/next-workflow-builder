@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getAllActions, getAllIntegrations as getAllPluginIntegrations, flattenConfigFields } from "../../plugins";
+import { getAllActions, flattenConfigFields } from "../../plugins";
 import { db } from "../db";
 import { validateWorkflowIntegrations } from "../db/integrations";
 import {
@@ -19,10 +19,12 @@ import {
 
 export function registerTools(server: McpServer, userId: string) {
   // ── list_workflows ──────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "list_workflows",
-    "List the authenticated user's workflows",
-    { limit: z.number().optional(), offset: z.number().optional() },
+    {
+      description: "List the authenticated user's workflows",
+      inputSchema: { limit: z.number().optional(), offset: z.number().optional() },
+    },
     async ({ limit, offset }) => {
       const rows = await db
         .select()
@@ -48,10 +50,12 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── get_workflow ────────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "get_workflow",
-    "Get a workflow by ID",
-    { workflowId: z.string() },
+    {
+      description: "Get a workflow by ID",
+      inputSchema: { workflowId: z.string() },
+    },
     async ({ workflowId }) => {
       const workflow = await db.query.workflows.findFirst({
         where: and(eq(workflows.id, workflowId), eq(workflows.userId, userId)),
@@ -77,14 +81,16 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── create_workflow ─────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "create_workflow",
-    "Create a new workflow",
     {
-      name: z.string(),
-      description: z.string().optional(),
-      nodes: z.array(z.record(z.string(), z.unknown())),
-      edges: z.array(z.record(z.string(), z.unknown())),
+      description: "Create a new workflow",
+      inputSchema: {
+        name: z.string(),
+        description: z.string().optional(),
+        nodes: z.array(z.record(z.string(), z.unknown())),
+        edges: z.array(z.record(z.string(), z.unknown())),
+      },
     },
     async ({ name, description, nodes, edges }) => {
       const validation = await validateWorkflowIntegrations(
@@ -131,15 +137,17 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── update_workflow ─────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "update_workflow",
-    "Update an existing workflow",
     {
-      workflowId: z.string(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-      nodes: z.array(z.record(z.string(), z.unknown())).optional(),
-      edges: z.array(z.record(z.string(), z.unknown())).optional(),
+      description: "Update an existing workflow",
+      inputSchema: {
+        workflowId: z.string(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        nodes: z.array(z.record(z.string(), z.unknown())).optional(),
+        edges: z.array(z.record(z.string(), z.unknown())).optional(),
+      },
     },
     async ({ workflowId, name, description, nodes, edges }) => {
       const existing = await db.query.workflows.findFirst({
@@ -195,10 +203,12 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── delete_workflow ─────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "delete_workflow",
-    "Delete a workflow",
-    { workflowId: z.string() },
+    {
+      description: "Delete a workflow",
+      inputSchema: { workflowId: z.string() },
+    },
     async ({ workflowId }) => {
       const existing = await db.query.workflows.findFirst({
         where: and(eq(workflows.id, workflowId), eq(workflows.userId, userId)),
@@ -227,10 +237,12 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── duplicate_workflow ──────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "duplicate_workflow",
-    "Duplicate a workflow",
-    { workflowId: z.string() },
+    {
+      description: "Duplicate a workflow",
+      inputSchema: { workflowId: z.string() },
+    },
     async ({ workflowId }) => {
       const source = await db.query.workflows.findFirst({
         where: and(eq(workflows.id, workflowId), eq(workflows.userId, userId)),
@@ -282,12 +294,14 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── execute_workflow ────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "execute_workflow",
-    "Execute a workflow",
     {
-      workflowId: z.string(),
-      input: z.record(z.string(), z.unknown()).optional(),
+      description: "Execute a workflow",
+      inputSchema: {
+        workflowId: z.string(),
+        input: z.record(z.string(), z.unknown()).optional(),
+      },
     },
     async ({ workflowId, input }) => {
       const workflow = await db.query.workflows.findFirst({
@@ -343,10 +357,12 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── get_execution_status ────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "get_execution_status",
-    "Get execution status and logs",
-    { executionId: z.string() },
+    {
+      description: "Get execution status and logs",
+      inputSchema: { executionId: z.string() },
+    },
     async ({ executionId }) => {
       const execution = await db.query.workflowExecutions.findFirst({
         where: eq(workflowExecutions.id, executionId),
@@ -390,10 +406,12 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── cancel_execution ─────────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "cancel_execution",
-    "Cancel a running workflow execution",
-    { executionId: z.string() },
+    {
+      description: "Cancel a running workflow execution",
+      inputSchema: { executionId: z.string() },
+    },
     async ({ executionId }) => {
       const execution = await db.query.workflowExecutions.findFirst({
         where: eq(workflowExecutions.id, executionId),
@@ -446,10 +464,11 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── list_available_actions ──────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "list_available_actions",
-    "List all available plugin actions with their config fields",
-    {},
+    {
+      description: "List all available plugin actions with their config fields",
+    },
     async () => {
       const actions = getAllActions();
 
@@ -475,10 +494,11 @@ export function registerTools(server: McpServer, userId: string) {
   );
 
   // ── list_integrations ───────────────────────────────────────────────
-  server.tool(
+  server.registerTool(
     "list_integrations",
-    "List the authenticated user's connected integrations",
-    {},
+    {
+      description: "List the authenticated user's connected integrations",
+    },
     async () => {
       const rows = await db
         .select({

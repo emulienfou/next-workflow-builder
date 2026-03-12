@@ -1,5 +1,16 @@
 # next-workflow-builder
 
+## 0.7.1
+
+### Features
+
+- Add cancel execution support — stop a running workflow from the UI "Runs" tab, via API (`POST /workflows/executions/[executionId]/cancel`), or MCP `cancel_execution` tool
+- Cooperative cancellation in workflow executor — checks DB status before each node execution, skips remaining steps if cancelled
+
+### Improvements
+
+- Migrate MCP server tools from deprecated `server.tool()` to `server.registerTool()` API
+
 ## 0.7.0
 
 ### Features
