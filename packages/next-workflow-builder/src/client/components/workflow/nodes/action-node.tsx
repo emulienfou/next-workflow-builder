@@ -12,7 +12,9 @@ import { httpRequestAction } from "../../../../plugins/http-request";
 import { loopAction } from "../../../../plugins/loop";
 import { mergeAction } from "../../../../plugins/merge";
 import { runWorkflowAction } from "../../../../plugins/run-workflow";
+import { runWorkflowsInSequenceAction } from "../../../../plugins/run-workflows-in-sequence";
 import { switchAction } from "../../../../plugins/switch";
+import { SequenceNode } from "./sequence-node";
 import { integrationIdsAtom, integrationsLoadedAtom } from "../../../lib/integrations-store";
 import { cn } from "../../../lib/utils";
 import {
@@ -70,6 +72,8 @@ const SYSTEM_ACTION_LABELS: Record<string, string> = {
   Loop: "Loop",
   Switch: "Switch",
   Merge: "Merge",
+  "Run Workflow": "System",
+  "Run Workflows in Sequence": "System",
 };
 
 // Helper to get integration name from action type
@@ -135,7 +139,7 @@ const getProviderLogo = (actionType: string) => {
     case "Run Workflow":
       return runWorkflowAction.icon;
     case "Run Workflows in Sequence":
-      return runWorkflowAction.icon;
+      return runWorkflowsInSequenceAction.icon;
     default:
       // Not a system action, continue to check plugin registry
       break;
@@ -260,6 +264,11 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
 
   const actionType = (data.config?.actionType as string) || "";
   const status = data.status;
+
+  // Compound node for "Run Workflows in Sequence"
+  if (actionType === "Run Workflows in Sequence") {
+    return <SequenceNode data={ data } id={ id } selected={ selected }/>;
+  }
 
   // Check if this node has a generated image from the selected execution
   const nodeLog = executionLogs[id];
