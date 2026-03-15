@@ -11,6 +11,7 @@ import { databaseQueryAction } from "../../../../plugins/database-query";
 import { httpRequestAction } from "../../../../plugins/http-request";
 import { loopAction } from "../../../../plugins/loop";
 import { mergeAction } from "../../../../plugins/merge";
+import { runWorkflowAction } from "../../../../plugins/run-workflow";
 import { switchAction } from "../../../../plugins/switch";
 import { integrationIdsAtom, integrationsLoadedAtom } from "../../../lib/integrations-store";
 import { cn } from "../../../lib/utils";
@@ -131,6 +132,10 @@ const getProviderLogo = (actionType: string) => {
       return mergeAction.icon;
     case "Switch":
       return switchAction.icon;
+    case "Run Workflow":
+      return runWorkflowAction.icon;
+    case "Run Workflows in Sequence":
+      return runWorkflowAction.icon;
     default:
       // Not a system action, continue to check plugin registry
       break;

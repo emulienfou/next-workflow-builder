@@ -14,6 +14,8 @@ import { DatabaseQueryFields } from "../../../../plugins/database-query/fields";
 import { HttpRequestFields } from "../../../../plugins/http-request/fields";
 import { LoopFields } from "../../../../plugins/loop/fields";
 import { MergeFields } from "../../../../plugins/merge/fields";
+import { RunWorkflowFields } from "../../../../plugins/run-workflow/fields";
+import { RunWorkflowsInSequenceFields } from "../../../../plugins/run-workflows-in-sequence/fields";
 import { SwitchFields } from "../../../../plugins/switch/fields";
 import type { IntegrationType } from "../../../../plugins/types";
 import { aiGatewayStatusAtom } from "../../../lib/ai-gateway/state";
@@ -97,6 +99,22 @@ function SystemActionFields({
           onUpdateConfig={ onUpdateConfig }
         />
       );
+    case "Run Workflow":
+      return (
+        <RunWorkflowFields
+          config={ config }
+          disabled={ disabled }
+          onUpdateConfig={ onUpdateConfig }
+        />
+      );
+    case "Run Workflows in Sequence":
+      return (
+        <RunWorkflowsInSequenceFields
+          config={ config }
+          disabled={ disabled }
+          onUpdateConfig={ onUpdateConfig }
+        />
+      );
     default:
       return null;
   }
@@ -110,6 +128,8 @@ const SYSTEM_ACTIONS: Array<{ id: string; label: string }> = [
   { id: "Loop", label: "Loop" },
   { id: "Merge", label: "Merge" },
   { id: "Switch", label: "Switch" },
+  { id: "Run Workflow", label: "Run Workflow" },
+  { id: "Run Workflows in Sequence", label: "Run Workflows in Sequence" },
 ];
 
 const SYSTEM_ACTION_IDS = SYSTEM_ACTIONS.map((a) => a.id);

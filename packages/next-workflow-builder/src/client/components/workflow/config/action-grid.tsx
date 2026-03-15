@@ -8,6 +8,8 @@ import { databaseQueryAction } from "../../../../plugins/database-query";
 import { httpRequestAction } from "../../../../plugins/http-request";
 import { loopAction } from "../../../../plugins/loop";
 import { mergeAction } from "../../../../plugins/merge";
+import { runWorkflowAction } from "../../../../plugins/run-workflow";
+import { runWorkflowsInSequenceAction } from "../../../../plugins/run-workflows-in-sequence";
 import { switchAction } from "../../../../plugins/switch";
 import { useIsTouch } from "../../../hooks/use-touch";
 import { cn } from "../../../lib/utils";
@@ -35,6 +37,8 @@ const SYSTEM_ACTIONS: ActionType[] = [
   loopAction,
   mergeAction,
   switchAction,
+  runWorkflowAction,
+  runWorkflowsInSequenceAction,
 ];
 
 // Combine System actions with plugin actions

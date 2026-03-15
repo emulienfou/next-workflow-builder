@@ -46,6 +46,16 @@ const SYSTEM_ACTIONS: Record<string, StepImporter> = {
     importer: () => import("../../plugins/merge/merge") as Promise<any>,
     stepFunction: "mergeStep",
   },
+  "Run Workflow": {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
+    importer: () => import("../../plugins/run-workflow/run-workflow") as Promise<any>,
+    stepFunction: "runWorkflowStep",
+  },
+  "Run Workflows in Sequence": {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic module import
+    importer: () => import("../../plugins/run-workflows-in-sequence/run-workflows-in-sequence") as Promise<any>,
+    stepFunction: "runWorkflowsInSequenceStep",
+  },
 };
 
 type ExecutionResult = {
