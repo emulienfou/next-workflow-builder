@@ -35,6 +35,17 @@ export const currentWorkflowVisibilityAtom =
   atom<WorkflowVisibility>("private");
 export const isWorkflowOwnerAtom = atom<boolean>(true); // Whether current user owns this workflow
 
+// Canvas configuration (set via Layout props)
+export type EdgeStyle = "smoothstep" | "bezier";
+export type CanvasOptions = {
+  snapToGrid?: boolean;
+  edgeStyle?: EdgeStyle;
+};
+export const canvasOptionsAtom = atom<CanvasOptions>({
+  snapToGrid: true,
+  edgeStyle: "smoothstep",
+});
+
 // UI state atoms
 export const propertiesPanelActiveTabAtom = atom<string>("properties");
 export const showMinimapAtom = atom(false);

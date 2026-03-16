@@ -3,11 +3,14 @@ import {
   type EdgeProps,
   getBezierPath,
   getSimpleBezierPath,
+  getSmoothStepPath,
   type InternalNode,
   type Node,
   Position,
   useInternalNode,
 } from "@xyflow/react";
+import { useAtomValue } from "jotai";
+import { canvasOptionsAtom } from "../../lib/workflow-store";
 
 const Temporary = ({
   id,
@@ -105,6 +108,7 @@ const getEdgeParams = (
 };
 
 const Animated = ({ id, source, target, style, selected }: EdgeProps) => {
+  const canvasOptions = useAtomValue(canvasOptionsAtom);
   const sourceNode = useInternalNode(source);
   const targetNode = useInternalNode(target);
 
@@ -117,14 +121,18 @@ const Animated = ({ id, source, target, style, selected }: EdgeProps) => {
     targetNode
   );
 
-  const [edgePath] = getBezierPath({
+  const pathParams = {
     sourceX: sx,
     sourceY: sy,
     sourcePosition: sourcePos,
     targetX: tx,
     targetY: ty,
     targetPosition: targetPos,
-  });
+  };
+
+  const [edgePath] = canvasOptions.edgeStyle === "bezier"
+    ? getBezierPath(pathParams)
+    : getSmoothStepPath(pathParams);
 
   return (
     <BaseEdge

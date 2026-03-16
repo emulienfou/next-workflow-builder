@@ -1,5 +1,19 @@
 # next-workflow-builder
 
+## 0.7.4
+
+### Features
+
+- Add `canvas` prop to `Layout` for configuring the workflow canvas
+  - `canvas.snapToGrid` — enable/disable snap-to-grid alignment (default: `true`)
+  - `canvas.edgeStyle` — set edge rendering style: `"smoothstep"` or `"bezier"` (default: `"smoothstep"`)
+- Export `LayoutProps`, `CanvasOptions`, and `EdgeStyle` types from `next-workflow-builder/client`
+
+### Improvements
+
+- Default canvas to snap-to-grid for more precise node placement
+- Default edge style to smooth step for cleaner, more angular connections
+
 ## 0.7.3
 
 ### Features

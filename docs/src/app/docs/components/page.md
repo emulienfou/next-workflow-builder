@@ -50,6 +50,26 @@ If you've configured social auth providers in your `next.config.ts`, pass them t
 
 The `Layout` component accepts all props from Better Auth UI's `AuthUIProviderProps` (except `authClient`, which is provided automatically).
 
+### Canvas options
+
+Configure the workflow canvas via the `canvas` prop:
+
+```tsx
+<Layout
+  canvas={{
+    snapToGrid: true,        // Snap nodes to grid (default: true)
+    edgeStyle: "smoothstep",  // "smoothstep" | "bezier" (default: "smoothstep")
+  }}
+>
+  {children}
+</Layout>
+```
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `snapToGrid` | `boolean` | `true` | Align nodes to the background grid when dragging |
+| `edgeStyle` | `"smoothstep" \| "bezier"` | `"smoothstep"` | Edge rendering style — smooth step produces angular connections, bezier produces curved connections |
+
 ## WorkflowPage
 
 A catch-all page component that handles routing for the workflow builder:
