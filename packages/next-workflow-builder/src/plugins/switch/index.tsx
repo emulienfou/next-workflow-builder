@@ -10,24 +10,15 @@ const switchAction: ActionType = {
   codeGenerator: `export async function switchStep(input: {
   mode: "rules" | "expression";
   switchValue?: string;
-  routeName0?: string;
-  routeName1?: string;
-  routeName2?: string;
-  routeName3?: string;
-  routeCondition0?: boolean;
-  routeCondition1?: boolean;
-  routeCondition2?: boolean;
-  routeCondition3?: boolean;
-  routeCaseValue0?: string;
-  routeCaseValue1?: string;
-  routeCaseValue2?: string;
-  routeCaseValue3?: string;
+  routeCount?: number;
+  [key: string]: unknown;
 }) {
   "use step";
 
   const mode = input.mode || "rules";
+  const count = Number(input.routeCount) || 4;
   const routes = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < count; i++) {
     const name = (input as Record<string, unknown>)[\`routeName\${i}\`] as string | undefined;
     const condition = (input as Record<string, unknown>)[\`routeCondition\${i}\`] as boolean | undefined;
     const caseValue = (input as Record<string, unknown>)[\`routeCaseValue\${i}\`] as string | undefined;

@@ -5,6 +5,7 @@
 ### Features
 
 - Add **Enum** field type to the Webhook payload schema builder — allows defining a fixed set of allowed values with a configurable value type (`string`, `number`, or `boolean`). Enum values are displayed in template autocomplete as `enum<value1 | value2 | ...>`
+- Make **Switch** plugin routes fully dynamic — users can now add and remove routes with no upper limit (minimum 1). Previously hardcoded to exactly 4 routes. Existing workflows with 4 routes continue to work without migration
 
 ## 0.7.5
 

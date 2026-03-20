@@ -14,25 +14,14 @@ export type SwitchInput = StepInput & {
   mode?: SwitchMode;
   /** Value to match against case values (expression mode) */
   switchValue?: string;
-  /** Route names (flat keys: routeName0, routeName1, etc.) */
-  routeName0?: string;
-  routeName1?: string;
-  routeName2?: string;
-  routeName3?: string;
-  /** Route conditions — booleans pre-resolved by executor (rules mode) */
-  routeCondition0?: boolean;
-  routeCondition1?: boolean;
-  routeCondition2?: boolean;
-  routeCondition3?: boolean;
-  /** Route case values (expression mode) */
-  routeCaseValue0?: string;
-  routeCaseValue1?: string;
-  routeCaseValue2?: string;
-  routeCaseValue3?: string;
+  /** Number of routes (default 4 for backwards compatibility) */
+  routeCount?: number;
+  /** Dynamic route keys: routeName0..N, routeCondition0..N, routeCaseValue0..N */
+  [key: string]: unknown;
 };
 
 export type SwitchResult = {
-  /** Index of the matched route (0-3), or -1 for default/fallback */
+  /** Index of the matched route (0-based), or -1 for default/fallback */
   matchedRouteIndex: number;
   /** Name of the matched route */
   matchedRouteName: string;
@@ -47,11 +36,12 @@ type Route = {
 };
 
 function buildRoutes(input: SwitchInput): Route[] {
+  const count = Number(input.routeCount) || 4;
   const routes: Route[] = [];
-  for (let i = 0; i < 4; i++) {
-    const name = (input as Record<string, unknown>)[`routeName${i}`] as string | undefined;
-    const condition = (input as Record<string, unknown>)[`routeCondition${i}`] as boolean | undefined;
-    const caseValue = (input as Record<string, unknown>)[`routeCaseValue${i}`] as string | undefined;
+  for (let i = 0; i < count; i++) {
+    const name = input[`routeName${i}`] as string | undefined;
+    const condition = input[`routeCondition${i}`] as boolean | undefined;
+    const caseValue = input[`routeCaseValue${i}`] as string | undefined;
     routes.push({
       name: name || `Route ${i + 1}`,
       condition,

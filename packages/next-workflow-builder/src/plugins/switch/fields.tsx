@@ -1,5 +1,7 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
+import { Button } from "../../client/components/ui/button";
 import { Input } from "../../client/components/ui/input";
 import { Label } from "../../client/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../client/components/ui/select";
@@ -15,6 +17,21 @@ function SwitchFields({
   disabled: boolean;
 }) {
   const mode = (config?.mode as string) || "rules";
+  const routeCount = Number(config?.routeCount) || 4;
+
+  const addRoute = () => {
+    onUpdateConfig("routeCount", String(routeCount + 1));
+  };
+
+  const removeRoute = () => {
+    if (routeCount <= 1) return;
+    // Clear the last route's config keys
+    const last = routeCount - 1;
+    onUpdateConfig(`routeName${last}`, "");
+    onUpdateConfig(`routeCondition${last}`, "");
+    onUpdateConfig(`routeCaseValue${last}`, "");
+    onUpdateConfig("routeCount", String(routeCount - 1));
+  };
 
   return (
     <div className="space-y-4">
@@ -55,7 +72,7 @@ function SwitchFields({
         </div>
       ) }
 
-      { [0, 1, 2, 3].map((i) => (
+      { Array.from({ length: routeCount }, (_, i) => (
         <div className="space-y-3 rounded-md border p-3" key={ i }>
           <p className="font-medium text-sm">Route { i + 1 }</p>
 
@@ -90,13 +107,34 @@ function SwitchFields({
                 disabled={ disabled }
                 id={ `routeCaseValue${i}` }
                 onChange={ (value) => onUpdateConfig(`routeCaseValue${i}`, value) }
-                placeholder={ `e.g., ${i === 0 ? "200" : i === 1 ? "404" : i === 2 ? "500" : "default"}` }
+                placeholder={ `e.g., ${i === 0 ? "200" : i === 1 ? "404" : "500"}` }
                 value={ (config?.[`routeCaseValue${i}`] as string) || "" }
               />
             </div>
           ) }
         </div>
       )) }
+
+      <div className="flex gap-2">
+        <Button
+          className="flex-1"
+          disabled={ disabled }
+          onClick={ addRoute }
+          type="button"
+          variant="outline"
+        >
+          <Plus className="mr-2 size-4" />
+          Add Route
+        </Button>
+        <Button
+          disabled={ disabled || routeCount <= 1 }
+          onClick={ removeRoute }
+          type="button"
+          variant="outline"
+        >
+          <Minus className="size-4" />
+        </Button>
+      </div>
 
       <p className="text-muted-foreground text-xs">
         Routes are evaluated in order. The first matching route wins. If no route matches, the result falls back to "Default".
