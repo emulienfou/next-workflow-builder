@@ -102,6 +102,7 @@ export function WorkflowCanvas() {
 
   const connectingNodeId = useRef<string | null>(null);
   const connectingHandleType = useRef<"source" | "target" | null>(null);
+  const connectingHandleId = useRef<string | null>(null);
   const justCreatedNodeFromConnection = useRef(false);
   const viewportInitialized = useRef(false);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
@@ -295,6 +296,7 @@ export function WorkflowCanvas() {
     (_event: MouseEvent | TouchEvent, params: OnConnectStartParams) => {
       connectingNodeId.current = params.nodeId;
       connectingHandleType.current = params.handleType;
+      connectingHandleId.current = params.handleId;
     },
     []
   );
@@ -347,7 +349,7 @@ export function WorkflowCanvas() {
         onConnect({
           source: sourceId,
           target: targetId,
-          sourceHandle: null,
+          sourceHandle: fromSource ? connectingHandleId.current : null,
           targetHandle: null,
         });
       }
@@ -421,6 +423,7 @@ export function WorkflowCanvas() {
         id: nanoid(),
         source: fromSource ? sourceNodeId : newNode.id,
         target: fromSource ? newNode.id : sourceNodeId,
+        sourceHandle: fromSource ? connectingHandleId.current : null,
         type: "animated",
       };
       setEdges([...edges, newEdge]);

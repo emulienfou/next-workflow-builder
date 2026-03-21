@@ -23,7 +23,7 @@ import {
   selectedExecutionIdAtom,
   type WorkflowNodeData,
 } from "../../../lib/workflow-store";
-import { Node, NodeDescription, NodeTitle } from "../../ai-elements/node";
+import { Node, NodeDescription, NodeTitle, type SourceHandle } from "../../ai-elements/node";
 import { Dialog, DialogContent, DialogTitle } from "../../ui/dialog";
 
 // Helper to get display name for AI model
@@ -351,15 +351,29 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
   const aiModel = getAiModel();
   const isDisabled = data.enabled === false;
 
+  // Build source handles for Switch nodes
+  const isSwitchNode = actionType === "Switch";
+  let switchSourceHandles: SourceHandle[] | undefined;
+  if (isSwitchNode) {
+    const routeCount = Number(data.config?.routeCount) || 4;
+    switchSourceHandles = [];
+    for (let i = 0; i < routeCount; i++) {
+      const name = (data.config?.[`routeName${i}`] as string) || `Route ${i + 1}`;
+      switchSourceHandles.push({ id: `route-${i}`, label: name });
+    }
+    switchSourceHandles.push({ id: "route-default", label: "Default" });
+  }
+
   return (
     <Node
       className={ cn(
-        "relative flex h-48 w-48 flex-col items-center justify-center shadow-none transition-all duration-150 ease-out",
+        "relative flex flex-col items-center justify-center shadow-none transition-all duration-150 ease-out",
+        isSwitchNode ? "min-h-48 w-48" : "h-48 w-48",
         selected && "border-primary",
         isDisabled && "opacity-50",
       ) }
       data-testid={ `action-node-${ id }` }
-      handles={ { target: true, source: true } }
+      handles={ { target: true, source: !isSwitchNode, sourceHandles: switchSourceHandles } }
       status={ status }
     >
       {/* Disabled badge in top left */ }

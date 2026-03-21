@@ -12,10 +12,17 @@ import { Handle, Position } from "@xyflow/react";
 import type { ComponentProps } from "react";
 import { AnimatedBorder } from "../ui/animated-border";
 
+export type SourceHandle = {
+  id: string;
+  label?: string;
+};
+
 export type NodeProps = ComponentProps<typeof Card> & {
   handles: {
     target: boolean;
     source: boolean;
+    /** Multiple named source handles (e.g., Switch routes). Overrides single source handle when set. */
+    sourceHandles?: SourceHandle[];
   };
   status?: "idle" | "running" | "success" | "error";
 };
@@ -32,7 +39,32 @@ export const Node = ({ handles, className, status, ...props }: NodeProps) => (
   >
     {status === "running" && <AnimatedBorder />}
     {handles.target && <Handle position={Position.Left} type="target" />}
-    {handles.source && <Handle position={Position.Right} type="source" />}
+    {handles.sourceHandles && handles.sourceHandles.length > 0 ? (
+      <div className="absolute top-0 -right-[4px] flex h-full flex-col items-end justify-center gap-1">
+        {handles.sourceHandles.map((h, i) => (
+          <div className="relative flex items-center" key={h.id}>
+            {h.label && (
+              <span className="mr-1.5 text-muted-foreground text-[9px] leading-none">
+                {h.label}
+              </span>
+            )}
+            <Handle
+              id={h.id}
+              position={Position.Right}
+              style={{
+                position: "relative",
+                top: "auto",
+                right: "auto",
+                transform: "none",
+              }}
+              type="source"
+            />
+          </div>
+        ))}
+      </div>
+    ) : (
+      handles.source && <Handle position={Position.Right} type="source" />
+    )}
     {props.children}
   </Card>
 );

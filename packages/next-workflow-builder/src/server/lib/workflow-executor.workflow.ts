@@ -175,6 +175,62 @@ function evaluateStructuredCondition(
 }
 
 /**
+ * Evaluate a simple condition expression string to a boolean.
+ * Supports operators: ===, !==, ==, !=, >, <, >=, <=
+ * After template resolution, expressions look like: aftermovie === "aftermovie" or 200 === 200
+ */
+function evaluateConditionExpression(expression: string): boolean {
+  // Match: left operator right
+  const operatorPattern = /^(.+?)\s*(===|!==|==|!=|>=|<=|>|<)\s*(.+)$/;
+  const match = expression.trim().match(operatorPattern);
+
+  if (!match) {
+    // No operator found — treat as truthy check
+    const val = expression.trim();
+    return val !== "" && val !== "false" && val !== "0" && val !== "null" && val !== "undefined";
+  }
+
+  const [, leftRaw, operator, rightRaw] = match;
+  const left = leftRaw.trim();
+  const right = rightRaw.trim();
+
+  // Strip surrounding quotes for comparison
+  const stripQuotes = (s: string) => {
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      return s.slice(1, -1);
+    }
+    return s;
+  };
+
+  const l = stripQuotes(left);
+  const r = stripQuotes(right);
+
+  // Try numeric comparison if both sides are numbers
+  const lNum = Number(l);
+  const rNum = Number(r);
+  const bothNumeric = !Number.isNaN(lNum) && !Number.isNaN(rNum) && l !== "" && r !== "";
+
+  switch (operator) {
+    case "===":
+    case "==":
+      return l === r;
+    case "!==":
+    case "!=":
+      return l !== r;
+    case ">":
+      return bothNumeric ? lNum > rNum : l > r;
+    case "<":
+      return bothNumeric ? lNum < rNum : l < r;
+    case ">=":
+      return bothNumeric ? lNum >= rNum : l >= r;
+    case "<=":
+      return bothNumeric ? lNum <= rNum : l <= r;
+    default:
+      return false;
+  }
+}
+
+/**
  * Execute a single action step with logging via stepHandler
  * IMPORTANT: Steps receive only the integration ID as a reference to fetch credentials.
  * This prevents credentials from being logged in Vercel's workflow observability.
@@ -209,6 +265,22 @@ async function executeActionStep(input: {
       rightValue: resolvedValues.rightValue,
       _context: context,
     });
+  }
+
+  // Special handling for Switch action - evaluate route conditions to booleans
+  if (actionType === "Switch") {
+    const mode = (config.mode as string) || "rules";
+    if (mode === "rules") {
+      const routeCount = Number(config.routeCount) || 4;
+      for (let i = 0; i < routeCount; i++) {
+        const conditionKey = `routeCondition${i}`;
+        const rawCondition = stepInput[conditionKey];
+        if (typeof rawCondition === "string" && rawCondition.trim() !== "") {
+          // Evaluate the condition expression as a simple equality/comparison
+          stepInput[conditionKey] = evaluateConditionExpression(rawCondition);
+        }
+      }
+    }
   }
 
   // Check system actions first (Database Query, HTTP Request)
@@ -360,6 +432,8 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const edgesBySource = new Map<string, string[]>();
   const edgesByTarget = new Map<string, string[]>();
+  // Map of "sourceId:sourceHandle" -> target node IDs (for Switch routing)
+  const edgesBySourceHandle = new Map<string, string[]>();
   for (const edge of edges) {
     const targets = edgesBySource.get(edge.source) || [];
     targets.push(edge.target);
@@ -368,6 +442,14 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
     const sources = edgesByTarget.get(edge.target) || [];
     sources.push(edge.source);
     edgesByTarget.set(edge.target, sources);
+
+    // Track edges by source handle for Switch routing
+    if (edge.sourceHandle) {
+      const key = `${edge.source}:${edge.sourceHandle}`;
+      const handleTargets = edgesBySourceHandle.get(key) || [];
+      handleTargets.push(edge.target);
+      edgesBySourceHandle.set(key, handleTargets);
+    }
   }
 
   // Find trigger nodes
@@ -636,6 +718,11 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
           node.data.type === "action" &&
           node.data.config?.actionType === "Condition";
 
+        // Check if this is a switch node
+        const isSwitchNode =
+          node.data.type === "action" &&
+          node.data.config?.actionType === "Switch";
+
         // Check if this is a loop node
         const isLoopNode =
           node.data.type === "action" &&
@@ -664,6 +751,28 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
           } else {
             console.log(
               "[Workflow Executor] Condition is false, skipping next nodes",
+            );
+          }
+        } else if (isSwitchNode) {
+          // For switch nodes, only execute nodes connected to the matched route handle
+          const switchResult = result.data as { matchedRouteIndex?: number; isDefault?: boolean } | undefined;
+          const matchedIndex = switchResult?.matchedRouteIndex ?? -1;
+          const isDefault = switchResult?.isDefault ?? true;
+
+          const handleId = isDefault ? "route-default" : `route-${matchedIndex}`;
+          const matchedTargets = edgesBySourceHandle.get(`${nodeId}:${handleId}`) || [];
+
+          console.log(
+            "[Workflow Executor] Switch node matched route:",
+            handleId,
+            "executing",
+            matchedTargets.length,
+            "next nodes",
+          );
+
+          if (matchedTargets.length > 0) {
+            await Promise.all(
+              matchedTargets.map((nextNodeId) => executeNode(nextNodeId, visited)),
             );
           }
         } else if (isLoopNode) {
