@@ -17,6 +17,7 @@ function SwitchFields({
   disabled: boolean;
 }) {
   const mode = (config?.mode as string) || "rules";
+  const matchMode = (config?.matchMode as string) || "first";
   const routeCount = Number(config?.routeCount) || 4;
 
   const addRoute = () => {
@@ -51,8 +52,29 @@ function SwitchFields({
           </SelectContent>
         </Select>
         <p className="text-muted-foreground text-xs">
-          { mode === "rules" && "Each route has a condition. The first route whose condition is true wins." }
-          { mode === "expression" && "Compare a value against each route's case value. First match wins." }
+          { mode === "rules" && "Each route has a condition that is evaluated." }
+          { mode === "expression" && "Compare a value against each route's case value." }
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="matchMode">Match</Label>
+        <Select
+          disabled={ disabled }
+          onValueChange={ (value) => onUpdateConfig("matchMode", value) }
+          value={ matchMode }
+        >
+          <SelectTrigger id="matchMode">
+            <SelectValue placeholder="Select match mode"/>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="first">First match</SelectItem>
+            <SelectItem value="all">All matches</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-muted-foreground text-xs">
+          { matchMode === "first" && "Stop at the first matching route." }
+          { matchMode === "all" && "Execute all routes whose condition is true." }
         </p>
       </div>
 
@@ -137,7 +159,7 @@ function SwitchFields({
       </div>
 
       <p className="text-muted-foreground text-xs">
-        Routes are evaluated in order. The first matching route wins. If no route matches, the result falls back to "Default".
+        Routes are evaluated in order. If no route matches, the result falls back to "Default".
       </p>
     </div>
   );

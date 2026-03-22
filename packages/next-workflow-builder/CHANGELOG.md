@@ -1,5 +1,15 @@
 # next-workflow-builder
 
+## 0.7.7
+
+### Features
+
+- Add **Switch "All matches" mode** — new Match selector (`First match` / `All matches`). When set to "All matches", the Switch evaluates every route and executes all whose condition is true, instead of stopping at the first match. The executor follows all matched route handles in parallel. Default remains "First match" for backwards compatibility
+
+### Bug Fixes
+
+- Fix workflow run steps showing generic **"Action"** for unlabeled nodes — now displays the actual action type name (e.g. "Switch", "Condition", "Merge") when the node label is empty
+
 ## 0.7.6
 
 ### Features

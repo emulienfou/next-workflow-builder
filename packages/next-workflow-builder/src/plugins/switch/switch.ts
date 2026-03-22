@@ -8,10 +8,13 @@ import "server-only";
 import { type StepInput, withStepLogging } from "../../server";
 
 export type SwitchMode = "rules" | "expression";
+export type MatchMode = "first" | "all";
 
 export type SwitchInput = StepInput & {
   /** Switch mode */
   mode?: SwitchMode;
+  /** Match mode: "first" stops at first match, "all" executes every matching route */
+  matchMode?: MatchMode;
   /** Value to match against case values (expression mode) */
   switchValue?: string;
   /** Number of routes (default 4 for backwards compatibility) */
@@ -27,6 +30,8 @@ export type SwitchResult = {
   matchedRouteName: string;
   /** Whether the fallback/default route was used */
   isDefault: boolean;
+  /** All matched routes (populated when matchMode is "all") */
+  matchedRoutes?: Array<{ index: number; name: string }>;
 };
 
 type Route = {
@@ -53,16 +58,22 @@ function buildRoutes(input: SwitchInput): Route[] {
 
 function evaluateSwitch(input: SwitchInput): SwitchResult {
   const mode = input.mode || "rules";
+  const matchMode = input.matchMode || "first";
   const routes = buildRoutes(input);
+
+  const allMatches: Array<{ index: number; name: string }> = [];
 
   if (mode === "rules") {
     for (let i = 0; i < routes.length; i++) {
       if (routes[i].condition === true) {
-        return {
-          matchedRouteIndex: i,
-          matchedRouteName: routes[i].name,
-          isDefault: false,
-        };
+        if (matchMode === "first") {
+          return {
+            matchedRouteIndex: i,
+            matchedRouteName: routes[i].name,
+            isDefault: false,
+          };
+        }
+        allMatches.push({ index: i, name: routes[i].name });
       }
     }
   } else {
@@ -70,13 +81,26 @@ function evaluateSwitch(input: SwitchInput): SwitchResult {
     const switchValue = String(input.switchValue ?? "");
     for (let i = 0; i < routes.length; i++) {
       if (routes[i].caseValue !== undefined && String(routes[i].caseValue) === switchValue) {
-        return {
-          matchedRouteIndex: i,
-          matchedRouteName: routes[i].name,
-          isDefault: false,
-        };
+        if (matchMode === "first") {
+          return {
+            matchedRouteIndex: i,
+            matchedRouteName: routes[i].name,
+            isDefault: false,
+          };
+        }
+        allMatches.push({ index: i, name: routes[i].name });
       }
     }
+  }
+
+  // "all" mode with matches
+  if (allMatches.length > 0) {
+    return {
+      matchedRouteIndex: allMatches[0].index,
+      matchedRouteName: allMatches.map((m) => m.name).join(", "),
+      isDefault: false,
+      matchedRoutes: allMatches,
+    };
   }
 
   // No match — fallback

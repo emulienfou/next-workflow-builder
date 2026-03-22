@@ -480,6 +480,8 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
         if (label) {
           return label;
         }
+        // Fall back to actionType itself (e.g. "Switch", "Condition", "Merge")
+        return actionType;
       }
       return "Action";
     }
@@ -805,26 +807,72 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             );
           }
         } else if (isSwitchNode) {
-          // For switch nodes, only execute nodes connected to the matched route handle
-          const switchResult = result.data as { matchedRouteIndex?: number; isDefault?: boolean } | undefined;
-          const matchedIndex = switchResult?.matchedRouteIndex ?? -1;
+          // For switch nodes, execute nodes connected to matched route handle(s)
+          const switchResult = result.data as {
+            matchedRouteIndex?: number;
+            isDefault?: boolean;
+            matchedRoutes?: Array<{ index: number; name: string }>;
+          } | undefined;
+
+          const allMatched = switchResult?.matchedRoutes;
           const isDefault = switchResult?.isDefault ?? true;
 
-          const handleId = isDefault ? "route-default" : `route-${matchedIndex}`;
-          const matchedTargets = edgesBySourceHandle.get(`${nodeId}:${handleId}`) || [];
+          if (allMatched && allMatched.length > 0) {
+            // "All matches" mode — execute every matched route's targets
+            const allTargets: string[] = [];
+            for (const match of allMatched) {
+              const handleId = `route-${match.index}`;
+              const targets = edgesBySourceHandle.get(`${nodeId}:${handleId}`) || [];
+              allTargets.push(...targets);
+            }
 
-          console.log(
-            "[Workflow Executor] Switch node matched route:",
-            handleId,
-            "executing",
-            matchedTargets.length,
-            "next nodes",
-          );
-
-          if (matchedTargets.length > 0) {
-            await Promise.all(
-              matchedTargets.map((nextNodeId) => executeNode(nextNodeId, visited)),
+            console.log(
+              "[Workflow Executor] Switch node matched",
+              allMatched.length,
+              "routes, executing",
+              allTargets.length,
+              "next nodes",
             );
+
+            if (allTargets.length > 0) {
+              await Promise.all(
+                allTargets.map((nextNodeId) => executeNode(nextNodeId, visited)),
+              );
+            }
+          } else if (!isDefault) {
+            // "First match" mode (no matchedRoutes array) — single route
+            const matchedIndex = switchResult?.matchedRouteIndex ?? -1;
+            const handleId = `route-${matchedIndex}`;
+            const matchedTargets = edgesBySourceHandle.get(`${nodeId}:${handleId}`) || [];
+
+            console.log(
+              "[Workflow Executor] Switch node matched route:",
+              handleId,
+              "executing",
+              matchedTargets.length,
+              "next nodes",
+            );
+
+            if (matchedTargets.length > 0) {
+              await Promise.all(
+                matchedTargets.map((nextNodeId) => executeNode(nextNodeId, visited)),
+              );
+            }
+          } else {
+            // Default fallback
+            const defaultTargets = edgesBySourceHandle.get(`${nodeId}:route-default`) || [];
+
+            console.log(
+              "[Workflow Executor] Switch node no match, executing default:",
+              defaultTargets.length,
+              "next nodes",
+            );
+
+            if (defaultTargets.length > 0) {
+              await Promise.all(
+                defaultTargets.map((nextNodeId) => executeNode(nextNodeId, visited)),
+              );
+            }
           }
         } else if (isLoopNode) {
           // For loop nodes, re-invoke for each batch until hasMore is false
